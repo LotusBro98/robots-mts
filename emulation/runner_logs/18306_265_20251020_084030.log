@@ -1,0 +1,8 @@
+=== Repository URL: https://git.robot.cybertech.ai/xakaton-codenrockcom-21/truetecharena1760708478-team-18306/zadacha-2-labirint-bez-karty-postroenie-lokalnoj-karty-i-planirovanie-265 ===
+Commit: bb69584b3fc6ff17acdf2a7d7b8353055e2a2ae7
+
+2025-10-20 08:40:30 [INFO] [Checker/INFO] Detected programming language: python
+2025-10-20 08:40:30 [INFO] [Checker/INFO] Starting docker-compose. Wait...
+2025-10-20 08:40:30 [INFO] [Runner/BUILD] Building image
+2025-10-20 08:40:31 [INFO] [Runner/BUILD] Step 1/6 : FROM python:3.11-slim
+2025-10-20 08:40:31 [ERROR] [Runner/BUILD ERROR] unknown: failed to resolve reference "docker.io/library/python:3.11-slim": failed to authorize: failed to fetch anonymous token: unexpected status from GET request to https://auth.docker.io/token?scope=repository%3Alibrary%2Fpython%3Apull&service=registry.docker.io: 503 Service Unavailable
