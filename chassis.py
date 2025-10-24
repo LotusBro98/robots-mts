@@ -12,7 +12,7 @@ class RobotChassis:
         self.ser.close()
 
     def send_command(self, **kwargs):
-        cmd_json = json.dumps(kwargs, separators=(',', ':'))
+        cmd_json = json.dumps(kwargs, separators=(',', ':')) + "\r\n"
         print(cmd_json)
         self.ser.write(cmd_json.encode())
         # head = self.ser.read_until(b"{")
@@ -24,7 +24,7 @@ class RobotChassis:
     def capture_wheel_sensors(self):
         while True:
             msg = self.ser.read_until(b"\r\n").strip(b"\r\n")
-            print(msg)
+            print(msg) # b'{"T":1001,"M1":0,"M2":0,"M3":0,"M4":0,"odl":3247,"odr":8920,"v":963}'
         # res = self.send_command(T=130)
         print(res)
 
@@ -32,8 +32,8 @@ class RobotChassis:
 def main():
     robot = RobotChassis("/dev/ttyACM1")
     robot.connect()
-    # robot.capture_wheel_sensors()
-    robot.send_command(T=1, L=10, R=10)
+    robot.capture_wheel_sensors()
+    # robot.send_command(T=131, cmd=1)
     robot.disconnect()
 
 if __name__ == "__main__":
