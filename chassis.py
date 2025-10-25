@@ -87,7 +87,11 @@ class RobotChassis:
         delta_right = msg["odr"] - last_msg["odr"]
 
         linear_delta = 0.5 * (delta_left + delta_right) * 0.01 # original unit is cm
-        angular_delta = 0.5 * (delta_right - delta_left)
+        angular_delta = (delta_right - delta_left) / self.WHEEL_DISTANCE
+
+        # self.pos += np.array([
+        #     np.cos(self.angle)
+        # ])
 
 
 
