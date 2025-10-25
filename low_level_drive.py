@@ -9,6 +9,7 @@ def connect_robot():
     global robot
     robot = RobotChassis("/dev/ttyACM1")
     robot.connect()
+    robot.start_sensor_capture()
 
 def send_cmd(v: float, w: float):
     """
@@ -19,7 +20,7 @@ def send_cmd(v: float, w: float):
     Моторы управляются в диапазоне -18000..18000 (единицы 0.1 rpm).
     """
     MAX_RPM = 1800
-    SCALE = MAX_RPM * 10  # перевод в 0.1rpm
+    SCALE = MAX_RPM  # перевод в 0.1rpm
 
     v = max(-1.0, min(1.0, v))
     w = max(-1.0, min(1.0, w))
@@ -31,7 +32,9 @@ def send_cmd(v: float, w: float):
 
     left_speed  = int(max(-MAX_RPM * 10, min(MAX_RPM * 10, left_speed)))
     right_speed = int(max(-MAX_RPM * 10, min(MAX_RPM * 10, right_speed)))
-    robot.send_command(T=131, L=left_speed, R=right_speed)
+    robot.send_command(T=1, L=left_speed, R=right_speed)
+    robot.send_command(T=132, IO1=255, IO2=255)
 
 def disconnect_robot():
+    robot.stop_sensors_capture()
     robot.disconnect()

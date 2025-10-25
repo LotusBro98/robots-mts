@@ -5,6 +5,7 @@ from low_level_drive import connect_robot, disconnect_robot, send_cmd
 print("connect_robot")
 connect_robot()
 print("robot connected")
+time.sleep(5)
 send_cmd(v=1, w=0)
 print("Оба мотора едут прямо")
 time.sleep(10)

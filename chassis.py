@@ -52,7 +52,7 @@ class RobotChassis:
             try:
                 msg = json.loads(msg.decode())
             except Exception as e:
-                print("Error parsing message frim chassis:", e)
+                print("Error parsing message from chassis:", e, msg)
                 continue
 
             try:
@@ -83,7 +83,7 @@ def main():
     robot = RobotChassis("/dev/ttyACM1")
     robot.connect()
     robot.start_sensor_capture()
-    time.sleep(5)
+    time.sleep(1000)
     robot.stop_sensors_capture()
     robot.disconnect()
 
