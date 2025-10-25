@@ -12,6 +12,9 @@ Goals:
 Usage examples:
   python ld19_view_clean.py --port /dev/tty.usbserial-0001 --rmax 6
   python ld19_view_clean.py -p /dev/tty.usbserial-0001 -r 8 --baud 230400
+
+Public functions:
+read_full_scan_from_serial(...) -> (angles_rad[360], distances_m[360])
 """
 
 import sys
@@ -144,7 +147,84 @@ def parse_frame(frame: bytes):
     }
 
 
+def read_full_scan_from_serial(
+    ser: serial.Serial,
+    timeout: float = 0.2,  # для serial-порта
+    angle_offset: float = 0.0,
+    clockwise: bool = False,
+    max_revo_seconds: float = 2.0,
+    sort_by_angle: bool = False,
+) -> tuple[list[float], list[float]]:
+    """
+    Считывает одну полную «революцию» лидара и возвращает:
+        angles_rad:  список из 360 углов в радианах (0..359 градусов)
+        distances_m: список из 360 дистанций (метры); где нет данных — NaN
+
+    Параметры:
+      - angle_offset: добавочный сдвиг угла в градусах
+      - clockwise: если True, интерпретировать углы по часовой стрелке
+      - max_revo_seconds: таймаут на 1 сбор: если не успели собрать все точки за это время - возвращаем что успели собрать
+    """
+
+    def transform_angle_deg(a_deg: float) -> float:
+        ang = (-a_deg) if clockwise else a_deg
+        return (ang + angle_offset) % 360.0
+
+    angles_rad: list[float] = []
+    distances_m: list[float] = []
+
+    last_deg = None
+    started = False         # начали записывать «новую» революцию
+    t0 = time.time()
+
+    while True:
+        if time.time() - t0 > max_revo_seconds and angles_rad:
+            # Таймаут: возвращаем то, что успели собрать с момента старта
+            break
+
+        frame = sync_and_read_frame(ser, timeout)
+        if frame is None:
+            continue
+        parsed = parse_frame(frame)
+        if not parsed:
+            continue
+
+        for raw_deg, dist_m, _inten in parsed["points"]:
+            deg = transform_angle_deg(raw_deg)
+
+            # Обнаружение «wrap» (360 -> 0)
+            wrapped = (last_deg is not None and last_deg > 270.0 and deg < 90.0)
+
+            if wrapped:
+                if not started:
+                    # Первый wrap — начинаем запись НОВОГО круга (чистый круг)
+                    started = True
+                    angles_rad.clear()
+                    distances_m.clear()
+                else:
+                    # Второй wrap — круг завершён, выходим
+                    return _finalize(angles_rad, distances_m, sort_by_angle)
+
+            if started:
+                angles_rad.append(math.radians(deg))
+                distances_m.append(dist_m)
+
+            last_deg = deg
+
+    return _finalize(angles_rad, distances_m, sort_by_angle)
+
+
+def _finalize(angles_rad: list[float], distances_m: list[float], sort_by_angle: bool):
+    """Финальная распаковка данных лидара"""
+    if sort_by_angle and angles_rad:
+        order = sorted(range(len(angles_rad)), key=lambda i: angles_rad[i])
+        angles_rad = [angles_rad[i] for i in order]
+        distances_m = [distances_m[i] for i in order]
+    return angles_rad, distances_m
+
+
 def main():
+    """Demo пример online сборки показаний лидара и отображение на круговой диаграмме."""
     ap = argparse.ArgumentParser(description="LD19 realtime viewer (fresh frame only)")
     ap.add_argument("--port", "-p", default="/dev/tty.usbserial-0001", help="Serial port path")
     ap.add_argument("--baud", "-b", type=int, default=230400, help="Baud rate")
