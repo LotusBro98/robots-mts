@@ -32,7 +32,7 @@ class EmulatedRobot:
             conn, _ = self.sock_tel.accept()
             self.sock_tel = conn
             print("[client] connected to udp_diff telemetry")
-        
+
     def disconnect(self):
         self.sock_cmd.close()
         self.sock_tel.close()
