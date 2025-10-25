@@ -6,8 +6,6 @@ import threading
 import numpy as np
 
 class RobotChassis:
-
-
     def __init__(self, port: str = "/dev/ttyACM1"):
         self.port = port
         self.sensors_thread = None
@@ -19,7 +17,30 @@ class RobotChassis:
         self.stop_sensors_capture()
         self.ser.close()
 
-    def send_command(self, **kwargs):
+    def send_command(self, v: float, w: float):
+        """
+        v: float — линейная скорость вперёд (0..1)
+        w: float — угловая скорость (поворот) влево/вправо (-1..1)
+                >0 — влево, <0 — вправо
+
+        Моторы управляются в диапазоне -18000..18000 (единицы 0.1 rpm).
+        """
+        MAX_RPM = 1800
+        SCALE = MAX_RPM  # перевод в 0.1rpm
+
+        v = max(-1.0, min(1.0, v))
+        w = max(-1.0, min(1.0, w))
+
+        # (v, w) → (left, right)
+        # поворот влево: левый мотор медленнее, правый быстрее
+        left_speed  = (v - w) * SCALE
+        right_speed = (v + w) * SCALE
+
+        left_speed  = int(max(-MAX_RPM * 10, min(MAX_RPM * 10, left_speed)))
+        right_speed = int(max(-MAX_RPM * 10, min(MAX_RPM * 10, right_speed)))
+        self._send_cmd(T=1, L=left_speed, R=right_speed)
+
+    def _send_cmd(self, **kwargs):
         cmd_json = json.dumps(kwargs, separators=(',', ':'))
         print("Cmd to chassis:", cmd_json)
         self.ser.write((cmd_json + "\r\n").encode())
@@ -29,7 +50,7 @@ class RobotChassis:
         self.last_msg = None
         self.pos = np.array([0.0, 0.0], dtype=np.float32)
         self.angle = 0
-        self.send_command(T=131, cmd=1)
+        self._send_cmd(T=131, cmd=1)
         self.sensors_thread = threading.Thread(target=self._capture_wheel_sensors, daemon=True)
         self.sensors_thread.start()
 
@@ -38,7 +59,7 @@ class RobotChassis:
         if self.sensors_thread is not None:
             self.sensors_thread.join()
             self.sensors_thread = None
-            self.send_command(T=131, cmd=0)
+            self._send_cmd(T=131, cmd=0)
 
     def _capture_wheel_sensors(self):
         print("Started wheel capture")

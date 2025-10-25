@@ -1,3 +1,4 @@
+"""OUTDATED, use emulated_robot.py!"""
 import os
 import socket
 import struct
