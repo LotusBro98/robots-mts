@@ -9,15 +9,15 @@ class RobotChassis:
     def __init__(self, port: str = "/dev/ttyACM1"):
         self.port = port
         self.sensors_thread = None
-        
+
     def connect(self):
         self.ser = serial.Serial(self.port, baudrate=115200, timeout=1)
-    
+
     def disconnect(self):
         self.stop_sensors_capture()
         self.ser.close()
 
-    def send_command(self, v: float, w: float):
+    def send_drive(self, v: float, w: float):
         """
         v: float — линейная скорость вперёд (0..1)
         w: float — угловая скорость (поворот) влево/вправо (-1..1)
@@ -38,9 +38,9 @@ class RobotChassis:
 
         left_speed  = int(max(-MAX_RPM * 10, min(MAX_RPM * 10, left_speed)))
         right_speed = int(max(-MAX_RPM * 10, min(MAX_RPM * 10, right_speed)))
-        self._send_cmd(T=1, L=left_speed, R=right_speed)
+        self.send_command(T=1, L=left_speed, R=right_speed)
 
-    def _send_cmd(self, **kwargs):
+    def send_command(self, **kwargs):
         cmd_json = json.dumps(kwargs, separators=(',', ':'))
         print("Cmd to chassis:", cmd_json)
         self.ser.write((cmd_json + "\r\n").encode())
@@ -50,7 +50,7 @@ class RobotChassis:
         self.last_msg = None
         self.pos = np.array([0.0, 0.0], dtype=np.float32)
         self.angle = 0
-        self._send_cmd(T=131, cmd=1)
+        self.send_command(T=131, cmd=1)
         self.sensors_thread = threading.Thread(target=self._capture_wheel_sensors, daemon=True)
         self.sensors_thread.start()
 
@@ -59,7 +59,7 @@ class RobotChassis:
         if self.sensors_thread is not None:
             self.sensors_thread.join()
             self.sensors_thread = None
-            self._send_cmd(T=131, cmd=0)
+            self.send_command(T=131, cmd=0)
 
     def _capture_wheel_sensors(self):
         print("Started wheel capture")

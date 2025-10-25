@@ -37,7 +37,7 @@ class EmulatedRobot:
         self.sock_cmd.close()
         self.sock_tel.close()
 
-    def send_command(self, v: float, w: float):
+    def send_drive(self, v: float, w: float):
         packet = struct.pack("<2f", v, w)
         self.sock_cmd.sendto(packet, (CMD_HOST, CMD_PORT))
 
