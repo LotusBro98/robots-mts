@@ -2,7 +2,7 @@
 import cv2, socket, struct, pickle
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('127.0.0.1', 9998))  # если SSH-туннель, укажи localhost
+sock.connect(('127.0.0.1', 9998))  # т.к. SSH-туннель
 data = b""
 payload_size = struct.calcsize(">L")
 

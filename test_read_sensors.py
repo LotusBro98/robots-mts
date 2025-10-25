@@ -17,7 +17,7 @@ try:
         max_revo_seconds=2.0,
         sort_by_angle=True,   # если нужен порядок 0..2π)
     )
-    with open("lidar_out.txt", "w") as f:
+    with open("lidar_out.txt", "w+") as f:
         print(result, file=f)
 finally:
     try:
