@@ -10,26 +10,25 @@ class RobotChassis:
         
     def connect(self):
         self.ser = serial.Serial(self.port, baudrate=115200, timeout=1)
-        self.start
+        self.start_sensor_capture()
     
     def disconnect(self):
+        self.do_capture_sensors = False
+        self.sensors_thread.join()
         self.ser.close()
 
     def send_command(self, **kwargs):
         cmd_json = json.dumps(kwargs, separators=(',', ':')) + "\r\n"
         print(cmd_json)
         self.ser.write(cmd_json.encode())
-        # head = self.ser.read_until(b"{")
-        # response = b"{" + self.ser.read_until(b"\r\n")
-        # print(response.decode())
-        # response = json.loads(response)
-        # return response
 
     def start_sensor_capture(self):
         self.do_capture_sensors = True
         self.sensors_thread = threading.Thread(target=self._capture_wheel_sensors)
+        self.sensors_thread.start()
 
     def _capture_wheel_sensors(self):
+        print("Started wheel capture")
         while self.do_capture_sensors:
             try:
                 msg = self.ser.read_until(b"\r\n").strip(b"\r\n")
@@ -39,8 +38,9 @@ class RobotChassis:
 
             try:
                 msg = json.loads(msg.decode())
-            except:
-                traceback.print_exc()
+            except Exception as e:
+                print("Error parsing message frim chassis:", e)
+                continue
 
             try:
                 self.sensors_callback(msg)
