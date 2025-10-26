@@ -1,4 +1,5 @@
 import threading
+import time
 from typing import Dict
 from matplotlib import pyplot as plt
 import numpy as np
@@ -400,13 +401,17 @@ class Navigator:
             self.last_display_time = cur_time
 
     def get_right_wall_dist(self, max_dist=2):
-        center_angle = -45
+        center_angle = -60
         max_angle = 20
         points = self._get_relative_points(max_dist=max_dist, angle_shift=center_angle, max_angle=max_angle)
         if len(points) == 0:
             return 0
-        min_dist = np.min(np.linalg.norm(points, axis=-1))
-        wall_dist = min_dist * abs(np.sin(np.deg2rad(center_angle)))
-        return wall_dist
+        
+        angles = np.arctan2(points[..., 1], points[..., 0])
+        dists = np.linalg.norm(points, axis=-1)
+        wall_dists = dists * abs(np.sin(angles + np.deg2rad(center_angle)))
+
+        min_dist = np.min(wall_dists)
+        return min_dist
 
         
