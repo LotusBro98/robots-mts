@@ -1,5 +1,6 @@
+import threading
 import time
-from typing import List
+from typing import Dict, List
 from matplotlib import pyplot as plt
 import numpy as np
 import cv2 as cv
@@ -46,8 +47,11 @@ class Navigator:
         self._frame_id = 0
 
         self.prev_odom_pos = np.zeros((2,), dtype=np.float32)
+        self.prev_odom_angle = 0
         self.odom_pos_offset = np.zeros((2,), dtype=np.float32)
         self.odom_angle_offset = 0
+
+        self.lock = threading.Lock()
 
         self._init_plot()
 
@@ -325,22 +329,30 @@ class Navigator:
                 self.candidates.pop(k, None)
 
     def update_from_odometry(self, odom_pos, odom_angle):
-        self.angle = odom_angle + self.odom_angle_offset
+        with self.lock:
+            angle_offset = self.odom_angle_offset
 
-        odom_delta = self._transform_points(odom_pos, -self.prev_odom_pos, self.odom_angle_offset, pos=self.prev_odom_pos)
+        odom_delta = self._transform_points(odom_pos, -self.prev_odom_pos, angle_offset, pos=self.prev_odom_pos)
         self.prev_odom_pos = odom_pos
-        self.pos = self.pos + odom_delta
+        odom_angle_delta = odom_angle - self.prev_odom_angle
+        self.prev_odom_angle = odom_angle
 
-    def update_from_lidar(self, ranges, fov=90):
-        fov = np.deg2rad(fov)
-        angles = np.linspace(-fov/2, fov/2, len(ranges))
+        with self.lock:
+            self.angle += odom_angle_delta
+            self.pos += odom_delta
+
+    def update_from_lidar(self, lidar_data: Dict[float, float]):
+        ranges = np.array(list(lidar_data.values()))
+        angles = np.deg2rad(np.array(list(lidar_data.keys())))
+
         relative_points = np.stack([
             ranges * np.cos(angles),
             ranges * np.sin(angles)
         ], axis=-1)
 
-        angle = self.angle
-        pos = self.pos
+        with self.lock:
+            angle = self.angle
+            pos = self.pos
 
         points = self._transform_points(relative_points, pos, angle, (0, 0))
 
@@ -353,9 +365,10 @@ class Navigator:
             self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=10, max_candidate_age=15, candidate_cell_scale=0.1)
         dpos *= 0.1
     
-        self.pos += dpos
-        self.angle += dth
-        self.odom_angle_offset += dth
+        with self.lock:
+            self.pos += dpos
+            self.angle += dth
+            self.odom_angle_offset += dth
 
         self.cur_lidar_pts = points
         self.cur_matched_pts = pts_from

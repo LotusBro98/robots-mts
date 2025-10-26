@@ -246,11 +246,11 @@ class Driver:
 
         while True:
             pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
-            left_pt = len(ranges) // 3
-            right_pt = len(ranges) // 3
-            cur_front_wall_dist = min(ranges[right_pt:-left_pt])
-            cur_left_wall_dist = min(ranges[-left_pt:]) * np.sin(np.deg2rad(45))
-            cur_right_wall_dist = min(ranges[:right_pt]) * np.sin(np.deg2rad(45))
+            right_pt = -15
+            left_pt = 15
+            cur_front_wall_dist = min(rng for angle, rng in ranges.items() if angle < left_pt and angle > right_pt)
+            cur_left_wall_dist = min(rng for angle, rng in ranges.items() if angle > left_pt) * np.sin(np.deg2rad(45))
+            cur_right_wall_dist = min(rng for angle, rng in ranges.items() if angle < right_pt) * np.sin(np.deg2rad(45))
             vel_front = vel[0]
 
             navigator.update_from_odometry(pos, th)
