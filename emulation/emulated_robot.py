@@ -42,6 +42,7 @@ class EmulatedRobot:
         self.sock_cmd.sendto(packet, (CMD_HOST, CMD_PORT))
 
     def recv_tel(self, ref_angle=0):  # TODO: доделать общий интерфейс для реального робота и виртуального
+        # TODO: вытаскивать отсюда единообразно odom_x, odom_y, odom_th, vx, vy, vth
         if PROTO == "udp":
             data, _ = self.sock_tel.recvfrom(65535)
         else:

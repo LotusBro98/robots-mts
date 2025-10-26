@@ -82,7 +82,7 @@ class RobotChassis:
                 traceback.print_exc()
                 continue
 
-    def calc_odometry(self, msg, last_msg):
+    def calc_odometry(self, msg, last_msg):  # TODO: отдавать отсюда odom_x, odom_y, odom_th, vx, vy, vth как из EmulatedRobot.recv_tel
         delta_left = msg["odl"] - last_msg["odl"]
         delta_right = msg["odr"] - last_msg["odr"]
 
@@ -92,10 +92,12 @@ class RobotChassis:
         # self.pos += np.array([
         #     np.cos(self.angle)
         # ])
+        # Учесть, что робот в этом отрезке едет по дуге. 
+        # Текущая формула последовательно едет прямо потом по углу. 
+        # Усреднить от "проехал прямо затем повернул" и "повернул затем проехал прямо"
 
 
-
-    def sensors_callback(self, msg):
+    def sensors_callback(self, msg):  # TODO: взять это за основу?
         print("Chassis sensors: ", msg) # {"T":1001,"M1":0,"M2":0,"M3":0,"M4":0,"odl":3247,"odr":8920,"v":963}
         if self.last_msg is None:
             self.last_msg = msg
