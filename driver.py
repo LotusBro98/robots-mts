@@ -6,7 +6,7 @@ from robot_base import Robot
 
 
 class Driver:
-    MAX_ROT_SPEED = 0.5
+    MAX_ROT_SPEED = 1.0
     REGULATE_MAX_ANGLE = np.deg2rad(30)
     MIN_SPEED = 0.1
     MAX_SPEED = 1.0
@@ -252,6 +252,7 @@ class Driver:
             cur_left_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle > left_pt) * np.sin(np.deg2rad(45))
             cur_right_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle < right_pt) * np.sin(np.deg2rad(45))
             vel_front = sens.vel[0]
+            cur_right_wall_dist = self.robot.navigator.get_right_wall_dist()
 
             dist = np.linalg.norm(start_pos - sens.pos)
 
@@ -280,9 +281,9 @@ class Driver:
                 * np.sign(t)
                 * np.clip(abs(t) * abs(max_speed), self.MIN_SPEED, abs(max_speed))
             )
-            speed += 1 * (speed - vel_front)
+            # speed += 1 * (speed - vel_front)
 
-            speed *= 1 - 0.8 * abs(rot / self.MAX_ROT_SPEED)
+            # speed *= 1 - 0.8 * abs(rot / self.MAX_ROT_SPEED)
             rot = np.clip(
                 rot * abs(max_speed) / abs(speed), -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED
             )

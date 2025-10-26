@@ -178,6 +178,24 @@ class Navigator:
         points = (points - pos) @ M + pos + dpos
         return points
     
+    def _get_relative_points(self, max_dist=None, angle_shift=0, max_angle=None):
+        dth = -self.angle - np.deg2rad(angle_shift)
+        M = np.array([
+            [np.cos(dth), np.sin(dth)],
+            [-np.sin(dth), np.cos(dth)],
+        ])
+        points = (self.points - self.pos) @ M
+        
+        if max_dist is not None:
+            dist = np.linalg.norm(points, axis=-1)
+            points = points[dist < max_dist]
+        
+        if max_angle is not None:
+            angles = np.arctan2(points[..., 1], points[..., 0])
+            points = points[abs(angles) < np.deg2rad(max_angle)]
+
+        return points
+    
     def _estimate_transform(self, pts_from, pts_to, center):
         if len(pts_from) == 0:
             return np.zeros((2,), dtype=np.float32), 0
@@ -375,11 +393,21 @@ class Navigator:
             self.odom_angle_offset += dth
             return self.pos, self.angle
 
-    last_time = 0
+    last_display_time = 0
     def display(self):
         cur_time = time.time()
-        if cur_time - self.last_time > 1:
+        if cur_time - self.last_display_time > 1:
             self._update_plot(self.points, self.cur_lidar_pts, self.cur_matched_pts)
-            self.last_time = cur_time
+            self.last_display_time = cur_time
+
+    def get_right_wall_dist(self, max_dist=2):
+        center_angle = -45
+        max_angle = 20
+        points = self._get_relative_points(max_dist=max_dist, angle_shift=center_angle, max_angle=max_angle)
+        if len(points) == 0:
+            return 0
+        min_dist = np.min(np.linalg.norm(points, axis=-1))
+        wall_dist = min_dist * abs(np.sin(np.deg2rad(center_angle)))
+        return wall_dist
 
         
