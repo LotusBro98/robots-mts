@@ -16,6 +16,7 @@ read_full_scan_from_serial(...) -> (angles_rad[360], distances_m[360])
 import time
 import math
 import struct
+from typing import Dict
 
 import serial
 
@@ -145,10 +146,10 @@ def read_full_scan_from_serial(
     clockwise: bool = False,
     max_revo_seconds: float = 2.0,
     sort_by_angle: bool = False,
-) -> tuple[list[float], list[float]]:
+) -> Dict[float, float]:
     """
     Считывает одну полную «революцию» лидара и возвращает:
-        angles_rad:  список из 360 углов в радианах (0..359 градусов)
+        angles_rad:  список из 360 углов (0..359 градусов)
         distances_m: список из 360 дистанций (метры); где нет данных — NaN
 
     Параметры:
@@ -156,21 +157,20 @@ def read_full_scan_from_serial(
       - clockwise: если True, интерпретировать углы по часовой стрелке
       - max_revo_seconds: таймаут на 1 сбор: если не успели собрать все точки за это время - возвращаем что успели собрать
     """
+    distances  = [float('nan')] * 360
 
-    def transform_angle_deg(a_deg: float) -> float:
-        ang = (-a_deg) if clockwise else a_deg
-        return (ang + angle_offset) % 360.0
-
-    angles_rad: list[float] = []
-    distances_m: list[float] = []
+    def transform_angle_deg(a: float) -> float:
+        ang = (-a) if clockwise else a
+        ang = (ang + angle_offset) % 360.0
+        return ang
 
     last_deg = None
-    started = False         # начали записывать «новую» революцию
+    got_wrap = False
     t0 = time.time()
 
     while True:
-        if time.time() - t0 > max_revo_seconds and angles_rad:
-            # Таймаут: возвращаем то, что успели собрать с момента старта
+        if time.time() - t0 > max_revo_seconds and any(not math.isnan(d) for d in distances):
+            # собрали что успели — возвращаем частично заполненную карту
             break
 
         frame = sync_and_read_frame(ser, timeout)
@@ -183,32 +183,18 @@ def read_full_scan_from_serial(
         for raw_deg, dist_m, _inten in parsed["points"]:
             deg = transform_angle_deg(raw_deg)
 
-            # Обнаружение «wrap» (360 -> 0)
-            wrapped = (last_deg is not None and last_deg > 270.0 and deg < 90.0)
+            # детект «переворота» 360->0
+            if last_deg is not None and last_deg > 270.0 and deg < 90.0:
+                got_wrap = True
 
-            if wrapped:
-                if not started:
-                    # Первый wrap — начинаем запись НОВОГО круга (чистый круг)
-                    started = True
-                    angles_rad.clear()
-                    distances_m.clear()
-                else:
-                    # Второй wrap — круг завершён, выходим
-                    return _finalize(angles_rad, distances_m, sort_by_angle)
-
-            if started:
-                angles_rad.append(math.radians(deg))
-                distances_m.append(dist_m)
+            # маппинг в ближайший целый градус
+            idx = int(round(deg)) % 360
+            distances[idx] = dist_m
 
             last_deg = deg
 
-    return _finalize(angles_rad, distances_m, sort_by_angle)
+        if got_wrap:
+            # завершили революцию
+            break
 
-
-def _finalize(angles_rad: list[float], distances_m: list[float], sort_by_angle: bool):
-    """Финальная распаковка данных лидара"""
-    if sort_by_angle and angles_rad:
-        order = sorted(range(len(angles_rad)), key=lambda i: angles_rad[i])
-        angles_rad = [angles_rad[i] for i in order]
-        distances_m = [distances_m[i] for i in order]
-    return angles_rad, distances_m
+    return distances

@@ -5,6 +5,14 @@ import serial
 import threading
 import numpy as np
 
+from robot_lidar import read_full_scan_from_serial
+
+
+LIDAR_PORT="/dev/ttyUSB0"
+LIDAR_BAUT = 230400
+LIDAR_SERIAL_TIMEOUT = 0.2
+
+
 class RobotChassis:
     def __init__(self, port: str = "/dev/ttyACM1"):
         self.port = port
@@ -12,6 +20,7 @@ class RobotChassis:
 
     def connect(self):
         self.ser = serial.Serial(self.port, baudrate=115200, timeout=1)
+        self.lidar_ser = serial.Serial(LIDAR_PORT, LIDAR_BAUT, timeout=LIDAR_SERIAL_TIMEOUT)
 
     def disconnect(self):
         self.stop_sensors_capture()
@@ -53,6 +62,8 @@ class RobotChassis:
         self.send_command(T=131, cmd=1)
         self.sensors_thread = threading.Thread(target=self._capture_wheel_sensors, daemon=True)
         self.sensors_thread.start()
+        self.lidar_thread = threading.Thread(target=self._capture_lidar, daemon=True)
+        self.lidar_thread.start()
 
     def stop_sensors_capture(self):
         self.do_capture_sensors = False
@@ -60,6 +71,45 @@ class RobotChassis:
             self.sensors_thread.join()
             self.sensors_thread = None
             self.send_command(T=131, cmd=0)
+
+    def recv_tel(self, ref_angle=0):
+        odom_x = 0
+        odom_y = 0
+        odom_th = 0
+        vx = 0
+        vy = 0
+        vth = 0
+        return (
+            np.array([odom_x, odom_y]),
+            odom_th - ref_angle,
+            np.array([vx, vy]),
+            vth,
+            np.array([0, 0, 0]),
+            self.lidar_distances_by_direction,
+        )
+
+    def _capture_lidar(self):
+        print("Started wheel capture")
+        while self.do_capture_sensors:
+            try:
+                distances_by_angle: dict[float, float] = read_full_scan_from_serial(  # массив расстояний
+                    self.lidar_ser,
+                    LIDAR_SERIAL_TIMEOUT,
+                    angle_offset=0.0,
+                    clockwise=False,
+                    max_revo_seconds=2.0,
+                    sort_by_angle=True,
+                )
+                self.lidar_distances_by_angle = distances_by_angle
+                self.lidar_distances_by_direction = {-45: distances_by_angle[314], 0: distances_by_angle[0], 45: distances_by_angle[45]}
+            except:
+                traceback.print_exc()
+                break
+            # try:
+            #     self.sensors_callback(msg)
+            # except:
+            #     traceback.print_exc()
+            #     continue
 
     def _capture_wheel_sensors(self):
         print("Started wheel capture")

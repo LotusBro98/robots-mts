@@ -56,9 +56,9 @@ class Driver:
 
         while True:
             pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
-            cur_front_wall_dist = ranges[len(ranges) // 2]
-            cur_left_wall_dist = ranges[-1] * np.sin(np.deg2rad(45))
-            cur_right_wall_dist = ranges[0] * np.sin(np.deg2rad(45))
+            cur_front_wall_dist = ranges[0]
+            cur_left_wall_dist = ranges[45] * np.sin(np.deg2rad(45))
+            cur_right_wall_dist = ranges[-45] * np.sin(np.deg2rad(45))
             vel_front = vel[0]
 
             dist = np.linalg.norm(start_pos - pos)
@@ -241,7 +241,8 @@ class Driver:
 
         assert left_wall_dist is None or right_wall_dist is None
 
-        navigator = Navigator()
+        navigator = Navigator()  # TODO: перенести в robot_base
+        # navigator будет что-то закидывать в robot_base
 
         while True:
             pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)

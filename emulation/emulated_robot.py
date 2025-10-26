@@ -66,7 +66,12 @@ class EmulatedRobot:
         ranges = []
         if n > 0:
             ranges = struct.unpack(f"<{n}f", data[header_size + 4:header_size + 4 + 4 * n])
-
+            #         cur_front_wall_dist = ranges[len(ranges) // 2]
+            # cur_left_wall_dist = ranges[-1] * np.sin(np.deg2rad(45))
+            # cur_right_wall_dist = ranges[0] * np.sin(np.deg2rad(45))
+        # Для проверки: ranges_by_angle = {"-45": ranges[0], "0": ranges[len(ranges) // 2], "45": ranges[-1]}
+        ranges_by_angle = {round(angle, 3): rng for angle, rng in zip(range(-45, 45, 0.25), ranges)}
+        ranges_by_angle[45] = ranges_by_angle[44.75]
         # return odom_x, odom_y, odom_th, (vx, vy, vth), (wx, wy, wz), ranges
         return (
             np.array([odom_x, odom_y]),
@@ -74,7 +79,7 @@ class EmulatedRobot:
             np.array([vx, vy]),
             vth,
             np.array([wx, wy, wz]),
-            np.array(ranges),
+            ranges_by_angle,
         )
 
     def _recv_all(self, sock, size):
