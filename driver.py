@@ -6,7 +6,7 @@ from robot_base import Robot
 
 
 class Driver:
-    MAX_ROT_SPEED = 1.0
+    MAX_ROT_SPEED = 0.5
     REGULATE_MAX_ANGLE = np.deg2rad(30)
     MIN_SPEED = 0.1
     MAX_SPEED = 1.0

@@ -363,7 +363,7 @@ class Navigator:
         if len(self.points) == 0:
             self._add_new_points(points, min_dist=0.05)
         else:
-            self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=10, max_candidate_age=15, candidate_cell_scale=0.1)
+            self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=10, max_candidate_age=3, candidate_cell_scale=0.1)
         dpos *= 0.1
     
         self.cur_lidar_pts = points
