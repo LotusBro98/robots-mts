@@ -340,6 +340,7 @@ class Navigator:
         with self.lock:
             self.angle += odom_angle_delta
             self.pos += odom_delta
+            return self.pos, self.angle
 
     def update_from_lidar(self, lidar_data: Dict[float, float]):
         ranges = np.array(list(lidar_data.values()))
@@ -365,13 +366,14 @@ class Navigator:
             self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=10, max_candidate_age=15, candidate_cell_scale=0.1)
         dpos *= 0.1
     
+        self.cur_lidar_pts = points
+        self.cur_matched_pts = pts_from
+
         with self.lock:
             self.pos += dpos
             self.angle += dth
             self.odom_angle_offset += dth
-
-        self.cur_lidar_pts = points
-        self.cur_matched_pts = pts_from
+            return self.pos, self.angle
 
     cnt = 0
     def display(self):

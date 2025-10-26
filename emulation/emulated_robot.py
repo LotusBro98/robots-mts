@@ -2,6 +2,7 @@
 import os
 import socket
 import struct
+import threading
 
 import numpy as np
 
@@ -15,6 +16,7 @@ PROTO     = str(os.getenv("PROTO", "tcp"))
 
 class EmulatedRobot:
     def __init__(self):
+        super().__init__()
         self.sock_cmd = None
         self.sock_tel = None
 
@@ -33,9 +35,33 @@ class EmulatedRobot:
             self.sock_tel = conn
             print("[client] connected to udp_diff telemetry")
 
+        # self._start_capture()
+
     def disconnect(self):
+        # self._stop_capture()
         self.sock_cmd.close()
         self.sock_tel.close()
+
+    def _start_capture(self):
+        self.do_capture_sensors = True
+        self.last_msg = None
+        self.pos = np.array([0.0, 0.0], dtype=np.float32)
+        self.angle = 0
+        self.send_command(T=131, cmd=1)
+        self.sensors_thread = threading.Thread(target=self._capture_wheel_sensors, daemon=True)
+        self.sensors_thread.start()
+
+    def _stop_capture(self):
+        self.do_capture_sensors = False
+
+        if self.sensors_thread is not None:
+            self.sensors_thread.join()
+            self.sensors_thread = None
+            self.send_command(T=131, cmd=0)
+        
+        if self.lidar_thread is not None:
+            self.lidar_thread.join()
+            self.lidar_thread = None
 
     def send_drive(self, v: float, w: float):
         packet = struct.pack("<2f", v, w)
