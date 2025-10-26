@@ -1,11 +1,8 @@
 import threading
-import time
-from typing import Dict, List
+from typing import Dict
 from matplotlib import pyplot as plt
 import numpy as np
-import cv2 as cv
 from scipy.spatial import cKDTree
-from collections import defaultdict
 
 def _cell_key(pt, cell_size):
     # ключ ячейки в окрестности размером cell_size
@@ -63,6 +60,7 @@ class Navigator:
         self.scat1 = self.ax.scatter([], [], s=4)
         self.scat2 = self.ax.scatter([], [], s=4)
         self.scat3 = self.ax.scatter([], [], s=1)
+        self.scat4 = self.ax.scatter([], [], s=100, c='green')
         self.fig.canvas.draw()
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
 
@@ -70,12 +68,13 @@ class Navigator:
         self.scat1.set_offsets(old_points)
         self.scat2.set_offsets(pts_from)
         self.scat3.set_offsets(points)
-
+        self.scat4.set_offsets(self.pos)
         # Блиттинг: восстанавливаем фон, рисуем артиш и блитим только область осей
         self.fig.canvas.restore_region(self.bg)
         self.ax.draw_artist(self.scat1)
         self.ax.draw_artist(self.scat2)
         self.ax.draw_artist(self.scat3)
+        self.ax.draw_artist(self.scat4)
         self.fig.canvas.blit(self.ax.bbox)
         self.fig.canvas.flush_events()
         # маленькая пауза даёт GUI-циклу обработать события
