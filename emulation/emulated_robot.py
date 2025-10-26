@@ -3,8 +3,11 @@ import os
 import socket
 import struct
 import threading
+import traceback
 
 import numpy as np
+
+from robot_base import Robot
 
 # Не "хардкодьте" адреса
 CMD_HOST  = str(os.getenv("CMD_HOST", "127.0.0.1"))
@@ -14,7 +17,7 @@ TEL_PORT  = int(os.getenv("TEL_PORT", "5600"))
 PROTO     = str(os.getenv("PROTO", "tcp"))
 
 
-class EmulatedRobot:
+class EmulatedRobot(Robot):
     def __init__(self):
         super().__init__()
         self.sock_cmd = None
@@ -35,39 +38,41 @@ class EmulatedRobot:
             self.sock_tel = conn
             print("[client] connected to udp_diff telemetry")
 
-        # self._start_capture()
+        self._start_capture()
+        self.wait_until_initialized()
 
     def disconnect(self):
-        # self._stop_capture()
+        self._stop_capture()
         self.sock_cmd.close()
         self.sock_tel.close()
 
     def _start_capture(self):
         self.do_capture_sensors = True
-        self.last_msg = None
-        self.pos = np.array([0.0, 0.0], dtype=np.float32)
-        self.angle = 0
-        self.send_command(T=131, cmd=1)
-        self.sensors_thread = threading.Thread(target=self._capture_wheel_sensors, daemon=True)
+        self.sensors_thread = threading.Thread(target=self._capture_worker, daemon=True)
         self.sensors_thread.start()
 
     def _stop_capture(self):
         self.do_capture_sensors = False
-
         if self.sensors_thread is not None:
             self.sensors_thread.join()
             self.sensors_thread = None
-            self.send_command(T=131, cmd=0)
-        
-        if self.lidar_thread is not None:
-            self.lidar_thread.join()
-            self.lidar_thread = None
+
+    def _capture_worker(self):
+        while self.do_capture_sensors:
+            try:
+                pos, th, vel, th_vel, gyro, ranges = self._recv_tel()
+            except:
+                traceback.print_exc()
+                break
+
+            self._update_odometry(pos, th, vel, th_vel)
+            self._update_lidar(ranges)
 
     def send_drive(self, v: float, w: float):
         packet = struct.pack("<2f", v, w)
         self.sock_cmd.sendto(packet, (CMD_HOST, CMD_PORT))
 
-    def recv_tel(self, ref_angle=0):  # TODO: доделать общий интерфейс для реального робота и виртуального
+    def _recv_tel(self, ref_angle=0):  # TODO: доделать общий интерфейс для реального робота и виртуального
         # TODO: вытаскивать отсюда единообразно odom_x, odom_y, odom_th, vx, vy, vth
         if PROTO == "udp":
             data, _ = self.sock_tel.recvfrom(65535)

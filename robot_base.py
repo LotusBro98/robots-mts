@@ -52,6 +52,7 @@ class Robot:
         self._latest_odometry = Latest()
         self._latest_lidar = Latest()
         self._latest_nav = Latest()
+        self.initialized = False
 
     def _update_odometry(self, odom_pos, odom_th, odom_vel, odom_th_vel):
         self._latest_odometry.set((odom_pos, odom_th, odom_vel, odom_th_vel))
@@ -62,11 +63,12 @@ class Robot:
         self._latest_lidar.set(lidar_ranges)
         nav_pos, nav_angle = self.navigator.update_from_lidar(lidar_ranges)
         self._latest_nav.set((nav_pos, nav_angle))
+        self.initialized = True
 
     def recv_sensors(self) -> SensorData:
-        nav_pos, nav_angle = self._latest_nav.get()
-        odom_pos, odom_th, odom_vel, odom_th_vel = self._latest_odometry.get()
-        lidar_ranges = self._latest_lidar.get()
+        (nav_pos, nav_angle), ts = self._latest_nav.get()
+        (odom_pos, odom_th, odom_vel, odom_th_vel), ts = self._latest_odometry.get()
+        (lidar_ranges), ts = self._latest_lidar.get()
         data = SensorData(
             pos=nav_pos,
             angle=nav_angle,
@@ -75,6 +77,10 @@ class Robot:
             lidar_ranges=lidar_ranges
         )
         return data
+    
+    def wait_until_initialized(self):
+        while not self.initialized:
+            time.sleep(0.01)
 
     def send_drive(self, v: float, w: float): ...
 

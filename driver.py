@@ -1,3 +1,4 @@
+import time
 import numpy as np
 
 from navigator import Navigator
@@ -17,8 +18,8 @@ class Driver:
     REF_ANGLE = 0
 
     def update_ref_angle(self, cur_value=0):
-        pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel()
-        self.REF_ANGLE = th - np.deg2rad(cur_value)
+        sens = self.robot.recv_sensors()
+        self.REF_ANGLE = sens.angle - np.deg2rad(cur_value)
 
     def drive(
         self,
@@ -39,8 +40,8 @@ class Driver:
         smooth_stop_dist - расстояние до конца, на котором начать плавно тормозить
         reverse - вперёд или назад
         """
-        pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
-        start_pos = pos
+        sens = self.robot.recv_sensors()
+        start_pos = sens.pos
 
         if direction is not None:
             direction = np.deg2rad(direction)
@@ -55,13 +56,13 @@ class Driver:
         assert direction is None or (left_wall_dist is None and right_wall_dist is None)
 
         while True:
-            pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
-            cur_front_wall_dist = ranges[0]
-            cur_left_wall_dist = ranges[45] * np.sin(np.deg2rad(45))
-            cur_right_wall_dist = ranges[-45] * np.sin(np.deg2rad(45))
-            vel_front = vel[0]
+            sens = self.robot.recv_sensors()
+            cur_front_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle > 10 and angle < 10)
+            cur_left_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle > 30) * np.sin(np.deg2rad(45))
+            cur_right_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle < -30) * np.sin(np.deg2rad(45))
+            vel_front = sens.vel[0]
 
-            dist = np.linalg.norm(start_pos - pos)
+            dist = np.linalg.norm(start_pos - sens.pos)
             if max_dist is not None and dist > max_dist:
                 print("\n[drive] max dist reached")
                 break
@@ -101,7 +102,8 @@ class Driver:
                 speed = max_speed
 
             if direction is not None:
-                angle_diff = np.arctan2(np.sin(direction - th), np.cos(direction - th))
+                angle_diff = direction - sens.angle
+                angle_diff = np.arctan2(np.sin(angle_diff), np.cos(angle_diff))
                 t = angle_diff / self.REGULATE_MAX_ANGLE
             elif (
                 left_wall_dist is not None and cur_left_wall_dist < cur_front_wall_dist
@@ -121,7 +123,7 @@ class Driver:
             msg = f"\r[drive] "
             msg += f"dist: {dist:6.3f} speed: {speed:6.3f} vel: {vel_front:6.3f} "
             if direction is not None:
-                msg += f"th: {th:6.3f} rot_speed: {rot:6.3f} "
+                msg += f"th: {sens.angle:6.3f} rot_speed: {rot:6.3f} "
             if front_wall_dist is not None:
                 msg += f"front_wall: {cur_front_wall_dist:6.3f} "
             if left_wall_dist is not None:
@@ -145,15 +147,16 @@ class Driver:
         """
         ANGLE_THRESHOLD = np.deg2rad(1)
 
-        pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
+        sens = self.robot.recv_sensors()
         direction = np.deg2rad(direction)
         if relative:
-            direction = th + direction
+            direction = sens.angle + direction
 
         while True:
-            pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
+            sens = self.robot.recv_sensors()
 
-            angle_diff = np.arctan2(np.sin(direction - th), np.cos(direction - th))
+            angle_diff = direction - sens.angle
+            angle_diff = np.arctan2(np.sin(angle_diff), np.cos(angle_diff))
             if abs(angle_diff) < ANGLE_THRESHOLD:
                 print("\n[rotate] target angle reached")
                 break
@@ -163,7 +166,7 @@ class Driver:
                 t * self.MAX_ROT_SPEED, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED
             )
 
-            print(f"\r[rotate] th: {th:6.3f} rot_speed: {rot:6.3f}", end="", flush=True)
+            print(f"\r[rotate] th: {sens.angle:6.3f} rot_speed: {rot:6.3f}", end="", flush=True)
             self.robot.send_drive(0, rot)
 
         print("[rotate] stop")
@@ -175,14 +178,14 @@ class Driver:
         """Sends stop and wait it stopped."""
 
         while True:
-            pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
+            sens = self.robot.recv_sensors()
 
-            if abs(th_vel) < th_threshold and np.linalg.norm(vel) < vel_threshold:
+            if abs(sens.angle_vel) < th_threshold and np.linalg.norm(sens.vel) < vel_threshold:
                 print("\n[stop] position stabilized")
                 break
 
             print(
-                f"\r[stop] vel: {np.linalg.norm(vel):6.3f} vel_th: {th_vel:6.3f}",
+                f"\r[stop] vel: {np.linalg.norm(sens.vel):6.3f} vel_th: {sens.angle_vel:6.3f}",
                 end="",
                 flush=True,
             )
@@ -197,21 +200,21 @@ class Driver:
         eps = 0.05
         """Return back to position where it was called, decrease inertia"""
 
-        pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(0)
-        start_pos = pos
+        sens = self.robot.recv_sensors()
+        start_pos = sens.pos
 
         while True:
-            pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(0)
-            delta = np.dot(pos - start_pos, np.array([np.cos(th), np.sin(th)]))
+            sens = self.robot.recv_sensors()
+            delta = np.dot(sens.pos - start_pos, np.array([np.cos(sens.angle), np.sin(sens.angle)]))
 
-            if abs(delta) < eps and np.linalg.norm(vel) < vel_threshold:
+            if abs(delta) < eps and np.linalg.norm(sens.vel) < vel_threshold:
                 print("\n[freeze] returned to previous position")
                 break
 
             speed = np.clip(-delta * k, -self.MAX_SPEED, self.MAX_SPEED)
 
             print(
-                f"\r[freeze] delta: {delta:6.3f} vel: {np.linalg.norm(vel):6.3f}",
+                f"\r[freeze] delta: {delta:6.3f} vel: {np.linalg.norm(sens.vel):6.3f}",
                 end="",
                 flush=True,
             )
@@ -236,21 +239,21 @@ class Driver:
         smooth_stop_dist - расстояние до конца, на котором начать плавно тормозить
         reverse - вперёд или назад
         """
-        pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
-        start_pos = pos
+        sens = self.robot.recv_sensors()
+        start_pos = sens.pos
 
         assert left_wall_dist is None or right_wall_dist is None
 
         while True:
-            pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
+            sens = self.robot.recv_sensors()
             right_pt = -15
             left_pt = 15
-            cur_front_wall_dist = min(rng for angle, rng in ranges.items() if angle < left_pt and angle > right_pt)
-            cur_left_wall_dist = min(rng for angle, rng in ranges.items() if angle > left_pt) * np.sin(np.deg2rad(45))
-            cur_right_wall_dist = min(rng for angle, rng in ranges.items() if angle < right_pt) * np.sin(np.deg2rad(45))
-            vel_front = vel[0]
+            cur_front_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle < left_pt and angle > right_pt)
+            cur_left_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle > left_pt) * np.sin(np.deg2rad(45))
+            cur_right_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle < right_pt) * np.sin(np.deg2rad(45))
+            vel_front = sens.vel[0]
 
-            dist = np.linalg.norm(start_pos - pos)
+            dist = np.linalg.norm(start_pos - sens.pos)
 
             # if left_wall_dist is not None and cur_left_wall_dist > left_wall_dist + side_wall_smooth_stop_dist:
             #     print("\n[drive] lost left wall")
@@ -287,7 +290,7 @@ class Driver:
             msg = f"\r[drive] "
             msg += f"dist: {dist:6.3f} speed: {speed:6.3f} vel: {vel_front:6.3f} "
             if left_wall_dist is not None or right_wall_dist is not None:
-                msg += f"th: {th:6.3f} rot_speed: {rot:6.3f} "
+                msg += f"th: {sens.angle:6.3f} rot_speed: {rot:6.3f} "
             if front_wall_dist is not None:
                 msg += f"front_wall: {cur_front_wall_dist:6.3f} "
             if left_wall_dist is not None:
@@ -298,6 +301,9 @@ class Driver:
             # speed = 0.05
             # rot = 1
             self.robot.send_drive(speed, rot)
+            time.sleep(0.1)
+
+            self.robot.navigator.display()
 
         print("[drive] stop")
         self.robot.send_drive(0, 0)

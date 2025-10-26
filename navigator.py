@@ -375,12 +375,11 @@ class Navigator:
             self.odom_angle_offset += dth
             return self.pos, self.angle
 
-    cnt = 0
+    last_time = 0
     def display(self):
-        if self.cnt > 10:
+        cur_time = time.time()
+        if cur_time - self.last_time > 1:
             self._update_plot(self.points, self.cur_lidar_pts, self.cur_matched_pts)
-            self.cnt = 0
-        else:
-            self.cnt += 1
+            self.last_time = cur_time
 
         

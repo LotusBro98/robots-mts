@@ -2,12 +2,12 @@ import numpy as np
 from driver import Driver
 from emulation.emulated_robot import EmulatedRobot
 
-try:
-    robot = EmulatedRobot()
-    robot.connect()
-    driver = Driver(robot)
-    driver.update_ref_angle()
+robot = EmulatedRobot()
+robot.connect()
+driver = Driver(robot)
+driver.update_ref_angle()
 
+try:
     while True:
         driver.drive_maze(
             max_speed=0.5,
