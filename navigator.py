@@ -56,29 +56,29 @@ class Navigator:
         self.ax.set_xlim(-1, 14)
         self.ax.set_ylim(-1, 6)
         self.ax.set_aspect("equal", adjustable="box")
-        self.scat1 = self.ax.scatter([], [], s=3)
-        self.scat2 = self.ax.scatter([], [], s=1)
-        self.scat3 = self.ax.scatter([], [], s=3)
-        self.scat4 = self.ax.scatter([], [], s=1)
+        self.scat1 = self.ax.scatter([], [], s=4)
+        self.scat2 = self.ax.scatter([], [], s=4)
+        self.scat3 = self.ax.scatter([], [], s=1)
         self.fig.canvas.draw()
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
 
-    def _update_plot(self, old_points, points, pts_from, pts_to):
+    def _update_plot(self, old_points, points, pts_from):
         self.scat1.set_offsets(old_points)
-        # self.scat2.set_offsets(points)
-        self.scat3.set_offsets(pts_from)
-        self.scat4.set_offsets(pts_to)
+        self.scat2.set_offsets(pts_from)
+        self.scat3.set_offsets(points)
 
         # Блиттинг: восстанавливаем фон, рисуем артиш и блитим только область осей
         self.fig.canvas.restore_region(self.bg)
         self.ax.draw_artist(self.scat1)
         self.ax.draw_artist(self.scat2)
         self.ax.draw_artist(self.scat3)
-        self.ax.draw_artist(self.scat4)
         self.fig.canvas.blit(self.ax.bbox)
         self.fig.canvas.flush_events()
         # маленькая пауза даёт GUI-циклу обработать события
-        plt.pause(0.0001)
+        try:
+            plt.pause(0.0001)
+        except:
+            pass
         
     def _get_nearest_neighbors(self, points, min_dist=0.025):
         if len(self.points) == 0:
@@ -324,9 +324,14 @@ class Navigator:
             for k in to_promote:
                 self.candidates.pop(k, None)
 
-    cnt = 0
+    def update_from_odometry(self, odom_pos, odom_angle):
+        self.angle = odom_angle + self.odom_angle_offset
 
-    def update_from_lidar(self, odom_pos, odom_angle, ranges, fov=90):
+        odom_delta = self._transform_points(odom_pos, -self.prev_odom_pos, self.odom_angle_offset, pos=self.prev_odom_pos)
+        self.prev_odom_pos = odom_pos
+        self.pos = self.pos + odom_delta
+
+    def update_from_lidar(self, ranges, fov=90):
         fov = np.deg2rad(fov)
         angles = np.linspace(-fov/2, fov/2, len(ranges))
         relative_points = np.stack([
@@ -334,11 +339,8 @@ class Navigator:
             ranges * np.sin(angles)
         ], axis=-1)
 
-        angle = odom_angle + self.odom_angle_offset
-
-        odom_delta = self._transform_points(odom_pos, -self.prev_odom_pos, self.odom_angle_offset, pos=self.prev_odom_pos)
-        self.prev_odom_pos = odom_pos
-        pos = self.pos + odom_delta
+        angle = self.angle
+        pos = self.pos
 
         points = self._transform_points(relative_points, pos, angle, (0, 0))
 
@@ -351,16 +353,19 @@ class Navigator:
             self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=10, max_candidate_age=15, candidate_cell_scale=0.1)
         dpos *= 0.1
     
-        pos = pos + dpos
-        angle = angle + dth
-        
-        self.pos = pos
-        self.angle = angle
-        self.odom_angle_offset = self.angle - odom_angle
+        self.pos += dpos
+        self.angle += dth
+        self.odom_angle_offset += dth
 
+        self.cur_lidar_pts = points
+        self.cur_matched_pts = pts_from
+
+    cnt = 0
+    def display(self):
         if self.cnt > 10:
-            self._update_plot(self.points, points, pts_from, pts_to)
+            self._update_plot(self.points, self.cur_lidar_pts, self.cur_matched_pts)
             self.cnt = 0
         else:
             self.cnt += 1
+
         

@@ -1,5 +1,6 @@
 import numpy as np
 
+from navigator import Navigator
 from robot_base import Robot
 
 
@@ -240,7 +241,7 @@ class Driver:
 
         assert left_wall_dist is None or right_wall_dist is None
 
-        # navigator = Navigator()
+        navigator = Navigator()
 
         while True:
             pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
@@ -251,7 +252,9 @@ class Driver:
             cur_right_wall_dist = min(ranges[:right_pt]) * np.sin(np.deg2rad(45))
             vel_front = vel[0]
 
-            # navigator.update_from_lidar(pos, th, ranges)
+            navigator.update_from_odometry(pos, th)
+            navigator.update_from_lidar(ranges)
+            navigator.display()
 
             dist = np.linalg.norm(start_pos - pos)
 
