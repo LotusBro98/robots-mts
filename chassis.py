@@ -14,6 +14,8 @@ LIDAR_SERIAL_TIMEOUT = 0.2
 
 
 class RobotChassis:
+    WHEEL_DISTANCE = 15.15  # In cm
+
     def __init__(self, port: str = "/dev/ttyACM1"):
         self.port = port
         self.sensors_thread = None
@@ -21,10 +23,12 @@ class RobotChassis:
     def connect(self):
         self.ser = serial.Serial(self.port, baudrate=115200, timeout=1)
         self.lidar_ser = serial.Serial(LIDAR_PORT, LIDAR_BAUT, timeout=LIDAR_SERIAL_TIMEOUT)
+        self._start_capture()
 
     def disconnect(self):
-        self.stop_sensors_capture()
+        self._stop_capture()
         self.ser.close()
+        self.lidar_ser.close()
 
     def send_drive(self, v: float, w: float):
         """
@@ -54,7 +58,7 @@ class RobotChassis:
         print("Cmd to chassis:", cmd_json)
         self.ser.write((cmd_json + "\r\n").encode())
 
-    def start_sensor_capture(self):
+    def _start_capture(self):
         self.do_capture_sensors = True
         self.last_msg = None
         self.pos = np.array([0.0, 0.0], dtype=np.float32)
@@ -65,12 +69,17 @@ class RobotChassis:
         self.lidar_thread = threading.Thread(target=self._capture_lidar, daemon=True)
         self.lidar_thread.start()
 
-    def stop_sensors_capture(self):
+    def _stop_capture(self):
         self.do_capture_sensors = False
+
         if self.sensors_thread is not None:
             self.sensors_thread.join()
             self.sensors_thread = None
             self.send_command(T=131, cmd=0)
+        
+        if self.lidar_thread is not None:
+            self.lidar_thread.join()
+            self.lidar_thread = None
 
     def recv_tel(self, ref_angle=0):
         odom_x = 0
@@ -89,7 +98,7 @@ class RobotChassis:
         )
 
     def _capture_lidar(self):
-        print("Started wheel capture")
+        print("Started lidar capture")
         while self.do_capture_sensors:
             try:
                 distances_by_angle: dict[float, float] = read_full_scan_from_serial(  # массив расстояний
@@ -102,6 +111,7 @@ class RobotChassis:
                 )
                 self.lidar_distances_by_angle = distances_by_angle
                 self.lidar_distances_by_direction = {-45: distances_by_angle[314], 0: distances_by_angle[0], 45: distances_by_angle[45]}
+                print(distances_by_angle)
             except:
                 traceback.print_exc()
                 break
@@ -139,9 +149,13 @@ class RobotChassis:
         linear_delta = 0.5 * (delta_left + delta_right) * 0.01 # original unit is cm
         angular_delta = (delta_right - delta_left) / self.WHEEL_DISTANCE
 
-        # self.pos += np.array([
-        #     np.cos(self.angle)
-        # ])
+        dir_before = np.array([np.cos(self.angle), np.sin(self.angle)])
+        self.angle += angular_delta
+        dir_after = np.array([np.cos(self.angle), np.sin(self.angle)])
+
+        delta_pos = linear_delta * 0.5 * (dir_before + dir_after)
+        self.pos += delta_pos
+
         # Учесть, что робот в этом отрезке едет по дуге. 
         # Текущая формула последовательно едет прямо потом по углу. 
         # Усреднить от "проехал прямо затем повернул" и "повернул затем проехал прямо"
@@ -159,10 +173,10 @@ class RobotChassis:
 def main():
     robot = RobotChassis("/dev/ttyACM1")
     robot.connect()
-    robot.start_sensor_capture()
-    time.sleep(1000)
-    robot.stop_sensors_capture()
-    robot.disconnect()
+    try:
+        time.sleep(1000)
+    finally:
+        robot.disconnect()
 
 if __name__ == "__main__":
     main()
