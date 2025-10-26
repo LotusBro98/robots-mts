@@ -5,6 +5,7 @@ import serial
 import threading
 import numpy as np
 
+from robot_base import Robot
 from robot_lidar import read_full_scan_from_serial
 
 
@@ -13,10 +14,11 @@ LIDAR_BAUT = 230400
 LIDAR_SERIAL_TIMEOUT = 0.2
 
 
-class RobotChassis:
+class RobotChassis(Robot):
     WHEEL_DISTANCE = 15.15  # In cm
 
-    def __init__(self, port: str = "/dev/ttyACM1"):
+    def __init__(self, port: str = "/dev/ttyACM1", **kwargs):
+        super().__init__(**kwargs)
         self.port = port
         self.sensors_thread = None
 
@@ -36,21 +38,20 @@ class RobotChassis:
         w: float — угловая скорость (поворот) влево/вправо (-1..1)
                 >0 — влево, <0 — вправо
 
-        Моторы управляются в диапазоне -18000..18000 (единицы 0.1 rpm).
+        Моторы управляются в диапазоне -1800..1800.
         """
-        MAX_RPM = 1800
-        SCALE = MAX_RPM  # перевод в 0.1rpm
+        MAX_SPEED = 1800  # Единицы измерения - 0.1rpm
 
         v = max(-1.0, min(1.0, v))
         w = max(-1.0, min(1.0, w))
 
         # (v, w) → (left, right)
         # поворот влево: левый мотор медленнее, правый быстрее
-        left_speed  = (v - w) * SCALE
-        right_speed = (v + w) * SCALE
+        left_speed  = (v - w) * MAX_SPEED
+        right_speed = (v + w) * MAX_SPEED
 
-        left_speed  = int(max(-MAX_RPM * 10, min(MAX_RPM * 10, left_speed)))
-        right_speed = int(max(-MAX_RPM * 10, min(MAX_RPM * 10, right_speed)))
+        left_speed  = int(max(-MAX_SPEED, min(MAX_SPEED, left_speed)))
+        right_speed = int(max(-MAX_SPEED, min(MAX_SPEED, right_speed)))
         self.send_command(T=1, L=left_speed, R=right_speed)
 
     def send_command(self, **kwargs):
@@ -111,6 +112,7 @@ class RobotChassis:
                 )
                 self.lidar_distances_by_angle = distances_by_angle
                 self.lidar_distances_by_direction = {-45: distances_by_angle[314], 0: distances_by_angle[0], 45: distances_by_angle[45]}
+                self._lidar_callback(ranges=distances_by_angle)
                 print(distances_by_angle)
             except:
                 traceback.print_exc()
@@ -138,6 +140,7 @@ class RobotChassis:
 
             try:
                 self.sensors_callback(msg)
+                self._odometry_callback(pos=self.pos, th=self.angle)
             except:
                 traceback.print_exc()
                 continue
@@ -169,6 +172,7 @@ class RobotChassis:
         
         self.calc_odometry(msg, self.last_msg)
         self.last_msg = msg
+
 
 def main():
     robot = RobotChassis("/dev/ttyACM1")

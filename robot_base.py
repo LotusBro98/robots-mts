@@ -46,11 +46,12 @@ class SensorData:
 
 
 class Robot:
-    def __init__(self):
+    def __init__(self, enable_navigator: bool = True) -> None:
+        if enable_navigator:
+            self.navigator = Navigator()
         self._latest_odometry = Latest()
         self._latest_lidar = Latest()
         self._latest_nav = Latest()
-        self.navigator = Navigator()
 
     def _update_odometry(self, odom_pos, odom_th, odom_vel, odom_th_vel):
         self._latest_odometry.set((odom_pos, odom_th, odom_vel, odom_th_vel))

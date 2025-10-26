@@ -241,9 +241,6 @@ class Driver:
 
         assert left_wall_dist is None or right_wall_dist is None
 
-        navigator = Navigator()  # TODO: перенести в robot_base
-        # navigator будет что-то закидывать в robot_base
-
         while True:
             pos, th, vel, th_vel, gyro, ranges = self.robot.recv_tel(self.REF_ANGLE)
             right_pt = -15
@@ -252,10 +249,6 @@ class Driver:
             cur_left_wall_dist = min(rng for angle, rng in ranges.items() if angle > left_pt) * np.sin(np.deg2rad(45))
             cur_right_wall_dist = min(rng for angle, rng in ranges.items() if angle < right_pt) * np.sin(np.deg2rad(45))
             vel_front = vel[0]
-
-            navigator.update_from_odometry(pos, th)
-            navigator.update_from_lidar(ranges)
-            navigator.display()
 
             dist = np.linalg.norm(start_pos - pos)
 
