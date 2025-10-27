@@ -157,7 +157,7 @@ def read_full_scan_from_serial(
       - clockwise: если True, интерпретировать углы по часовой стрелке
       - max_revo_seconds: таймаут на 1 сбор: если не успели собрать все точки за это время - возвращаем что успели собрать
     """
-    distances  = [float('nan')] * 360
+    distances  = {}
 
     def transform_angle_deg(a: float) -> float:
         ang = (-a) if clockwise else a
@@ -188,8 +188,8 @@ def read_full_scan_from_serial(
                 got_wrap = True
 
             # маппинг в ближайший целый градус
-            idx = int(round(deg)) % 360
-            distances[idx] = dist_m
+            # idx = int(round(deg)) % 360
+            distances[deg] = dist_m
 
             last_deg = deg
 
