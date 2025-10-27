@@ -33,7 +33,7 @@ def main():
     ap = argparse.ArgumentParser(description="Запись видео с таймером в углу")
     ap.add_argument("-o", "--output", default="capture.mp4",
                     help="Путь к выходному файлу (.mp4 или .avi)")
-    ap.add_argument("--fps", type=float, default=30.0, help="Целевая частота кадров")
+    ap.add_argument("--fps", type=float, default=10.0, help="Целевая частота кадров")
     ap.add_argument("--width", type=int, default=0, help="Ширина кадра (0 — оставить как есть)")
     ap.add_argument("--height", type=int, default=0, help="Высота кадра (0 — оставить как есть)")
     ap.add_argument("--duration", type=float, default=0.0,

@@ -30,7 +30,7 @@ from robot_lidar import POINTS_PER_PACK, parse_frame, sync_and_read_frame
 def main():
     """Demo пример online сборки показаний лидара и отображение на круговой диаграмме."""
     ap = argparse.ArgumentParser(description="LD19 realtime viewer (fresh frame only)")
-    ap.add_argument("--port", "-p", default="/dev/tty.usbserial-0001", help="Serial port path")
+    ap.add_argument("--port", "-p", default="/dev/ttyUSB0", help="Serial port path")
     ap.add_argument("--baud", "-b", type=int, default=230400, help="Baud rate")
     ap.add_argument("--timeout", "-t", type=float, default=0.2, help="Serial read timeout seconds")
     ap.add_argument("--rmax", "-r", type=float, default=6.0, help="Polar plot radius in meters")

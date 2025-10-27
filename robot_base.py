@@ -70,6 +70,7 @@ class Robot:
         self.initialized = True
 
     def recv_sensors(self) -> SensorData:
+        self.wait_until_initialized()
         (nav_pos, nav_angle), ts = self._latest_nav.get()
         (odom_pos, odom_th, odom_vel, odom_th_vel), ts = self._latest_odometry.get()
         (lidar_ranges), ts = self._latest_lidar.get()
