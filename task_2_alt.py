@@ -1,8 +1,7 @@
-import numpy as np
 from driver import Driver
 from emulation.emulated_robot import EmulatedRobot
 
-robot = EmulatedRobot()
+robot = EmulatedRobot(demo_render_navigator=True, file_rendering_navigator=False)  # Flags: demo_render_navigator, file_rendering_navigator
 robot.connect()
 driver = Driver(robot)
 driver.update_ref_angle()
@@ -19,3 +18,4 @@ try:
         driver.freeze()
 finally:
     robot.disconnect()
+    robot.navigator.stop_rendering()

@@ -46,9 +46,13 @@ class SensorData:
 
 
 class Robot:
-    def __init__(self, enable_navigator: bool = True) -> None:
-        if enable_navigator:
-            self.navigator = Navigator()
+    def __init__(self, demo_render_navigator: bool = True, file_rendering_navigator: bool = False) -> None:
+        if demo_render_navigator:
+            self.navigator = Navigator(show_demo=True, render_mode="window", render_fps=15.0)
+        elif file_rendering_navigator:
+            self.navigator = Navigator(show_demo=True, render_mode="file", render_fps=1.0, render_out_dir="frames")
+        else:
+            self.navigator = Navigator(show_demo=False)
         self._latest_odometry = Latest()
         self._latest_lidar = Latest()
         self._latest_nav = Latest()
@@ -77,7 +81,7 @@ class Robot:
             lidar_ranges=lidar_ranges
         )
         return data
-    
+
     def wait_until_initialized(self):
         while not self.initialized:
             time.sleep(0.01)

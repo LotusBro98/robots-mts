@@ -18,8 +18,8 @@ PROTO     = str(os.getenv("PROTO", "tcp"))
 
 
 class EmulatedRobot(Robot):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.sock_cmd = None
         self.sock_tel = None
 

@@ -1,6 +1,9 @@
+import os
 import threading
 import time
 from typing import Dict
+
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.spatial import cKDTree
@@ -36,13 +39,26 @@ class Candidate:
 
 
 class Navigator:
-    def __init__(self):
+    def __init__(self, show_demo: bool = True,
+                 render_mode: str = "window",  # "window" | "file" | "off"
+                 render_fps: float = 10.0,
+                 render_out_dir: str | None = "frames"):
+        self.show_demo = show_demo
+        self.render_mode = render_mode if show_demo else "off"
+        self.render_fps = max(0.1, float(render_fps))
+        self.render_out_dir = render_out_dir
+
         self.pos = np.zeros((2,), dtype=np.float32)
         self.angle = 0
         self.points = np.zeros((0, 2), dtype=np.float32)
         self._grid = {}                               # воксельная сетка для быстрой проверки (cell -> index в points)
         self.candidates = {}                          # cell -> Candidate
         self._frame_id = 0
+
+        # Для безопасного вызова display() даже без демо
+        self.cur_lidar_pts = np.zeros((0, 2), dtype=np.float32)
+        self.cur_matched_pts = np.zeros((0, 2), dtype=np.float32)
+        self.last_display_time = 0
 
         self.prev_odom_pos = np.zeros((2,), dtype=np.float32)
         self.prev_odom_angle = 0
@@ -51,10 +67,29 @@ class Navigator:
 
         self.lock = threading.Lock()
 
-        self._init_plot()
+        # Рендер в файл — без оконного backend
+        if self.render_mode == "file":
+            matplotlib.use("Agg")  # безопасно до создания Figure
+
+        # Ленивая инициализация фигуры: создадим при первом кадре
+        self.fig = None
+        self.ax = None
+        self.scat1 = self.scat2 = self.scat3 = self.scat4 = None
+        self.bg = None
+
+        # Поток рендера
+        self._render_stop = threading.Event()
+        self._render_thread = None
+        if self.render_mode in ("window", "file"):
+            self._render_thread = threading.Thread(target=self._render_loop, daemon=True)
+            self._render_thread.start()
 
     def _init_plot(self):
-        self.fig, self.ax = plt.subplots(figsize=(15,7))
+        if self.fig is not None:  # уже создано
+            return
+        self.fig, self.ax = plt.subplots(figsize=(15, 7))
+        if self.render_mode == "window":
+            plt.show(block=False)
         self.ax.set_xlim(-1, 14)
         self.ax.set_ylim(-1, 6)
         self.ax.set_aspect("equal", adjustable="box")
@@ -65,12 +100,17 @@ class Navigator:
         self.fig.canvas.draw()
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
 
-    def _update_plot(self, old_points, points, pts_from):
+    def _update_plot(self, old_points, points, pts_from, robot_pos):
+        # вызывается только из потока рендера
+        if self.fig is None:
+            self._init_plot()
+
         self.scat1.set_offsets(old_points)
         self.scat2.set_offsets(pts_from)
         self.scat3.set_offsets(points)
-        self.scat4.set_offsets(self.pos)
-        # Блиттинг: восстанавливаем фон, рисуем артиш и блитим только область осей
+        self.scat4.set_offsets(robot_pos[None, :])
+
+        # Блиттинг
         self.fig.canvas.restore_region(self.bg)
         self.ax.draw_artist(self.scat1)
         self.ax.draw_artist(self.scat2)
@@ -78,12 +118,7 @@ class Navigator:
         self.ax.draw_artist(self.scat4)
         self.fig.canvas.blit(self.ax.bbox)
         self.fig.canvas.flush_events()
-        # маленькая пауза даёт GUI-циклу обработать события
-        try:
-            plt.pause(0.0001)
-        except:
-            pass
-        
+
     def _get_nearest_neighbors(self, points, min_dist=0.025):
         if len(self.points) == 0:
             return np.zeros([0, 2]), np.zeros([0, 2]), points
@@ -395,10 +430,11 @@ class Navigator:
 
     last_display_time = 0
     def display(self):
-        cur_time = time.time()
-        if cur_time - self.last_display_time > 1:
-            self._update_plot(self.points, self.cur_lidar_pts, self.cur_matched_pts)
-            self.last_display_time = cur_time
+        return
+        # cur_time = time.time()
+        # if cur_time - self.last_display_time > 1:
+        #     self._update_plot(self.points, self.cur_lidar_pts, self.cur_matched_pts)
+        #     self.last_display_time = cur_time
 
     def get_right_wall_dist(self, max_dist=2):
         center_angle = -60
@@ -414,4 +450,63 @@ class Navigator:
         min_dist = np.min(wall_dists)
         return min_dist
 
-        
+    def _render_loop(self):
+        """Запускается только в render thread"""
+        period = 1.0 / self.render_fps
+        frame_idx = 0
+
+        # для вывода в файл — подготовить директорию
+        if self.render_mode == "file":
+            out_dir = self.render_out_dir or "frames"
+            os.makedirs(out_dir, exist_ok=True)
+
+        t_next = time.perf_counter()
+        while not self._render_stop.is_set():
+            t0 = time.perf_counter()
+
+            # Снимок данных под лок
+            with self.lock:
+                old_points = self.points.copy()
+                pts_cur = getattr(self, "cur_lidar_pts", np.zeros((0, 2)))
+                pts_from = getattr(self, "cur_matched_pts", np.zeros((0, 2)))
+                robot_pos = self.pos.copy()
+
+            # Рисуем
+            if self.render_mode == "window":
+                self._update_plot(old_points, pts_cur, pts_from, robot_pos)
+            elif self.render_mode == "file":
+                # один общий код обновления на фигуру
+                self._update_plot(old_points, pts_cur, pts_from, robot_pos)
+                # сохранить кадр PNG
+                # out_path = os.path.join(self.render_out_dir or "frames", f"frame_{frame_idx:06d}.png")
+                out_path = os.path.join(self.render_out_dir or "frames", f"last_frame.png")
+                self.fig.savefig(out_path, dpi=100, bbox_inches="tight")
+                frame_idx += 1
+
+            # Дождаться следующего слота по FPS
+            t_next += period
+            sleep_time = t_next - time.perf_counter()
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+            else:
+                # если не успеваем — не накапливаем лаг
+                t_next = time.perf_counter()
+
+    def stop_rendering(self):
+        if self._render_thread and self._render_thread.is_alive():
+            self._render_stop.set()
+            self._render_thread.join(timeout=1.0)
+        # Закрываем окно только в главном потоке и если реально было окно
+        if self.render_mode == "window" and threading.current_thread() is threading.main_thread():
+            try:
+                import matplotlib.pyplot as plt
+                plt.close(self.fig)
+            except Exception:
+                pass
+
+    def _safe_atexit_close(self):
+        # вызывается уже в момент сворачивания интерпретатора
+        try:
+            self.stop_rendering()
+        except Exception:
+            pass
