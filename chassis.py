@@ -64,6 +64,8 @@ class RobotChassis(Robot):
         self.last_msg = None
         self.pos = np.array([0.0, 0.0], dtype=np.float32)
         self.angle = 0
+        self.vel = np.array([0.0, 0.0], dtype=np.float32)
+        self.vth = 0
         self.send_command(T=131, cmd=1)
         self.sensors_thread = threading.Thread(target=self._capture_wheel_sensors, daemon=True)
         self.sensors_thread.start()
@@ -82,22 +84,6 @@ class RobotChassis(Robot):
             self.lidar_thread.join()
             self.lidar_thread = None
 
-    def recv_tel(self, ref_angle=0):
-        odom_x = 0
-        odom_y = 0
-        odom_th = 0
-        vx = 0
-        vy = 0
-        vth = 0
-        return (
-            np.array([odom_x, odom_y]),
-            odom_th - ref_angle,
-            np.array([vx, vy]),
-            vth,
-            np.array([0, 0, 0]),
-            self.lidar_distances_by_direction,
-        )
-
     def _capture_lidar(self):
         print("Started lidar capture")
         while self.do_capture_sensors:
@@ -112,7 +98,7 @@ class RobotChassis(Robot):
                 )
                 self.lidar_distances_by_angle = distances_by_angle
                 self.lidar_distances_by_direction = {-45: distances_by_angle[314], 0: distances_by_angle[0], 45: distances_by_angle[45]}
-                self._lidar_callback(ranges=distances_by_angle)
+                self._update_lidar(distances_by_angle)
                 print(distances_by_angle)
             except:
                 traceback.print_exc()
@@ -140,11 +126,11 @@ class RobotChassis(Robot):
 
             try:
                 self.sensors_callback(msg)
-                self._odometry_callback(pos=self.pos, th=self.angle)
             except:
                 traceback.print_exc()
                 continue
 
+    prev_odom_time = time.monotonic()
     def calc_odometry(self, msg, last_msg):  # TODO: отдавать отсюда odom_x, odom_y, odom_th, vx, vy, vth как из EmulatedRobot.recv_tel
         delta_left = msg["odl"] - last_msg["odl"]
         delta_right = msg["odr"] - last_msg["odr"]
@@ -162,6 +148,15 @@ class RobotChassis(Robot):
         # Учесть, что робот в этом отрезке едет по дуге. 
         # Текущая формула последовательно едет прямо потом по углу. 
         # Усреднить от "проехал прямо затем повернул" и "повернул затем проехал прямо"
+
+        time_now = time.monotonic()
+        dt = time_now - self.prev_odom_time
+        self.prev_odom_time = time_now
+        
+        self.vth = angular_delta / dt
+        self.vel = np.array([linear_delta, 0], dtype=np.float32)
+        
+        self._update_odometry(self.pos, self.angle, self.vel, self.vth)
 
 
     def sensors_callback(self, msg):  # TODO: взять это за основу?
