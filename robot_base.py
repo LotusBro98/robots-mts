@@ -9,19 +9,33 @@ from navigator import Navigator
 
 
 class Latest:
-    """Потокобезопасное хранилище последнего значения с меткой времени."""
-    __slots__ = ("_data", "_ts", "_lock")
+    """Потокобезопасное хранилище последнего значения с меткой времени и замером FPS."""
+    __slots__ = ("_data", "_ts", "_lock", "_count", "_start_time", "name")
+    PRINT_FPS_EVERY_N_TIMES = 200
+    SHOW_FPS = False
 
-    def __init__(self):
+    def __init__(self, name: str):
         self._data = None
         self._ts = None
         self._lock = threading.Lock()
+        self._count = 0
+        self._start_time = time.monotonic()
+        self.name = name
 
     def set(self, value):
-        """Сохраняет новое значение и метку времени."""
+        """Сохраняет новое значение и метку времени, периодически выводит FPS."""
         with self._lock:
             self._data = value
             self._ts = time.monotonic()
+            self._count += 1
+
+            if self.SHOW_FPS and self._count % self.PRINT_FPS_EVERY_N_TIMES == 0:
+                now = time.monotonic()
+                dt = now - self._start_time
+                if dt > 0:
+                    fps = self.PRINT_FPS_EVERY_N_TIMES / dt
+                    print(f"\n[{self.name}] FPS: {fps:.1f}")
+                self._start_time = now  # сбрасываем отсчёт
 
     def get(self):
         """Возвращает (value, timestamp) — последнюю запись и время её обновления."""
@@ -60,10 +74,10 @@ class Robot:
             self.navigator = Navigator(show_demo=True, render_mode="file", render_fps=1.0, render_out_dir="navigator_images")
         else:
             self.navigator = Navigator(show_demo=False)
-        self._latest_odometry = Latest()
-        self._latest_lidar = Latest()
-        self._latest_gyro = Latest()
-        self._latest_nav = Latest()
+        self._latest_odometry = Latest("odometry")
+        self._latest_lidar = Latest("lidar")
+        self._latest_gyro = Latest("gyro")
+        self._latest_nav = Latest("nav")
         self.initialized = False
 
     def _update_odometry(self, odom_pos, odom_th, odom_vel, odom_th_vel):
