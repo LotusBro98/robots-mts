@@ -11,9 +11,9 @@ python demo_show_lidar_online.py --port /dev/ttyUSB0
 nav = Navigator(show_demo=True, render_mode="window", render_fps=15.0)
 ```
 
-2. Без окна, запись кадров в PNG-папку frames/ с 5 FPS:
+2. Без окна, запись кадров в PNG-папку navigator_images/ с 5 FPS:
 ```
-nav = Navigator(show_demo=True, render_mode="file", render_fps=5.0, render_out_dir="frames")
+nav = Navigator(show_demo=True, render_mode="file", render_fps=5.0, render_out_dir="navigator_images")
 ```
 
 3. Полностью без рендера (только расчёты):

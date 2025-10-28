@@ -5,6 +5,7 @@ from typing import Dict
 
 import matplotlib
 from matplotlib import pyplot as plt
+from matplotlib.patches import FancyArrowPatch
 import numpy as np
 from scipy.spatial import cKDTree
 
@@ -42,7 +43,7 @@ class Navigator:
     def __init__(self, show_demo: bool = True,
                  render_mode: str = "window",  # "window" | "file" | "off"
                  render_fps: float = 10.0,
-                 render_out_dir: str | None = "frames"):
+                 render_out_dir: str | None = "navigator_images"):
         self.show_demo = show_demo
         self.render_mode = render_mode if show_demo else "off"
         self.render_fps = max(0.1, float(render_fps))
@@ -76,6 +77,7 @@ class Navigator:
         self.ax = None
         self.scat1 = self.scat2 = self.scat3 = self.scat4 = None
         self.bg = None
+        self.arrow = None
 
         # Поток рендера
         self._render_stop = threading.Event()
@@ -97,10 +99,19 @@ class Navigator:
         self.scat2 = self.ax.scatter([], [], s=4)
         self.scat3 = self.ax.scatter([], [], s=1)
         self.scat4 = self.ax.scatter([], [], s=100, c='green')
+        self.arrow = FancyArrowPatch(
+            (0, 0), (0, 0),
+            arrowstyle='-|>',
+            mutation_scale=16,   # размер наконечника
+            lw=1.8,
+            color='green',
+            zorder=5
+        )
+        self.ax.add_patch(self.arrow)
         self.fig.canvas.draw()
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
 
-    def _update_plot(self, old_points, points, pts_from, robot_pos):
+    def _update_plot(self, old_points, points, pts_from, robot_pos, robot_angle):
         # вызывается только из потока рендера
         if self.fig is None:
             self._init_plot()
@@ -110,12 +121,20 @@ class Navigator:
         self.scat3.set_offsets(points)
         self.scat4.set_offsets(robot_pos[None, :])
 
+        # Стрелка
+        arrow_len = 0.4
+        dx = arrow_len * np.cos(robot_angle)
+        dy = arrow_len * np.sin(robot_angle)
+        head_xy = (robot_pos[0] + dx, robot_pos[1] + dy)
+        self.arrow.set_positions((robot_pos[0], robot_pos[1]), head_xy)
+
         # Блиттинг
         self.fig.canvas.restore_region(self.bg)
         self.ax.draw_artist(self.scat1)
         self.ax.draw_artist(self.scat2)
         self.ax.draw_artist(self.scat3)
         self.ax.draw_artist(self.scat4)
+        self.ax.draw_artist(self.arrow)
         self.fig.canvas.blit(self.ax.bbox)
         self.fig.canvas.flush_events()
 
@@ -480,7 +499,7 @@ class Navigator:
 
         # для вывода в файл — подготовить директорию
         if self.render_mode == "file":
-            out_dir = self.render_out_dir or "frames"
+            out_dir = self.render_out_dir or "navigator_images"
             os.makedirs(out_dir, exist_ok=True)
 
         t_next = time.perf_counter()
@@ -493,16 +512,15 @@ class Navigator:
                 pts_cur = getattr(self, "cur_lidar_pts", np.zeros((0, 2)))
                 pts_from = getattr(self, "cur_matched_pts", np.zeros((0, 2)))
                 robot_pos = self.pos.copy()
+                robot_angle = self.angle
 
             # Рисуем
             if self.render_mode == "window":
-                self._update_plot(old_points, pts_cur, pts_from, robot_pos)
+                self._update_plot(old_points, pts_cur, pts_from, robot_pos, robot_angle)
             elif self.render_mode == "file":
-                # один общий код обновления на фигуру
-                self._update_plot(old_points, pts_cur, pts_from, robot_pos)
+                self._update_plot(old_points, pts_cur, pts_from, robot_pos, robot_angle)
                 # сохранить кадр PNG
-                # out_path = os.path.join(self.render_out_dir or "frames", f"frame_{frame_idx:06d}.png")
-                out_path = os.path.join(self.render_out_dir or "frames", f"last_frame.png")
+                out_path = os.path.join(self.render_out_dir or "navigator_images", f"last_frame.png")
                 self.fig.savefig(out_path, dpi=100, bbox_inches="tight")
                 frame_idx += 1
 
