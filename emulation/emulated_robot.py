@@ -19,8 +19,8 @@ PROTO     = str(os.getenv("PROTO", "tcp"))
 
 class EmulatedRobot(Robot):
     GYRO_CORR_COEFF = 0.975
-    MAX_ACCELERATION = 0.1
-    MAX_SPEED_MpS = 1.0
+    MAX_ACCELERATION = 0.042
+    MAX_SPEED_MpS = 0.42
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

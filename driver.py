@@ -307,8 +307,6 @@ class Driver:
         print("[drive] stop")
         self.robot.send_drive(0, 0)
 
-    prev_pos = [0, 0]
-    prev_time = time.monotonic()
     def maze_forward(self, target_pos, target_speed, brake_eps=0.1, max_speed=1):
         target_pos = np.asarray(target_pos)
 
@@ -323,13 +321,6 @@ class Driver:
             sens = self.robot.recv_sensors()
             distance_left = project_scalar(direction, target_pos - sens.pos)
             vel_fwd = sens.vel[0]
-            delta = sens.pos - self.prev_pos
-            self.prev_pos = sens.pos
-
-            time_now = time.monotonic()
-            dt = time_now - self.prev_time
-            self.prev_time = time_now
-            delta = np.linalg.norm(delta) / dt
 
             if distance_left < 0:
                 print("\n[maze_forward] target reached")
@@ -347,7 +338,6 @@ class Driver:
             msg += f"dist: {distance_left:6.3f} "
             msg += f"vel_set: {speed:6.3f} "
             msg += f"vel: {vel_fwd:6.3f} "
-            msg += f"delta: {delta:6.3f} "
             print(msg, end="", flush=True)
             self.robot.send_drive(speed, 0)
             times.append(time.monotonic() - start_time)
