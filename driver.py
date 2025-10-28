@@ -1,7 +1,6 @@
 import time
 import numpy as np
 
-from navigator import Navigator
 from robot_base import Robot
 
 
@@ -57,9 +56,6 @@ class Driver:
 
         while True:
             sens = self.robot.recv_sensors()
-            cur_front_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle > 10 and angle < 10)
-            cur_left_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle > 30) * np.sin(np.deg2rad(45))
-            cur_right_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle < -30) * np.sin(np.deg2rad(45))
             vel_front = sens.vel[0]
 
             dist = np.linalg.norm(start_pos - sens.pos)
@@ -67,14 +63,14 @@ class Driver:
                 print("\n[drive] max dist reached")
                 break
 
-            if front_wall_dist is not None and cur_front_wall_dist < front_wall_dist:
+            if front_wall_dist is not None and sens.cur_front_wall_dist < front_wall_dist:
                 print("\n[drive] wall reached")
                 break
 
             if (
                 left_wall_dist is not None
                 and stop_on_wall_hole is not None
-                and cur_left_wall_dist > stop_on_wall_hole
+                and sens.cur_left_wall_dist > stop_on_wall_hole
             ):
                 print("\n[drive] left wall hole reached")
                 break
@@ -82,7 +78,7 @@ class Driver:
             if (
                 right_wall_dist is not None
                 and stop_on_wall_hole is not None
-                and cur_right_wall_dist > stop_on_wall_hole
+                and sens.cur_right_wall_dist > stop_on_wall_hole
             ):
                 print("\n[drive] right wall hole reached")
                 break
@@ -92,7 +88,7 @@ class Driver:
                 if max_dist is not None:
                     stop_dist = min(max_dist - dist, stop_dist)
                 if front_wall_dist is not None:
-                    stop_dist = min(cur_front_wall_dist - front_wall_dist, stop_dist)
+                    stop_dist = min(sens.cur_front_wall_dist - front_wall_dist, stop_dist)
                 t = np.clip(stop_dist / smooth_stop_dist, -1, 1)
                 speed = np.sign(max_speed) * np.clip(
                     t * abs(max_speed), self.MIN_SPEED, abs(max_speed)
@@ -106,14 +102,14 @@ class Driver:
                 angle_diff = np.arctan2(np.sin(angle_diff), np.cos(angle_diff))
                 t = angle_diff / self.REGULATE_MAX_ANGLE
             elif (
-                left_wall_dist is not None and cur_left_wall_dist < cur_front_wall_dist
+                left_wall_dist is not None and sens.cur_left_wall_dist < sens.cur_front_wall_dist
             ):
-                t = (cur_left_wall_dist - left_wall_dist) / left_wall_dist * 2
+                t = (sens.cur_left_wall_dist - left_wall_dist) / left_wall_dist * 2
             elif (
                 right_wall_dist is not None
-                and cur_right_wall_dist < cur_front_wall_dist
+                and sens.cur_right_wall_dist < sens.cur_front_wall_dist
             ):
-                t = -(cur_right_wall_dist - right_wall_dist) / right_wall_dist * 2
+                t = -(sens.cur_right_wall_dist - right_wall_dist) / right_wall_dist * 2
             else:
                 t = 0
             rot = np.clip(
@@ -125,11 +121,11 @@ class Driver:
             if direction is not None:
                 msg += f"th: {sens.angle:6.3f} rot_speed: {rot:6.3f} "
             if front_wall_dist is not None:
-                msg += f"front_wall: {cur_front_wall_dist:6.3f} "
+                msg += f"front_wall: {sens.cur_front_wall_dist:6.3f} "
             if left_wall_dist is not None:
-                msg += f"left_wall: {cur_left_wall_dist:6.3f} "
+                msg += f"left_wall: {sens.cur_left_wall_dist:6.3f} "
             if right_wall_dist is not None:
-                msg += f"right_wall: {cur_right_wall_dist:6.3f} "
+                msg += f"right_wall: {sens.cur_right_wall_dist:6.3f} "
             print(msg, end="", flush=True)
             self.robot.send_drive(speed, rot)
 
@@ -195,10 +191,10 @@ class Driver:
         self.robot.send_drive(0, 0)
 
     def freeze(self):
+        """Return back to position where it was called, decrease inertia"""
         vel_threshold = 0.01
         k = 1
         eps = 0.05
-        """Return back to position where it was called, decrease inertia"""
 
         sens = self.robot.recv_sensors()
         start_pos = sens.pos
@@ -233,11 +229,10 @@ class Driver:
         right_wall_dist=None,
     ):
         """
-        direction - в градусах относительно ref_angle(). влево +, вправо -
         max_dist - на какое расстояние проехать
         front_wall_dist - остановиться, если стенка ближе чем это расстояние
-        smooth_stop_dist - расстояние до конца, на котором начать плавно тормозить
-        reverse - вперёд или назад
+        front_wall_smooth_stop_dist, side_wall_smooth_stop_dist - 
+            расстояние до конца, на котором начать плавно тормозить
         """
         sens = self.robot.recv_sensors()
         start_pos = sens.pos
@@ -246,35 +241,30 @@ class Driver:
 
         while True:
             sens = self.robot.recv_sensors()
-            right_pt = -15
-            left_pt = 15
-            cur_front_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle < left_pt and angle > right_pt)
-            cur_left_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle > left_pt) * np.sin(np.deg2rad(45))
-            cur_right_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle < right_pt) * np.sin(np.deg2rad(45))
             vel_front = sens.vel[0]
-            cur_right_wall_dist = self.robot.navigator.get_wall_dist(center_angle=-50, max_angle=10)
+            sens.cur_right_wall_dist = self.robot.navigator.get_wall_dist(center_angle=-50, max_angle=10)
 
             dist = np.linalg.norm(start_pos - sens.pos)
 
-            # if left_wall_dist is not None and cur_left_wall_dist > left_wall_dist + side_wall_smooth_stop_dist:
+            # if left_wall_dist is not None and sens.cur_left_wall_dist > left_wall_dist + side_wall_smooth_stop_dist:
             #     print("\n[drive] lost left wall")
             #     break
-            # if right_wall_dist is not None and cur_right_wall_dist > right_wall_dist + side_wall_smooth_stop_dist:
+            # if right_wall_dist is not None and sens.cur_right_wall_dist > right_wall_dist + side_wall_smooth_stop_dist:
             #     print("\n[drive] lost right wall")
             #     break
 
             if left_wall_dist is not None:
-                t = (cur_left_wall_dist - left_wall_dist) / side_wall_smooth_stop_dist
+                t = (sens.cur_left_wall_dist - left_wall_dist) / side_wall_smooth_stop_dist
             elif right_wall_dist is not None:
                 t = (
-                    -(cur_right_wall_dist - right_wall_dist)
+                    -(sens.cur_right_wall_dist - right_wall_dist)
                     / side_wall_smooth_stop_dist
                 )
             else:
                 t = 0
             rot = np.clip(t * self.MAX_ROT_SPEED, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
 
-            stop_dist = cur_front_wall_dist - front_wall_dist
+            stop_dist = sens.cur_front_wall_dist - front_wall_dist
             t = np.clip(stop_dist / front_wall_smooth_stop_dist, -1, 1)
             speed = (
                 np.sign(max_speed)
@@ -293,11 +283,11 @@ class Driver:
             if left_wall_dist is not None or right_wall_dist is not None:
                 msg += f"th: {sens.angle:6.3f} rot_speed: {rot:6.3f} "
             if front_wall_dist is not None:
-                msg += f"front_wall: {cur_front_wall_dist:6.3f} "
+                msg += f"front_wall: {sens.cur_front_wall_dist:6.3f} "
             if left_wall_dist is not None:
-                msg += f"left_wall: {cur_left_wall_dist:6.3f} "
+                msg += f"left_wall: {sens.cur_left_wall_dist:6.3f} "
             if right_wall_dist is not None:
-                msg += f"right_wall: {cur_right_wall_dist:6.3f} "
+                msg += f"right_wall: {sens.cur_right_wall_dist:6.3f} "
             print(msg, end="", flush=True)
             # speed = 0.00
             # rot = 1

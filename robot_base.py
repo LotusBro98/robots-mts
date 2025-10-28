@@ -38,11 +38,18 @@ class Latest:
 
 @dataclass
 class SensorData:
-    pos: np.ndarray
+    pos: np.ndarray  # массив из 2 чисел - координаты
     vel: np.ndarray
     angle: np.ndarray
     angle_vel: np.ndarray
     lidar_ranges: Dict[float, float]
+
+    def __post_init__(self):
+        right_pt = -15
+        left_pt = 15
+        self.cur_front_wall_dist = min(rng for angle, rng in self.lidar_ranges.items() if angle < left_pt and angle > right_pt)
+        self.cur_left_wall_dist = min(rng for angle, rng in self.lidar_ranges.items() if angle > left_pt) * np.sin(np.deg2rad(45))
+        self.cur_right_wall_dist = min(rng for angle, rng in self.lidar_ranges.items() if angle < right_pt) * np.sin(np.deg2rad(45))
 
 
 class Robot:
