@@ -1,7 +1,7 @@
 from driver import Driver
 from emulation.emulated_robot import EmulatedRobot
 
-robot = EmulatedRobot(demo_render_navigator=True, file_rendering_navigator=False)  # Flags: demo_render_navigator, file_rendering_navigator
+robot = EmulatedRobot(demo_render_navigator=False, file_rendering_navigator=True)  # Flags: demo_render_navigator, file_rendering_navigator
 robot.connect()
 driver = Driver(robot)
 driver.update_ref_angle()
@@ -10,10 +10,10 @@ try:
     while True:
         driver.drive_maze(
             max_speed=0.5,
-            front_wall_dist=0.25,
-            right_wall_dist=0.25, 
-            front_wall_smooth_stop_dist=1.2,
-            side_wall_smooth_stop_dist=0.4
+            front_wall_dist=0.20,
+            right_wall_dist=0.275, 
+            front_wall_smooth_stop_dist=1.0,
+            side_wall_smooth_stop_dist=0.3
         )
         driver.freeze()
 finally:

@@ -55,18 +55,21 @@ class Robot:
             self.navigator = Navigator(show_demo=False)
         self._latest_odometry = Latest()
         self._latest_lidar = Latest()
+        self._latest_gyro = Latest()
         self._latest_nav = Latest()
         self.initialized = False
 
     def _update_odometry(self, odom_pos, odom_th, odom_vel, odom_th_vel):
         self._latest_odometry.set((odom_pos, odom_th, odom_vel, odom_th_vel))
-        nav_pos, nav_angle = self.navigator.update_from_odometry(odom_pos, odom_th)
-        self._latest_nav.set((nav_pos, nav_angle))
+        self._latest_nav.set(self.navigator.update_from_odometry(odom_pos, odom_th))
+
+    def _update_gyro(self, gyro):
+        self._latest_gyro.set(gyro)
+        self._latest_nav.set(self.navigator.update_from_gyro(gyro))
 
     def _update_lidar(self, lidar_ranges):
         self._latest_lidar.set(lidar_ranges)
-        nav_pos, nav_angle = self.navigator.update_from_lidar(lidar_ranges)
-        self._latest_nav.set((nav_pos, nav_angle))
+        self._latest_nav.set(self.navigator.update_from_lidar(lidar_ranges))
         self.initialized = True
 
     def recv_sensors(self) -> SensorData:

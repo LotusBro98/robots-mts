@@ -18,6 +18,8 @@ PROTO     = str(os.getenv("PROTO", "tcp"))
 
 
 class EmulatedRobot(Robot):
+    GYRO_CORR_COEFF = 0.975
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sock_cmd = None
@@ -64,8 +66,10 @@ class EmulatedRobot(Robot):
             except:
                 traceback.print_exc()
                 break
+            gyro *= self.GYRO_CORR_COEFF
 
             self._update_odometry(pos, th, vel, th_vel)
+            self._update_gyro(gyro)
             self._update_lidar(ranges)
 
     def send_drive(self, v: float, w: float):

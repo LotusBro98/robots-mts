@@ -252,7 +252,7 @@ class Driver:
             cur_left_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle > left_pt) * np.sin(np.deg2rad(45))
             cur_right_wall_dist = min(rng for angle, rng in sens.lidar_ranges.items() if angle < right_pt) * np.sin(np.deg2rad(45))
             vel_front = sens.vel[0]
-            cur_right_wall_dist = self.robot.navigator.get_right_wall_dist()
+            cur_right_wall_dist = self.robot.navigator.get_wall_dist(center_angle=-50, max_angle=10)
 
             dist = np.linalg.norm(start_pos - sens.pos)
 
@@ -299,7 +299,7 @@ class Driver:
             if right_wall_dist is not None:
                 msg += f"right_wall: {cur_right_wall_dist:6.3f} "
             print(msg, end="", flush=True)
-            # speed = 0.05
+            # speed = 0.00
             # rot = 1
             self.robot.send_drive(speed, rot)
             time.sleep(0.1)

@@ -391,8 +391,26 @@ class Navigator:
         self.prev_odom_angle = odom_angle
 
         with self.lock:
-            self.angle += odom_angle_delta
+            # self.angle += odom_angle_delta
             self.pos += odom_delta
+            return self.pos, self.angle
+        
+    prev_gyro_time = time.monotonic()
+    prev_gyro_w = 0
+    def update_from_gyro(self, gyro):
+        _, w, _ = gyro
+        
+        time_now = time.monotonic()
+        dt = time_now - self.prev_gyro_time
+        self.prev_gyro_time = time_now
+
+        w_med = 0.5 * (self.prev_gyro_w + w)
+        self.prev_gyro_w = w
+
+        dth = w_med * dt
+
+        with self.lock:
+            self.angle += dth
             return self.pos, self.angle
 
     def update_from_lidar(self, lidar_data: Dict[float, float]):
@@ -417,7 +435,11 @@ class Navigator:
             self._add_new_points(points, min_dist=0.05)
         else:
             self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=10, max_candidate_age=3, candidate_cell_scale=0.1)
-        dpos *= 0.1
+        dpos *= 0.2
+        
+        MAX_DTH = np.deg2rad(1)
+        dth *= 0.2
+        dth = np.clip(dth, -MAX_DTH, MAX_DTH)
     
         self.cur_lidar_pts = points
         self.cur_matched_pts = pts_from
@@ -436,9 +458,7 @@ class Navigator:
         #     self._update_plot(self.points, self.cur_lidar_pts, self.cur_matched_pts)
         #     self.last_display_time = cur_time
 
-    def get_right_wall_dist(self, max_dist=2):
-        center_angle = -60
-        max_angle = 20
+    def get_wall_dist(self, center_angle=-45, max_angle=20, max_dist=2):
         points = self._get_relative_points(max_dist=max_dist, angle_shift=center_angle, max_angle=max_angle)
         if len(points) == 0:
             return 0
