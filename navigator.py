@@ -87,11 +87,11 @@ class Navigator:
     def _init_plot(self):
         if self.fig is not None:  # уже создано
             return
-        self.fig, self.ax = plt.subplots(figsize=(15, 7))
+        self.fig, self.ax = plt.subplots(figsize=(12, 12))
         if self.render_mode == "window":
             plt.show(block=False)
-        self.ax.set_xlim(-1, 14)
-        self.ax.set_ylim(-1, 6)
+        self.ax.set_xlim(-1, 8)
+        self.ax.set_ylim(-1, 8)
         self.ax.set_aspect("equal", adjustable="box")
         self.scat1 = self.ax.scatter([], [], s=4)
         self.scat2 = self.ax.scatter([], [], s=4)
@@ -435,10 +435,13 @@ class Navigator:
             self._add_new_points(points, min_dist=0.05)
         else:
             self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=10, max_candidate_age=3, candidate_cell_scale=0.1)
-        dpos *= 0.2
         
-        MAX_DTH = np.deg2rad(1)
-        dth *= 0.2
+        dpos *= 0.1
+        MAX_DPOS = 0.01
+        dpos = np.clip(dpos, -MAX_DPOS, MAX_DPOS)
+        
+        dth *= 0.1
+        MAX_DTH = np.deg2rad(0.1)
         dth = np.clip(dth, -MAX_DTH, MAX_DTH)
     
         self.cur_lidar_pts = points
