@@ -9,6 +9,8 @@ from matplotlib.patches import FancyArrowPatch
 import numpy as np
 from scipy.spatial import cKDTree
 
+from navigator_utils import estimate_update_point_to_line_robust
+
 def _cell_key(pt, cell_size):
     # ключ ячейки в окрестности размером cell_size
     return (int(np.floor(pt[0] / cell_size)), int(np.floor(pt[1] / cell_size)))
@@ -263,18 +265,30 @@ class Navigator:
         # dth = np.arctan2(M[0, 1], M[0, 0])
         # return dpos, dth
 
-        pts_from = pts_from - center
-        pts_to = pts_to - center
-        normals = self._transform_points(pts_from + pts_to, 0, np.pi/2)
-        normals /= np.linalg.norm(normals, axis=-1, keepdims=True)
-        dth = np.sum((pts_from - pts_to) * normals, axis=-1).mean()
+        # pts_from = pts_from - center
+        # pts_to = pts_to - center
+        # normals = self._transform_points(pts_from + pts_to, 0, np.pi/2)
+        # normals /= np.linalg.norm(normals, axis=-1, keepdims=True)
+        # dth = np.sum((pts_from - pts_to) * normals, axis=-1).mean()
+        # pts_aligned = self._transform_points(pts_from, 0, dth)
+        # dpos = (pts_aligned - pts_to)
+        # # self.scat2.set_offsets(dpos * 20)
+        # dpos = dpos.mean(axis=0)
 
-        pts_aligned = self._transform_points(pts_from, 0, dth)
-        dpos = (pts_aligned - pts_to)
-        # self.scat2.set_offsets(dpos * 20)
-        dpos = dpos.mean(axis=0)
+        dpos, dth, quality, info = estimate_update_point_to_line_robust(
+            pts_from, pts_to, center=center,
+            k_normals=8,
+            huber_delta=0.10,
+            reg_tangential=1e-3,
+            min_pts=20,
+            min_cond=1e-3,
+            min_obs_rot=1e-3,
+            min_obs_trans=1e-2,
+            soft_clip_pos=0.15,               # под твою скорость и частоту
+            soft_clip_th=np.deg2rad(3.0),
+        )
 
-        return dpos, dth
+        return -dpos, -dth
     
     def _add_new_points(self, points, min_dist, inside_dist=0.1, ignore_outliers=True):
         if len(self.points) == 0:
@@ -322,10 +336,11 @@ class Navigator:
     def add_scan_with_buffer(self,
                              points_world: np.ndarray,
                              min_dist: float,
-                             promote_hits: int = 20,
+                             inside_dist: float = 0.1,
+                             promote_hits: int = 3,
                              promote_std: float = 0.05,
                              candidate_cell_scale: float = 0.9,
-                             max_candidate_age: int = 30,
+                             max_candidate_age: int = 15,
                              ema_alpha: float | None = None):
         """
         points_world      : (N,2) текущий снимок в мировой системе (уже скорректирован по позе)
@@ -347,6 +362,7 @@ class Navigator:
         from scipy.spatial import cKDTree
         tree_small = cKDTree(points)
         nn_d, nn_i = tree_small.query(points, k=2, workers=-1)   # вторая колонка — ближайший сосед кроме самой точки
+        is_dense = nn_d[:, 1] < inside_dist
 
         # 2) подготовим сетку карты (если пустая — ускорим старт)
         if len(self._grid) == 0 and self.points.shape[0] > 0:
@@ -357,7 +373,7 @@ class Navigator:
         far_mask = np.empty(points.shape[0], dtype=bool)
         for i, p in enumerate(points):
             far_mask[i] = self._is_far_from_map(p, min_dist)
-        candidate_pts = points[far_mask]
+        candidate_pts = points[is_dense & far_mask]
 
         # 4) обновляем/создаём кандидатов в сетке кандидатов
         cand_cell = min_dist * candidate_cell_scale
@@ -447,21 +463,25 @@ class Navigator:
 
         points = self._transform_points(relative_points, pos, angle, (0, 0))
 
-        pts_from, pts_to = self.match_nearest(points, self.points, max_dist=0.1, unique=False)
+        pts_from, pts_to = self.match_nearest(points, self.points, max_dist=0.2, unique=True)
         dpos, dth = self._estimate_transform(pts_from, pts_to, pos)
         points = self._transform_points(points, dpos, dth, pos)
         if len(self.points) == 0:
             self._add_new_points(points, min_dist=0.05)
         else:
-            self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=10, max_candidate_age=3, candidate_cell_scale=0.1)
+            self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=3, max_candidate_age=15, candidate_cell_scale=0.1)
         
-        dpos *= 0.1
-        MAX_DPOS = 0.01
-        dpos = np.clip(dpos, -MAX_DPOS, MAX_DPOS)
+        # dpos *= 0
+        # dpos *=  1e-1
+        # MAX_DPOS = 1e-3
+        # dpos = np.clip(dpos, -MAX_DPOS, MAX_DPOS)
         
-        dth *= 0.1
-        MAX_DTH = np.deg2rad(0.1)
-        dth = np.clip(dth, -MAX_DTH, MAX_DTH)
+        # dth *= 0
+        # dth *= 1e-2
+        # MAX_DTH = 1e-3
+        # dth = np.clip(dth, -MAX_DTH, MAX_DTH)
+        # print()
+        # print(dpos, dth)
     
         self.cur_lidar_pts = points
         self.cur_matched_pts = pts_from
