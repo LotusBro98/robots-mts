@@ -25,7 +25,7 @@ import serial
 import matplotlib.pyplot as plt
 from matplotlib import cm, colors
 
-from robot_lidar import POINTS_PER_PACK, parse_frame, sync_and_read_frame
+from robot_lidar_alt import POINTS_PER_PACK, parse_frame, sync_and_read_frame
 
 def main():
     """Demo пример online сборки показаний лидара и отображение на круговой диаграмме."""

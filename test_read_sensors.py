@@ -1,6 +1,6 @@
 import serial
 
-from robot_lidar import read_full_scan_from_serial
+from robot_lidar_alt import read_full_scan_from_serial
 
 
 LIDAR_PORT="/dev/ttyUSB0"
