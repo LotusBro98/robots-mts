@@ -113,3 +113,12 @@ def estimate_update_point_to_line_robust(
     dth *= quality
 
     return np.array([tx, ty]), float(dth), quality, info
+
+
+def normalize(vec: np.ndarray) -> np.ndarray:
+    return vec / np.linalg.norm(vec, axis=-1, keepdims=True)
+
+
+def project_scalar(base: np.ndarray, vec: np.ndarray) -> float:
+    return (normalize(base) * vec).sum(-1)
+

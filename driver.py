@@ -1,6 +1,8 @@
 import time
+from matplotlib import pyplot as plt
 import numpy as np
 
+from navigator_utils import normalize, project_scalar
 from robot_base import Robot
 
 
@@ -19,6 +21,12 @@ class Driver:
     def update_ref_angle(self, cur_value=0):
         sens = self.robot.recv_sensors()
         self.REF_ANGLE = sens.angle - np.deg2rad(cur_value)
+
+    def estimate_brake_distance(self, current_vel, target_vel):
+        current_vel = current_vel * self.robot.MAX_SPEED_MpS
+        target_vel = target_vel * self.robot.MAX_SPEED_MpS
+        dist = abs(current_vel**2 - target_vel**2) / (2 * self.robot.MAX_ACCELERATION)
+        return dist
 
     def drive(
         self,
@@ -297,4 +305,58 @@ class Driver:
             self.robot.navigator.display()
 
         print("[drive] stop")
+        self.robot.send_drive(0, 0)
+
+    prev_pos = [0, 0]
+    prev_time = time.monotonic()
+    def maze_forward(self, target_pos, target_speed, brake_eps=0.1, max_speed=1):
+        target_pos = np.asarray(target_pos)
+
+        start_sens = self.robot.recv_sensors()
+        direction = normalize(target_pos - start_sens.pos)
+
+        data = []
+        start_time = time.monotonic()
+        times = []
+        is_braking = False
+        while True:
+            sens = self.robot.recv_sensors()
+            distance_left = project_scalar(direction, target_pos - sens.pos)
+            vel_fwd = sens.vel[0]
+            delta = sens.pos - self.prev_pos
+            self.prev_pos = sens.pos
+
+            time_now = time.monotonic()
+            dt = time_now - self.prev_time
+            self.prev_time = time_now
+            delta = np.linalg.norm(delta) / dt
+
+            if distance_left < 0:
+                print("\n[maze_forward] target reached")
+                break
+
+            if distance_left < self.estimate_brake_distance(vel_fwd, target_speed) + brake_eps:
+                is_braking = True
+
+            if is_braking:
+                speed = target_speed
+            else:
+                speed = max_speed
+
+            msg = f"\r[maze_forward] "
+            msg += f"dist: {distance_left:6.3f} "
+            msg += f"vel_set: {speed:6.3f} "
+            msg += f"vel: {vel_fwd:6.3f} "
+            msg += f"delta: {delta:6.3f} "
+            print(msg, end="", flush=True)
+            self.robot.send_drive(speed, 0)
+            times.append(time.monotonic() - start_time)
+            data.append((distance_left, vel_fwd, speed))
+            time.sleep(0.1)
+        plt.close()
+        plt.plot(times, data)
+        plt.savefig("navigator_images/maze_forward.png")
+        plt.close()
+
+        print("[maze_forward] stop")
         self.robot.send_drive(0, 0)
