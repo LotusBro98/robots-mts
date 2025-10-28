@@ -313,9 +313,9 @@ class Driver:
         start_sens = self.robot.recv_sensors()
         direction = normalize(target_pos - start_sens.pos)
 
-        data = []
-        start_time = time.monotonic()
-        times = []
+        # data = []
+        # start_time = time.monotonic()
+        # times = []
         is_braking = False
         while True:
             sens = self.robot.recv_sensors()
@@ -340,13 +340,20 @@ class Driver:
             msg += f"vel: {vel_fwd:6.3f} "
             print(msg, end="", flush=True)
             self.robot.send_drive(speed, 0)
-            times.append(time.monotonic() - start_time)
-            data.append((distance_left, vel_fwd, speed))
+            # times.append(time.monotonic() - start_time)
+            # data.append((distance_left, vel_fwd, speed))
             time.sleep(0.1)
-        plt.close()
-        plt.plot(times, data)
-        plt.savefig("navigator_images/maze_forward.png")
-        plt.close()
+        # plt.close()
+        # plt.plot(times, data)
+        # plt.savefig("navigator_images/maze_forward.png")
+        # plt.close()
 
         print("[maze_forward] stop")
         self.robot.send_drive(0, 0)
+
+    def maze_rotate(self, target_angle, radius, speed):
+        ...
+
+    def maze_turnaround(self, target_angle):
+        ...
+

@@ -5,4 +5,4 @@ robot = EmulatedRobot(demo_render_navigator=False, file_rendering_navigator=True
 robot.connect()
 driver = Driver(robot)
 
-driver.maze_forward((3, 0), 0.2)
+driver.maze_forward((1, 0), 0.2)
