@@ -90,14 +90,14 @@ class RobotChassis(Robot):
             try:
                 distances_by_angle: dict[float, float] = read_full_scan_from_serial(  # массив расстояний
                     self.lidar_ser,
-                    LIDAR_SERIAL_TIMEOUT,
+                    # LIDAR_SERIAL_TIMEOUT,
                     angle_offset=0.0,
                     clockwise=False,
                     max_revo_seconds=2.0,
-                    sort_by_angle=True,
+                    # sort_by_angle=True,
                 )
-                self.lidar_distances_by_angle = distances_by_angle
-                self.lidar_distances_by_direction = {-45: distances_by_angle[314], 0: distances_by_angle[0], 45: distances_by_angle[45]}
+                # self.lidar_distances_by_angle = distances_by_angle
+                # self.lidar_distances_by_direction = {-45: distances_by_angle[314], 0: distances_by_angle[0], 45: distances_by_angle[45]}
                 self._update_lidar(distances_by_angle)
                 print(distances_by_angle)
             except:

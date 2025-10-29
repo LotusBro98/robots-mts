@@ -61,9 +61,9 @@ class SensorData:
     def __post_init__(self):
         right_pt = -15
         left_pt = 15
-        self.cur_front_wall_dist = min(rng for angle, rng in self.lidar_ranges.items() if angle < left_pt and angle > right_pt)
-        self.cur_left_wall_dist = min(rng for angle, rng in self.lidar_ranges.items() if angle > left_pt) * np.sin(np.deg2rad(45))
-        self.cur_right_wall_dist = min(rng for angle, rng in self.lidar_ranges.items() if angle < right_pt) * np.sin(np.deg2rad(45))
+        self.cur_front_wall_dist = min((rng for angle, rng in self.lidar_ranges.items() if angle < left_pt and angle > right_pt), default=0)
+        self.cur_left_wall_dist = min((rng for angle, rng in self.lidar_ranges.items() if angle > left_pt), default=0) * np.sin(np.deg2rad(45))
+        self.cur_right_wall_dist = min((rng for angle, rng in self.lidar_ranges.items() if angle < right_pt), default=0) * np.sin(np.deg2rad(45))
 
 
 class Robot:

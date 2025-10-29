@@ -12,6 +12,7 @@ class Driver:
     MIN_SPEED = 0.1
     MAX_SPEED = 1.0
     SMOOTH_STOP_DIST = 0.0
+    ANGLE_THRESHOLD = np.deg2rad(5)
 
     def __init__(self, robot: Robot):
         self.robot = robot
@@ -136,6 +137,7 @@ class Driver:
                 msg += f"right_wall: {sens.cur_right_wall_dist:6.3f} "
             print(msg, end="", flush=True)
             self.robot.send_drive(speed, rot)
+            time.sleep(0.1)
 
         print("[drive] stop")
         self.robot.send_drive(0, 0)
@@ -149,7 +151,6 @@ class Driver:
         direction - в градусах относительно ref_angle(). влево +, вправо -
         relative - относительно текущего положения, или относительно ref_angle()
         """
-        ANGLE_THRESHOLD = np.deg2rad(1)
 
         sens = self.robot.recv_sensors()
         direction = np.deg2rad(direction)
@@ -161,7 +162,7 @@ class Driver:
 
             angle_diff = direction - sens.angle
             angle_diff = np.arctan2(np.sin(angle_diff), np.cos(angle_diff))
-            if abs(angle_diff) < ANGLE_THRESHOLD:
+            if abs(angle_diff) < self.ANGLE_THRESHOLD:
                 print("\n[rotate] target angle reached")
                 break
 
@@ -172,6 +173,7 @@ class Driver:
 
             print(f"\r[rotate] th: {sens.angle:6.3f} rot_speed: {rot:6.3f}", end="", flush=True)
             self.robot.send_drive(0, rot)
+            time.sleep(0.1)
 
         print("[rotate] stop")
         self.robot.send_drive(0, 0)
@@ -194,6 +196,7 @@ class Driver:
                 flush=True,
             )
             self.robot.send_drive(0, 0)
+            time.sleep(0.1)
 
         print("[stop] stopped")
         self.robot.send_drive(0, 0)
@@ -223,6 +226,7 @@ class Driver:
                 flush=True,
             )
             self.robot.send_drive(speed, 0)
+            time.sleep(0.1)
 
         print("[freeze] stopped")
         self.robot.send_drive(0, 0)

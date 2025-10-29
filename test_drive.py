@@ -1,4 +1,5 @@
 import time
+import numpy as np
 
 from chassis import RobotChassis
 from driver import Driver
@@ -7,30 +8,32 @@ robot = RobotChassis()
 robot.connect()
 driver = Driver(robot)
 driver.update_ref_angle()
+driver.MAX_ROT_SPEED = 0.3
+driver.ANGLE_THRESHOLD = np.deg2rad(5)
 
 # повернуться на определённый градус
 print("Rotate 90")
-driver.rotate(90)
-driver.freeze()
+driver.rotate(10)
+driver.stop()
 print("done")
 
-# проехать заданное расстояние
-print("Drive 0.5 m")
-driver.drive(max_speed=0.5, max_dist=0.5)
-driver.freeze()
-print("Done")
+# # проехать заданное расстояние
+# print("Drive 0.5 m")
+# driver.drive(max_speed=0.5, max_dist=0.5)
+# driver.freeze()
+# print("Done")
 
-# подъехать к стенке (не ближе заданного расстояния)
-print("Drive until 0.5 m to wall")
-driver.drive(max_speed=0.5, front_wall_dist=0.5)
-driver.freeze()
-print("Done")
+# # подъехать к стенке (не ближе заданного расстояния)
+# print("Drive until 0.5 m to wall")
+# driver.drive(max_speed=0.5, front_wall_dist=0.5)
+# driver.freeze()
+# print("Done")
 
-# поездить вдоль стенки
-print("Drive right wall 2 m")
-driver.drive(right_wall_dist=0.5, max_dist=2, max_speed=0.5)
-driver.freeze()
-print("Done")
+# # поездить вдоль стенки
+# print("Drive right wall 2 m")
+# driver.drive(right_wall_dist=0.5, max_dist=2, max_speed=0.5)
+# driver.freeze()
+# print("Done")
 
 
 # print("connect_robot")
