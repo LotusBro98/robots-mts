@@ -122,3 +122,18 @@ def normalize(vec: np.ndarray) -> np.ndarray:
 def project_scalar(base: np.ndarray, vec: np.ndarray) -> float:
     return (normalize(base) * vec).sum(-1)
 
+def round_angle(angle, radians=True):
+    if not radians:
+        angle = np.deg2rad(angle)
+    angle = (angle + np.pi) % (2 * np.pi) - np.pi
+    if not radians:
+        angle = np.rad2deg(angle)
+    return angle
+
+def direction_vec(angle, radians=True):
+    if not radians:
+        angle = np.deg2rad(angle)
+    return np.array([
+        np.cos(angle), np.sin(angle)
+    ], dtype=np.float32)
+

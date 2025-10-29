@@ -2,7 +2,7 @@ import time
 from matplotlib import pyplot as plt
 import numpy as np
 
-from navigator_utils import normalize, project_scalar
+from navigator_utils import direction_vec, normalize, project_scalar, round_angle
 from robot_base import Robot
 
 
@@ -351,8 +351,38 @@ class Driver:
         print("[maze_forward] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_rotate(self, target_angle, radius, speed):
-        ...
+    def maze_turn(self, target_angle, radius, speed, max_rot_speed=1):
+        target_angle = np.deg2rad(target_angle)
+
+        start_sens = self.robot.recv_sensors()
+        angle_dir = np.sign(round_angle(target_angle - start_sens.angle))
+        angle_to_center = start_sens.angle + angle_dir * np.pi/2
+        center = start_sens.pos + direction_vec(angle_to_center) * radius
+
+        while True:
+            sens = self.robot.recv_sensors()
+            dist_to_center = np.linalg.norm(sens.pos - center)
+            angle_to_target = round_angle(target_angle - sens.angle) * angle_dir
+            th_vel = sens.angle_vel * angle_dir
+
+            if angle_to_target < 0:
+                print("\n[maze_turn] target reached")
+                break
+
+            rot = max_rot_speed * angle_dir
+
+            msg = f"\r[maze_forward] "
+            msg += f"dist_to_center: {dist_to_center:6.3f} "
+            msg += f"angle_to_target: {angle_to_target:6.3f} "
+            msg += f"th_vel: {th_vel:6.3f} "
+            msg += f"rot: {rot:6.3f} "
+            print(msg, end="", flush=True)
+            self.robot.send_drive(speed, rot)
+            time.sleep(0.1)
+
+        print("[maze_turn] stop")
+        self.robot.send_drive(0, 0)
+
 
     def maze_turnaround(self, target_angle):
         ...

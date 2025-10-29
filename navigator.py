@@ -293,7 +293,6 @@ class Navigator:
     def _add_new_points(self, points, min_dist, inside_dist=0.1, ignore_outliers=True):
         if len(self.points) == 0:
             self.points = points[:1]
-            print(points[:1])
             for pt in points:
                 self._add_new_points(pt[None], min_dist, inside_dist, ignore_outliers=False)
             return
