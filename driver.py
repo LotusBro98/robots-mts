@@ -2,7 +2,7 @@ import time
 from matplotlib import pyplot as plt
 import numpy as np
 
-from navigator_utils import direction_vec, normalize, project_scalar, round_angle
+from navigator_utils import direction_vec, normalize, project_scalar, round_angle, transform_points
 from robot_base import Robot
 
 
@@ -13,6 +13,8 @@ class Driver:
     MAX_SPEED = 1.0
     SMOOTH_STOP_DIST = 0.0
     ANGLE_THRESHOLD = np.deg2rad(5)
+    MAZE_TURN_SPEED = 0.15
+    MAZE_TURN_RADIUS = 0.25
 
     def __init__(self, robot: Robot):
         self.robot = robot
@@ -27,6 +29,12 @@ class Driver:
         current_vel = current_vel * self.robot.MAX_SPEED_MpS
         target_vel = target_vel * self.robot.MAX_SPEED_MpS
         dist = abs(current_vel**2 - target_vel**2) / (2 * self.robot.MAX_ACCELERATION)
+        return dist
+    
+    def estimate_angular_brake_distance(self, current_vel, target_vel):
+        current_vel = current_vel * self.robot.MAX_ROT_SPEED_RpS
+        target_vel = target_vel * self.robot.MAX_ROT_SPEED_RpS
+        dist = abs(current_vel**2 - target_vel**2) / (2 * self.robot.MAX_ANG_ACCELERATION)
         return dist
 
     def drive(
@@ -311,11 +319,17 @@ class Driver:
         print("[drive] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_forward(self, target_pos, target_speed, brake_eps=0.1, max_speed=1):
+    def maze_forward(self, target_pos, target_speed=None, brake_eps=0.1, max_speed=1, relative=True):
         target_pos = np.asarray(target_pos)
+        if target_speed is None:
+            target_speed = self.MAZE_TURN_SPEED
 
         start_sens = self.robot.recv_sensors()
+        if relative:
+            print(target_pos, start_sens.pos, start_sens.angle)
+            target_pos = transform_points(target_pos, start_sens.pos, start_sens.angle)
         direction = normalize(target_pos - start_sens.pos)
+        print(target_pos, direction)
 
         # data = []
         # start_time = time.monotonic()
@@ -355,25 +369,54 @@ class Driver:
         print("[maze_forward] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_turn(self, target_angle, radius, speed, max_rot_speed=1):
+    def maze_turn(self, target_angle, radius=None, speed=None, max_rot_speed=1, brake_eps=0.1, target_rot_vel=0.1, relative=True):
         target_angle = np.deg2rad(target_angle)
+        if speed is None:
+            speed = self.MAZE_TURN_SPEED
+        if radius is None:
+            radius = self.MAZE_TURN_RADIUS
 
         start_sens = self.robot.recv_sensors()
+        if relative:
+            target_angle = round_angle(target_angle + start_sens.angle)
         angle_dir = np.sign(round_angle(target_angle - start_sens.angle))
         angle_to_center = start_sens.angle + angle_dir * np.pi/2
         center = start_sens.pos + direction_vec(angle_to_center) * radius
 
+        target_rot_vel = target_rot_vel * angle_dir
+
+        # data = []
+        # start_time = time.monotonic()
+        # times = []
+        # prev_th = start_sens.angle
+        # prev_time = time.monotonic() - 0.1
+        # prev_th_vel = 0
         while True:
             sens = self.robot.recv_sensors()
             dist_to_center = np.linalg.norm(sens.pos - center)
             angle_to_target = round_angle(target_angle - sens.angle) * angle_dir
             th_vel = sens.angle_vel * angle_dir
 
+            # delta_angle = sens.angle - prev_th
+            # prev_th = sens.angle
+
+            # time_now = time.monotonic()
+            # delta_time = time_now - prev_time
+            # prev_time = time_now
+
+            # th_vel = delta_angle / delta_time
+
+            # delta_vel = (th_vel - prev_th_vel) / delta_time
+            # prev_th_vel = th_vel 
+
             if angle_to_target < 0:
                 print("\n[maze_turn] target reached")
                 break
 
-            rot = max_rot_speed * angle_dir
+            if angle_to_target > self.estimate_angular_brake_distance(th_vel, target_rot_vel) + brake_eps:
+                rot = max_rot_speed * angle_dir
+            else:
+                rot = target_rot_vel
 
             msg = f"\r[maze_forward] "
             msg += f"dist_to_center: {dist_to_center:6.3f} "
@@ -382,7 +425,14 @@ class Driver:
             msg += f"rot: {rot:6.3f} "
             print(msg, end="", flush=True)
             self.robot.send_drive(speed, rot)
+            # times.append(time.monotonic() - start_time)
+            # data.append((angle_to_target, th_vel, rot))
             time.sleep(0.1)
+        # plt.close()
+        # plt.plot(times, data)
+        # plt.savefig("navigator_images/maze_turn.png")
+        # plt.close()
+        # print(np.max(data, axis=0))
 
         print("[maze_turn] stop")
         self.robot.send_drive(0, 0)

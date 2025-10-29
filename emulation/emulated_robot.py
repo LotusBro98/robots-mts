@@ -21,6 +21,8 @@ class EmulatedRobot(Robot):
     GYRO_CORR_COEFF = 0.975
     MAX_ACCELERATION = 0.042
     MAX_SPEED_MpS = 0.42
+    MAX_ROT_SPEED_RpS = 0.372
+    MAX_ANG_ACCELERATION = 0.14883143
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

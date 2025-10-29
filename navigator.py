@@ -9,7 +9,7 @@ from matplotlib.patches import FancyArrowPatch
 import numpy as np
 from scipy.spatial import cKDTree
 
-from navigator_utils import estimate_update_point_to_line_robust
+from navigator_utils import estimate_update_point_to_line_robust, transform_points
 
 def _cell_key(pt, cell_size):
     # ключ ячейки в окрестности размером cell_size
@@ -224,15 +224,6 @@ class Navigator:
         small_matched = small[matched_small_idx]
 
         return big_matched, small_matched
-
-    
-    def _transform_points(self, points, dpos, dth, pos=(0,0)):
-        M = np.array([
-            [np.cos(dth), np.sin(dth)],
-            [-np.sin(dth), np.cos(dth)],
-        ])
-        points = (points - pos) @ M + pos + dpos
-        return points
     
     def _get_relative_points(self, max_dist=None, angle_shift=0, max_angle=None):
         dth = -self.angle - np.deg2rad(angle_shift)
@@ -267,10 +258,10 @@ class Navigator:
 
         # pts_from = pts_from - center
         # pts_to = pts_to - center
-        # normals = self._transform_points(pts_from + pts_to, 0, np.pi/2)
+        # normals = transform_points(pts_from + pts_to, 0, np.pi/2)
         # normals /= np.linalg.norm(normals, axis=-1, keepdims=True)
         # dth = np.sum((pts_from - pts_to) * normals, axis=-1).mean()
-        # pts_aligned = self._transform_points(pts_from, 0, dth)
+        # pts_aligned = transform_points(pts_from, 0, dth)
         # dpos = (pts_aligned - pts_to)
         # # self.scat2.set_offsets(dpos * 20)
         # dpos = dpos.mean(axis=0)
@@ -419,7 +410,7 @@ class Navigator:
         with self.lock:
             angle_offset = self.odom_angle_offset
 
-        odom_delta = self._transform_points(odom_pos, -self.prev_odom_pos, angle_offset, pos=self.prev_odom_pos)
+        odom_delta = transform_points(odom_pos, -self.prev_odom_pos, angle_offset, pos=self.prev_odom_pos)
         self.prev_odom_pos = odom_pos
         odom_angle_delta = odom_angle - self.prev_odom_angle
         self.prev_odom_angle = odom_angle
@@ -460,11 +451,11 @@ class Navigator:
             angle = self.angle
             pos = self.pos
 
-        points = self._transform_points(relative_points, pos, angle, (0, 0))
+        points = transform_points(relative_points, pos, angle, (0, 0))
 
         pts_from, pts_to = self.match_nearest(points, self.points, max_dist=0.2, unique=True)
         dpos, dth = self._estimate_transform(pts_from, pts_to, pos)
-        points = self._transform_points(points, dpos, dth, pos)
+        points = transform_points(points, dpos, dth, pos)
         if len(self.points) == 0:
             self._add_new_points(points, min_dist=0.05)
         else:

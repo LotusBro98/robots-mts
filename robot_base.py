@@ -69,6 +69,8 @@ class SensorData:
 class Robot:
     MAX_ACCELERATION: float
     MAX_SPEED_MpS: float
+    MAX_ROT_SPEED_RpS: float
+    MAX_ANG_ACCELERATION: float
 
     def __init__(self, demo_render_navigator: bool = True, file_rendering_navigator: bool = False) -> None:
         if demo_render_navigator:

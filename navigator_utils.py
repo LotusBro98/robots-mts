@@ -137,3 +137,11 @@ def direction_vec(angle, radians=True):
         np.cos(angle), np.sin(angle)
     ], dtype=np.float32)
 
+def transform_points(points, dpos, dth, pos=(0,0)):
+        M = np.array([
+            [np.cos(dth), np.sin(dth)],
+            [-np.sin(dth), np.cos(dth)],
+        ])
+        points = (points - pos) @ M + pos + dpos
+        return points
+
