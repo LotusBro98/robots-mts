@@ -15,6 +15,7 @@ class Driver:
     ANGLE_THRESHOLD = np.deg2rad(5)
     MAZE_TURN_SPEED = 0.15
     MAZE_TURN_RADIUS = 0.25
+    CONTROLLER_PERIOD = 0.05
 
     def __init__(self, robot: Robot):
         self.robot = robot
@@ -145,7 +146,7 @@ class Driver:
                 msg += f"right_wall: {sens.cur_right_wall_dist:6.3f} "
             print(msg, end="", flush=True)
             self.robot.send_drive(speed, rot)
-            time.sleep(0.1)
+            time.sleep(self.CONTROLLER_PERIOD)
 
         print("[drive] stop")
         self.robot.send_drive(0, 0)
@@ -181,7 +182,7 @@ class Driver:
 
             print(f"\r[rotate] th: {sens.angle:6.3f} rot_speed: {rot:6.3f}", end="", flush=True)
             self.robot.send_drive(0, rot)
-            time.sleep(0.1)
+            time.sleep(self.CONTROLLER_PERIOD)
 
         print("[rotate] stop")
         self.robot.send_drive(0, 0)
@@ -204,7 +205,7 @@ class Driver:
                 flush=True,
             )
             self.robot.send_drive(0, 0)
-            time.sleep(0.1)
+            time.sleep(self.CONTROLLER_PERIOD)
 
         print("[stop] stopped")
         self.robot.send_drive(0, 0)
@@ -234,7 +235,7 @@ class Driver:
                 flush=True,
             )
             self.robot.send_drive(speed, 0)
-            time.sleep(0.1)
+            time.sleep(self.CONTROLLER_PERIOD)
 
         print("[freeze] stopped")
         self.robot.send_drive(0, 0)
@@ -312,7 +313,7 @@ class Driver:
             # speed = 0.00
             # rot = 1
             self.robot.send_drive(speed, rot)
-            time.sleep(0.1)
+            time.sleep(self.CONTROLLER_PERIOD)
 
             self.robot.navigator.display()
 
@@ -360,7 +361,7 @@ class Driver:
             self.robot.send_drive(speed, 0)
             # times.append(time.monotonic() - start_time)
             # data.append((distance_left, vel_fwd, speed))
-            time.sleep(0.1)
+            time.sleep(self.CONTROLLER_PERIOD)
         # plt.close()
         # plt.plot(times, data)
         # plt.savefig("navigator_images/maze_forward.png")
@@ -427,7 +428,7 @@ class Driver:
             self.robot.send_drive(speed, rot)
             # times.append(time.monotonic() - start_time)
             # data.append((angle_to_target, th_vel, rot))
-            time.sleep(0.1)
+            time.sleep(self.CONTROLLER_PERIOD)
         # plt.close()
         # plt.plot(times, data)
         # plt.savefig("navigator_images/maze_turn.png")
@@ -438,6 +439,6 @@ class Driver:
         self.robot.send_drive(0, 0)
 
 
-    def maze_turnaround(self, target_angle):
-        ...
+    def maze_turnaround(self):
+        self.maze_turn(180, speed=0)
 
