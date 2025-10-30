@@ -492,6 +492,38 @@ class Driver:
         self.robot.send_drive(0, 0)
 
 
-    def maze_turnaround(self):
-        self.maze_turn(179.9, max_speed=0)
+    def maze_turnaround(self, target_rot_vel=0.1):
+        target_angle = np.deg2rad(180)
+        if brake_eps is None:
+            brake_eps = self.BRAKE_EPS_ANGULAR
+        if max_rot_speed is None:
+            max_rot_speed = self.MAX_ROT_SPEED
+
+        ticks = 0
+        print()
+        while True:
+            sens = self.robot.recv_sensors()
+            angle_to_target = round_angle(target_angle - sens.angle)
+            th_vel = sens.angle_vel
+
+            ticks += 1
+            if angle_to_target < 0 and ticks > 5:
+                print("\n[maze_turnaround] target reached")
+                break
+
+            if angle_to_target > self.estimate_angular_brake_distance(th_vel, target_rot_vel) + brake_eps:
+                rot = max_rot_speed
+            else:
+                rot = target_rot_vel
+
+            msg = f"\r[maze_turnaround] "
+            msg += f"angle_to_target: {angle_to_target:6.3f} "
+            msg += f"th_vel: {th_vel:6.3f} "
+            msg += f"rot: {rot:6.3f} "
+            print(msg, end="", flush=True)
+            self.robot.send_drive(0, rot)
+            time.sleep(self.CONTROLLER_PERIOD)
+
+        print("[maze_turnaround] stop")
+        self.robot.send_drive(0, 0)
 
