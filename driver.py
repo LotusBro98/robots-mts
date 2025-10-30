@@ -20,6 +20,8 @@ class Driver:
     WALL_ROT_COEFF = 3.0
     WALL_ANGLE_COEFF = 1.5
     WALL_MAX_DECLINE = np.deg2rad(10)
+    BRAKE_EPS_LINEAR = 0.1
+    BRAKE_EPS_ANGULAR = 0.1
 
     def __init__(self, robot: Robot):
         self.robot = robot
@@ -324,7 +326,8 @@ class Driver:
         print("[drive] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_forward(self, target_pos, target_speed=None, brake_eps=0.1, right_wall_dist=None, max_speed=None, relative=True):
+    def maze_forward(self, target_dist, target_speed=None, brake_eps=None, right_wall_dist=None, max_speed=None, relative=True):
+        target_pos = (target_dist, 0)
         target_pos = np.asarray(target_pos)
         if target_speed is None:
             target_speed = self.MAZE_TURN_SPEED
@@ -332,6 +335,8 @@ class Driver:
             max_speed = self.MAX_SPEED
         if right_wall_dist is None:
             right_wall_dist = self.MAZE_RIGHT_WALL_DIST
+        if brake_eps is None:
+            brake_eps = self.BRAKE_EPS_LINEAR
 
         start_sens = self.robot.recv_sensors()
         if relative:
@@ -395,12 +400,16 @@ class Driver:
         print("[maze_forward] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_turn(self, target_angle, radius=None, speed=None, max_rot_speed=1, brake_eps=0.1, target_rot_vel=0.1, relative=True):
+    def maze_turn(self, target_angle, radius=None, speed=None, max_rot_speed=None, brake_eps=None, target_rot_vel=0.1, relative=True):
         target_angle = np.deg2rad(target_angle)
         if speed is None:
             speed = self.MAZE_TURN_SPEED
         if radius is None:
             radius = self.MAZE_TURN_RADIUS
+        if brake_eps is None:
+            brake_eps = self.BRAKE_EPS_ANGULAR
+        if max_rot_speed is None:
+            max_rot_speed = self.MAX_ROT_SPEED
 
         start_sens = self.robot.recv_sensors()
         if relative:
