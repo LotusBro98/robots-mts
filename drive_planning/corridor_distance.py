@@ -84,7 +84,6 @@ def find_side_opening(
         Yi = pts[best_inliers, 1]
         A = np.vstack([Xi, np.ones_like(Xi)]).T
         a, b = np.linalg.lstsq(A, Yi, rcond=None)[0]
-    print(a, b)
 
     # 3) дискретизация по x и карта наличия стены
     bins = np.arange(0.0, Smax + dx, dx)

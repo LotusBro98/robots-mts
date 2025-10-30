@@ -355,6 +355,15 @@ class Navigator:
         points = points @ M + self.pos
         return points
     
+    def project_to_robot(self, points):
+        dth = -self.angle
+        M = np.array([
+            [np.cos(dth), np.sin(dth)],
+            [-np.sin(dth), np.cos(dth)],
+        ])
+        points = (points - self.pos) @ M
+        return points
+    
     def _estimate_transform(self, pts_from, pts_to, center):
         if len(pts_from) == 0:
             return np.zeros((2,), dtype=np.float32), 0

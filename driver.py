@@ -477,5 +477,5 @@ class Driver:
 
 
     def maze_turnaround(self):
-        self.maze_turn(180, speed=0)
+        self.maze_turn(179.9, speed=0)
 
