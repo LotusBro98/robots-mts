@@ -5,6 +5,7 @@ import serial
 import threading
 import numpy as np
 
+from navigator_utils import normalize
 from robot_base import Robot
 from robot_lidar_alt import read_full_scan_from_serial
 
@@ -134,6 +135,7 @@ class RobotChassis(Robot):
     def calc_odometry(self, msg, last_msg):  # TODO: отдавать отсюда odom_x, odom_y, odom_th, vx, vy, vth как из EmulatedRobot.recv_tel
         delta_left = msg["odl"] - last_msg["odl"]
         delta_right = msg["odr"] - last_msg["odr"]
+        print("ODOM: ", delta_left, delta_right)
 
         linear_delta = 0.5 * (delta_left + delta_right) * 0.01 # original unit is cm
         angular_delta = (delta_right - delta_left) / self.WHEEL_DISTANCE
@@ -142,7 +144,7 @@ class RobotChassis(Robot):
         self.angle += angular_delta
         dir_after = np.array([np.cos(self.angle), np.sin(self.angle)])
 
-        delta_pos = linear_delta * 0.5 * (dir_before + dir_after)
+        delta_pos = linear_delta * normalize(dir_before + dir_after)
         self.pos += delta_pos
 
         # Учесть, что робот в этом отрезке едет по дуге. 
