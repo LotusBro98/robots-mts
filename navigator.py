@@ -507,7 +507,7 @@ class Navigator:
         if len(points) == 0:
             return None, None
 
-        wall_dist, wall_angle, _ = fit_line_polar_ransac(points, min_inliers=5, max_wall_angle=30)
+        wall_dist, wall_angle, _ = fit_line_polar_ransac(points, min_inliers=10, max_wall_angle=30)
         
         return wall_dist, wall_angle
 
