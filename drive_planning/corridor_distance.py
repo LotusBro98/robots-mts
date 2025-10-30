@@ -14,9 +14,11 @@ class OpeningResult:
     distance: Optional[float]                 # расстояние вперёд (по направлению робота) до проекции центра проёма
     world_proj_point: Optional[Tuple[float,float]]  # точка на оси движения (мировые координаты), куда падает перпендикуляр из центра проёма
     world_gap_center: Optional[Tuple[float,float]]  # сам центр проёма на линии стены (мировые координаты)
+    x_start: Optional[float]
     x_mid: Optional[float]                    # то же, но в СК робота
     y_mid: Optional[float]
     debug: dict                               # любые отладочные поля
+    pose: dict
 
 def find_side_opening(
     navigator: Navigator,
@@ -27,7 +29,7 @@ def find_side_opening(
     inlier_tol: float = 0.1,             # полуширина «полосы стены» (м)
     max_tilt_deg: float = 30.0,           # допустимый наклон стены к оси x (шум коридоров)
     dx: float = 0.03,                      # размер бина по x (м)
-    min_open: float = 0.20,               # минимальная длина разрыва (м) — «дверной проём»
+    min_open: float = 0.30,               # минимальная длина разрыва (м) — «дверной проём»
     need_wall_before_after_bins: int = 1  # требуем по ≥N бинов «есть стена» до и после проёма
 ) -> OpeningResult:
     """
@@ -107,16 +109,19 @@ def find_side_opening(
             after_ok  = has_wall[run_end:min(len(has_wall), run_end+need_wall_before_after_bins)].all() if run_end < len(has_wall) else False
             if gap_len >= min_open and before_ok and after_ok:
                 # центр проёма по x
+                x_start = run_start*dx
                 x_mid = (run_start*dx + run_end*dx)/2.0
                 y_mid = a*x_mid + b
                 # 5) обратно в мир: точка проекции на ось движения (y=0) и сам центр проёма
-                proj_world = navigator.unproject_to_world(np.array([x_mid, 0.0]))
+                proj_world = navigator.unproject_to_world(np.array([x_start, 0.0]))
                 gap_world = navigator.unproject_to_world(np.array([x_mid, y_mid]))
                 return OpeningResult(
-                    side=side, found=True, distance=float(x_mid),
+                    side=side, found=True, distance=float(x_start),
                     world_proj_point=(float(proj_world[0]), float(proj_world[1])),
                     world_gap_center=(float(gap_world[0]), float(gap_world[1])),
+                    x_start=float(x_start),
                     x_mid=float(x_mid), y_mid=float(y_mid),
+                    pose={"pos": navigator.pos, "angle": navigator.angle},
                     debug={
                         "a": float(a), "b": float(b),
                         "gap_len": float(gap_len),
@@ -127,7 +132,7 @@ def find_side_opening(
                 )
             run_start = None
 
-    return OpeningResult(side, False, None, None, None, None, None,
+    return OpeningResult(side, False, None, None, None, None, None, None, None,
                          {"reason":"no_valid_gap", "a":float(a), "b":float(b)})
 
 def find_openings_left_right(navigator, **kw) -> dict[str, OpeningResult]:

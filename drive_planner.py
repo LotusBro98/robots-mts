@@ -4,6 +4,8 @@ from navigator import Navigator
 
 
 class RobotDrivePlanner:
+    DOOR_SIZE = 0.5
+
     def __init__(self, driver: Driver):
         self.driver = driver
         self.navigator: Navigator = driver.robot.navigator
@@ -38,6 +40,27 @@ class RobotDrivePlanner:
         """
         Рассчитывает следующий манёвр для текущего положения робота.
         """
+
+        result_wall_openings = find_openings_left_right(self.navigator)
+        self.navigator.set_external_openings(result_wall_openings, inlier_tol=0.06)
+
+        op_right = result_wall_openings["right"]
+        op_left = result_wall_openings["left"]
+        op_nearest = result_wall_openings["nearest"]
+
+        dead_end = not op_left.found and not op_right.found
+        if dead_end:
+            return self.driver.maze_turnaround, (), {}
+        elif op_nearest.distance > self.DOOR_SIZE:
+            return self.driver.maze_forward, (op_nearest.distance,), {}
+        elif op_right.found:
+            return self.driver.maze_turn, (-90,), {}
+        elif op_left.found:
+            return self.driver.maze_turn, (90,), {}
+        else:
+            print("Don't know what to do")
+            return self.driver.maze_forward, (self.DOOR_SIZE,), {}
+
         self._calculate_distance_to_next_turn_in_corridor()
         ret = self.DRIVES[self.cnt] + ({},)
         self.cnt += 1
@@ -49,18 +72,3 @@ class RobotDrivePlanner:
             next_drive(*args, **kwargs)
             if self.cnt >= len(self.DRIVES):
                 break
-
-    def _calculate_distance_to_next_turn_in_corridor(self) -> tuple[str, float]:
-        """
-        Возвращает расстояние в метрах до следующего поворота, и само направление - направо/налево
-        Используем из navigator:
-            pos: np.ndarray of 2 elem
-            angle: float
-            points: np.ndarray
-        """
-        result_wall_openings = find_openings_left_right(self.navigator)
-        print(result_wall_openings)
-        self.navigator.set_external_openings(result_wall_openings, inlier_tol=0.06)
-        if result_wall_openings and result_wall_openings.get("nearest") and result_wall_openings["nearest"].side:
-            result_distance_for_opening = result_wall_openings["nearest"]
-            return result_distance_for_opening.side, result_distance_for_opening.distance

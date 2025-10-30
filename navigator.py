@@ -95,8 +95,8 @@ class Navigator:
         self.fig, self.ax = plt.subplots(figsize=(12, 12))
         if self.render_mode == "window":
             plt.show(block=False)
-        self.ax.set_xlim(-5, 5)
-        self.ax.set_ylim(-5, 5)
+        self.ax.set_xlim(-6, 6)
+        self.ax.set_ylim(-6, 6)
         self.ax.set_aspect("equal", adjustable="box")
         self.scat1 = self.ax.scatter([], [], s=4)
         self.scat2 = self.ax.scatter([], [], s=4)
@@ -607,10 +607,10 @@ class Navigator:
         if not openings:
             return
 
-        def _rect_world_from_robot_frame(x_mid, gap_len, inlier_tol, pose_pos, pose_ang):
+        def _rect_world_from_robot_frame(x_mid, y_mid, gap_len, inlier_tol, pose_pos, pose_ang):
             # прямоугольник в СК робота: длина = gap_len по оси X, высота = 2*inlier_tol по оси Y
             x0, x1 = x_mid - gap_len / 2.0, x_mid + gap_len / 2.0
-            y0, y1 = -inlier_tol, +inlier_tol
+            y0, y1 = y_mid - inlier_tol, y_mid + inlier_tol
             rect_rb = np.array([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], dtype=float)
 
             R = np.array([[np.cos(pose_ang), -np.sin(pose_ang)],
@@ -640,7 +640,7 @@ class Navigator:
             if gap_len is None:
                 gap_len = 0.22  # аккуратный дефолт, если детектор не передал ширину
 
-            rect_w = _rect_world_from_robot_frame(res.x_mid, gap_len, inlier_tol, pose_pos, pose_ang)
+            rect_w = _rect_world_from_robot_frame(res.x_mid, res.y_mid, gap_len, inlier_tol, pose_pos, pose_ang)
 
             color = "tab:purple" if side == "left" else "tab:red"
             poly = mpatches.Polygon(rect_w, closed=True, fill=False, lw=2.0, ls="--", ec=color, zorder=6)
