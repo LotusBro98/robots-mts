@@ -35,8 +35,8 @@ class RobotChassis(Robot):
     def connect(self):
         self.ser = serial.Serial(self.port, baudrate=115200, timeout=1)
         self.lidar_ser = serial.Serial(LIDAR_PORT, LIDAR_BAUT, timeout=LIDAR_SERIAL_TIMEOUT)
-        self._start_capture()
         self._imu = init_imu()
+        self._start_capture()
 
     def disconnect(self):
         self._stop_capture()
@@ -83,7 +83,7 @@ class RobotChassis(Robot):
         self.sensors_thread.start()
         self.lidar_thread = threading.Thread(target=self._capture_lidar, daemon=True)
         self.lidar_thread.start()
-        self.gyro_thread = threading.Thread(target=self._capture_gyro, daemon=True)
+        self.gyro_thread = threading.Thread(target=self._capture_imu, daemon=True)
         self.gyro_thread.start()
 
     def _stop_capture(self):
@@ -103,12 +103,13 @@ class RobotChassis(Robot):
             self.gyro_thread = None
 
     def remove_lidar_blind_zones(self, distances_by_angle: Dict[float, float]):
-        angles = np.array(distances_by_angle.keys())
-        ranges = np.array(distances_by_angle.values())
+        angles = np.array(list(distances_by_angle.keys()), dtype=float)
+        ranges = np.array(list(distances_by_angle.values()), dtype=float)
 
         blind_mask = np.zeros_like(angles, dtype=np.bool_)
         for a, da in self.LIDAR_BLIND_ZONES:
-            blind_mask |= round_angle(angles - a, radians=False) < da
+            diff = round_angle(angles - a, radians=False)
+            blind_mask |= np.abs(diff) < da
         filtered = dict(zip(angles[~blind_mask], ranges[~blind_mask]))
         return filtered
 
@@ -142,15 +143,15 @@ class RobotChassis(Robot):
         print("Started IMU capture (yaw only)")
         t_prev = time.monotonic()
         self._gz_bias = calibrate_gz(self._imu, seconds=1.0)
-        self._angle_z = 0.0
+        angle_z = 0.0
         try:
             while self.do_capture_sensors:
-                gz_corr, angle_z, t_prev = read_yaw_rate_and_angle(self._imu, gz_bias, angle_z, t_prev)
-                print(f"Yaw speed: {gz_corr:+7.2f} °/с | Angle Z: {angle_z:+7.2f} ° | Norm: {wrap_angle_deg(angle_z):+7.2f} °")
-                self._update_gyro(math.radians(gz_corr))
-                # перекалибровка раз в 10 сек
+                gz_corr, angle_z, t_prev = read_yaw_rate_and_angle(self._imu, self._gz_bias, angle_z, t_prev)
+                # print(f"Yaw speed: {gz_corr:+7.2f} °/с | Angle Z: {angle_z:+7.2f} ° | Norm: {wrap_angle_deg(angle_z):+7.2f} °")
+                self._update_gyro((0, math.radians(gz_corr), 0))
+                # перекалибровка раз в 10 сек  TODO: call before motors on
                 if int(time.monotonic()) % 10 == 0:
-                    gz_bias = recalibrate_imu(self._imu, seconds=1.0)
+                    self._gz_bias = recalibrate_imu(self._imu, seconds=1.0)
 
                 time.sleep(0.002)
         finally:
