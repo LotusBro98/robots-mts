@@ -225,7 +225,7 @@ class Navigator:
 
         return big_matched, small_matched
     
-    def _get_relative_points(self, max_dist=None, angle_shift=0, max_angle=None):
+    def get_relative_points(self, max_dist=None, angle_shift=0, max_angle=None, max_abs_y=None):
         dth = -self.angle - np.deg2rad(angle_shift)
         M = np.array([
             [np.cos(dth), np.sin(dth)],
@@ -240,6 +240,9 @@ class Navigator:
         if max_angle is not None:
             angles = np.arctan2(points[..., 1], points[..., 0])
             points = points[abs(angles) < np.deg2rad(max_angle)]
+
+        if max_abs_y is not None:
+            points = points[abs(points[..., 1]) < max_abs_y]
 
         return points
     
@@ -491,7 +494,7 @@ class Navigator:
         #     self.last_display_time = cur_time
 
     def get_wall_dist(self, center_angle=-45, max_angle=20, max_dist=2):
-        points = self._get_relative_points(max_dist=max_dist, angle_shift=center_angle, max_angle=max_angle)
+        points = self.get_relative_points(max_dist=max_dist, angle_shift=center_angle, max_angle=max_angle)
         if len(points) == 0:
             return 0
         
@@ -503,7 +506,7 @@ class Navigator:
         return min_dist
     
     def get_wall_dist_and_angle(self, center_angle=-45, max_angle=20, max_dist=2):
-        points = self._get_relative_points(max_dist=max_dist, angle_shift=center_angle, max_angle=max_angle)
+        points = self.get_relative_points(max_dist=max_dist, angle_shift=center_angle, max_angle=max_angle)
         if len(points) == 0:
             return None, None
 
