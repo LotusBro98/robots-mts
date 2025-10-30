@@ -72,7 +72,7 @@ class Robot:
     MAX_ROT_SPEED_RpS: float
     MAX_ANG_ACCELERATION: float
 
-    def __init__(self, demo_render_navigator: bool = True, file_rendering_navigator: bool = False) -> None:
+    def __init__(self, demo_render_navigator: bool = False, file_rendering_navigator: bool = True) -> None:
         if demo_render_navigator:
             self.navigator = Navigator(show_demo=True, render_mode="window", render_fps=15.0)
         elif file_rendering_navigator:
