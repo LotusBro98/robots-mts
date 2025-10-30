@@ -3,6 +3,7 @@ import numpy as np
 from dataclasses import dataclass
 from typing import Optional, Literal, Tuple
 
+from drive_planning.wall_in_front_distance import front_clearance_simple
 from navigator import Navigator
 
 Side = Literal["left", "right"]
@@ -95,6 +96,9 @@ def find_side_opening(
     for k in np.unique(bin_ids[near]):
         has_wall[k] = True
 
+    # Поиск стены перед роботом
+    wall_in_front_of_robot_dist, _ = front_clearance_simple(navigator)
+
     # 4) собрать все валидные разрывы
     gaps = []  # элементы: (run_start, run_end, gap_len)
     run_start = None
@@ -109,7 +113,11 @@ def find_side_opening(
             before_ok = has_wall[max(0, run_start - need_wall_before_after_bins): run_start].all() if run_start > 0 else False
             after_ok  = has_wall[run_end: min(len(has_wall), run_end + need_wall_before_after_bins)].all() if run_end < len(has_wall) else False
 
-            if gap_len >= min_open and before_ok and after_ok:
+            # требуем чтобы между gap и роботом не было стены
+            x_mid = (run_start + run_end ) / 2.0 * dx
+            no_wall_before_gap = x_mid < wall_in_front_of_robot_dist
+
+            if gap_len >= min_open and before_ok and after_ok and no_wall_before_gap:
                 gaps.append((run_start, run_end, gap_len))
             run_start = None
 
