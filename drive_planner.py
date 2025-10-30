@@ -1,11 +1,13 @@
 import numpy as np
+from drive_planning.corridor_distance import find_openings_left_right
 from driver import Driver
+from navigator import Navigator
 
 
 class RobotDrivePlanner:
     def __init__(self, driver: Driver):
         self.driver = driver
-        self.navigator = driver.robot.navigator
+        self.navigator: Navigator = driver.robot.navigator
         self.robot = driver.robot
 
         self.DRIVES = [
@@ -48,10 +50,19 @@ class RobotDrivePlanner:
             if self.cnt >= len(self.DRIVES):
                 break
 
-    @staticmethod
-    def _calculate_distance_to_next_turn_in_corridor(points: np.ndarray) -> tuple[str, float]:
-        """Возвращает расстояние в метрах до следующего поворота, и само направление - направо/налево"""
-        distance = 0
-        return distance
-
-
+    def _calculate_distance_to_next_turn_in_corridor(self) -> tuple[str, float]:
+        """
+        Возвращает расстояние в метрах до следующего поворота, и само направление - направо/налево
+        Используем из navigator:
+            pos: np.ndarray of 2 elem
+            angle: float
+            points: np.ndarray
+        """
+        points_xy_world = self.navigator.points
+        robot_xy = self.navigator.pos
+        robot_heading_rad = self.navigator.angle
+        result_wall_openings = find_openings_left_right(points_xy_world, robot_xy, robot_heading_rad,
+                                    min_open=0.20, inlier_tol=0.06, dx=0.05)
+        self.navigator.set_external_openings(result_wall_openings, inlier_tol=0.06)
+        result_distance_for_opening = find_openings_left_right()["nearest"]
+        return result_distance_for_opening.side, result_distance_for_opening.distance

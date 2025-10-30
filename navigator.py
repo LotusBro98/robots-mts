@@ -94,8 +94,8 @@ class Navigator:
         self.fig, self.ax = plt.subplots(figsize=(12, 12))
         if self.render_mode == "window":
             plt.show(block=False)
-        self.ax.set_xlim(-1, 8)
-        self.ax.set_ylim(-1, 8)
+        self.ax.set_xlim(-3, 3)
+        self.ax.set_ylim(-3, 3)
         self.ax.set_aspect("equal", adjustable="box")
         self.scat1 = self.ax.scatter([], [], s=4)
         self.scat2 = self.ax.scatter([], [], s=4)
@@ -139,6 +139,7 @@ class Navigator:
         self.ax.draw_artist(self.arrow)
         self.fig.canvas.blit(self.ax.bbox)
         self.fig.canvas.flush_events()
+        self._draw_external_openings()
 
     def _get_nearest_neighbors(self, points, min_dist=0.025):
         if len(self.points) == 0:
@@ -554,6 +555,88 @@ class Navigator:
             else:
                 # если не успеваем — не накапливаем лаг
                 t_next = time.perf_counter()
+
+    def set_external_openings(self, openings: dict | None, inlier_tol: float = 0.06):
+        """
+        Передаёт в навигатор результаты внешнего детектора.
+        Ожидается формат как у find_openings_left_right():
+            {
+              "left":  { ... как из find_side_opening ... }  | None,
+              "right": { ... } | None,
+              "nearest": { ... } | None
+            }
+        Обязательные поля у каждого непустого dict:
+            - x_mid (м, вдоль движения, в СК робота на момент детекта)
+            - gap_len (м)
+            - gap_world: (x,y) мировых координат центра проёма
+            - proj_world: (x,y) — проекция на ось движения (куда падает перпендикуляр)
+        Необязательно, но полезно:
+            - pose: {"pos": (x,y), "angle": float}  # поза робота в момент детекта
+              Если нет, используется текущая поза (возможен небольшой параллакс).
+        """
+        with self.lock:
+            self._overlay_openings = openings
+            self._overlay_inlier_tol = float(inlier_tol)
+
+    def _draw_external_openings(self):
+        """Вызывается из render thread. Рисует рамочки/точки по self._overlay_openings."""
+        if self.fig is None or not hasattr(self, "_overlay_openings"):
+            return
+
+        # очистка прошлых артефактов
+        if not hasattr(self, "_opening_artists"):
+            self._opening_artists = []
+        for a in self._opening_artists:
+            try: a.remove()
+            except Exception: pass
+        self._opening_artists.clear()
+
+        openings = self._overlay_openings
+        if not openings:
+            return
+
+        import matplotlib.patches as mpatches
+
+        def _rect_world_from_robot_frame(x_mid, gap_len, inlier_tol, pose):
+            # прямоугольник в СК робота (ось X — вперёд, высота = 2*inlier_tol)
+            x0, x1 = x_mid - gap_len/2.0, x_mid + gap_len/2.0
+            y0, y1 = -inlier_tol, +inlier_tol
+            rect_rb = np.array([[x0,y0],[x1,y0],[x1,y1],[x0,y1]], dtype=float)
+
+            pos = np.asarray(pose.get("pos", self.pos), dtype=float)
+            ang = float(pose.get("angle", self.angle))
+            R = np.array([[ np.cos(ang), -np.sin(ang)],
+                          [ np.sin(ang),  np.cos(ang)]], dtype=float)
+            return (rect_rb @ R.T) + pos
+
+        for side in ("left", "right"):
+            res = openings.get(side) if openings else None
+            if not res or not res.get("x_mid"):
+                continue
+
+            pose = res.get("pose", {})  # можно не передавать
+            rect_w = _rect_world_from_robot_frame(res["x_mid"], res["gap_len"], self._overlay_inlier_tol, pose)
+
+            color = "tab:purple" if side == "left" else "tab:red"
+            poly = mpatches.Polygon(rect_w, closed=True, fill=False, lw=2.0, ls="--", ec=color, zorder=6)
+            self.ax.add_patch(poly)
+            self._opening_artists.append(poly)
+
+            gx, gy = res.get("gap_world", (None, None))
+            if gx is not None:
+                dot_gap = self.ax.scatter([gx], [gy], s=30, c=color, zorder=7)
+                self._opening_artists.append(dot_gap)
+
+            px, py = res.get("proj_world", (None, None))
+            if px is not None:
+                mark = self.ax.scatter([px], [py], s=80, c="cyan", marker="o", edgecolors="black", zorder=8)
+                self._opening_artists.append(mark)
+
+        try:
+            self.fig.canvas.draw_idle()
+            self.fig.canvas.flush_events()
+        except Exception:
+            pass
 
     def stop_rendering(self):
         if self._render_thread and self._render_thread.is_alive():
