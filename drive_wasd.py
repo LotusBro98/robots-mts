@@ -83,7 +83,7 @@ else:
 
 def clamp(x, lo, hi): return max(lo, min(hi, x))
 
-def print_speeds(v, w):
+def print_speeds(v, w, real_v, real_w):
     sys.stdout.write(f"\rSpeed  v={v:+.3f}  w={w:+.3f}")
     sys.stdout.flush()
 
@@ -149,7 +149,8 @@ def main():
                 now = time.time()
                 if now - last_send >= t_period:
                     robot.send_drive(v, w)
-                    print_speeds(v, w)
+                    sens = robot.recv_sensors()
+                    print_speeds(v, w, sens.vel[0], sens.angle_vel)
                     last_send = now
 
                 # держим частоту

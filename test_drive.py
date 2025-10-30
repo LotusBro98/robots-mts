@@ -18,16 +18,16 @@ driver.ANGLE_THRESHOLD = np.deg2rad(5)
 # print("done")
 
 # # проехать заданное расстояние
-print("Drive 0.5 m")
-driver.drive(max_speed=0.1, max_dist=0.1)
-driver.stop()
-print("Done")
-
-# # подъехать к стенке (не ближе заданного расстояния)
-# print("Drive until 0.5 m to wall")
-# driver.drive(max_speed=0.5, front_wall_dist=0.5)
-# driver.freeze()
+# print("Drive 0.5 m")
+# driver.drive(max_speed=0.1, max_dist=0.1)
+# driver.stop()
 # print("Done")
+
+# подъехать к стенке (не ближе заданного расстояния)
+print("Drive until 0.5 m to wall")
+driver.drive(max_speed=0.1, front_wall_dist=0.5)
+driver.freeze()
+print("Done")
 
 # # поездить вдоль стенки
 # print("Drive right wall 2 m")

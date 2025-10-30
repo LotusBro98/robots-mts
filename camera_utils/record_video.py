@@ -64,7 +64,7 @@ def main():
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
 
     fps = cap.get(cv2.CAP_PROP_FPS)
-    if not fps or fps < 1 or fps > 240:
+    if not fps or fps < 1 or fps > 240 or args.fps != fps:
         fps = args.fps if args.fps > 0 else 30.0
 
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 640

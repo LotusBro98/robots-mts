@@ -59,50 +59,59 @@ def crc8(data: bytes) -> int:
     return c
 
 # -------------------- Потоковый парсер --------------------
-def frames_stream(ser: serial.Serial, read_chunk: int = 512) -> Generator[bytes, None, None]:
+def frames_stream(ser: serial.Serial, idle_sleep: float = 0.001) -> Generator[bytes, None, None]:
     """
     Непрерывно читает из UART и выдаёт валидированные 47-байтные кадры.
-    Без потерь границ: поддерживает «разорванные» кадры на произвольных границах чтения.
+    Неблокирующий режим: читаем только ser.in_waiting байт; если 0 — короткий sleep.
     """
     buf = bytearray()
-    # Чтобы не разрастался бесконечно, периодически подрезаем «хвост», где уже нет стартовой метки.
     MAX_BUF = 8192
     TRIM_TO = 4096
 
-    while True:
-        # Читаем всё доступное; если мало — читаем кусок фикс. размера
-        n_wait = ser.in_waiting if hasattr(ser, "in_waiting") else 0
-        need = max(n_wait, read_chunk)
-        chunk = ser.read(need)
-        if chunk:
-            buf.extend(chunk)
+    # на всякий случай переведём порт в неблокирующий режим
+    try:
+        ser.timeout = 0  # non-blocking: read() вернёт мгновенно, даже если нет байтов
+    except Exception:
+        pass
 
-        # Поиск кадров внутри накопленного буфера
+    while True:
+        # читаем только имеющееся
+        try:
+            n_wait = ser.in_waiting if hasattr(ser, "in_waiting") else 0
+        except Exception:
+            n_wait = 0
+
+        if n_wait:
+            try:
+                chunk = ser.read(n_wait)
+            except serial.SerialException:
+                break  # порт закрылся
+            if chunk:
+                buf.extend(chunk)
+        else:
+            # ничего нет — не блокируемся, просто даём CPU отдохнуть
+            time.sleep(idle_sleep)
+
+        # поиск кадров внутри накопленного буфера
         i = 0
         end_search = len(buf) - 2
         while i <= end_search:
             if buf[i] == HEADER and buf[i+1] == VERLEN:
-                # Есть заголовок — пробуем взять полный кадр
                 avail = len(buf) - i
                 if avail < FRAME_LEN:
                     break  # ждём догрузки хвоста
                 frame = bytes(buf[i:i+FRAME_LEN])
-                # CRC — последний байт, считается по предыдущим 46
                 if crc8(frame[:-1]) == frame[-1]:
-                    # Валидный кадр: удаляем из буфера и отдаём
                     del buf[:i+FRAME_LEN]
                     yield frame
-                    # Сдвинулся буфер — начнём поиск сначала
                     i = 0
                     end_search = len(buf) - 2
                     continue
                 else:
-                    # Фальшстарт: пропускаем один байт и ищем дальше
                     i += 1
                     continue
             i += 1
 
-        # Санитарная подрезка буфера
         if len(buf) > MAX_BUF:
             del buf[:len(buf) - TRIM_TO]
 
@@ -154,52 +163,57 @@ def parse_frame(frame: bytes):
 # -------------------- Сбор одного оборота --------------------
 def read_full_scan_from_serial(
     ser: serial.Serial,
-    angle_offset: float = 0.0,     # доп. сдвиг (град)
-    clockwise: bool = True,        # LD19 по документации — углы увеличиваются по часовой
-    max_revo_seconds: float = 2.0, # таймаут на сбор одного оборота
-    min_points: int = 60,          # минимум валидных точек, иначе вернём пусто
+    angle_offset: float = 0.0,
+    clockwise: bool = True,
+    max_revo_seconds: float = 2.0,
+    min_points: int = 60,
 ) -> Dict[float, float]:
-    """
-    Возвращает словарь {угол_в_градусах: дистанция_в_метрах} за один «оборотище».
-    Без квантования к целым градусам — сохраняем реальные углы.
-
-    Если не успели набрать за max_revo_seconds — вернём то, что собрали (если >= min_points), иначе {}.
-    """
     def transform_angle(a_deg: float) -> float:
-        a = (-a_deg) if not clockwise else a_deg  # если кто-то привык к CCW — инвертируй флаг
-        a = (a + angle_offset) % 360.0
-        return a
+        a = a_deg if clockwise else (-a_deg)
+        return (a + angle_offset) % 360.0
 
-    distances: Dict[float, float] = {}
+    def is_wrap(prev: float, curr: float) -> bool:
+        return (prev - curr) > 180.0 if clockwise else (curr - prev) > 180.0
+
+    # Фаза A: ждём первую границу оборота
     t0 = time.time()
-    last_deg: Optional[float] = None
-    got_wrap = False
-
-    for frame in frames_stream(ser):
-        parsed = parse_frame(frame)
-        if not parsed:
-            continue
-
-        for raw_deg, dist_m, _inten in parsed["points"]:
-            deg = transform_angle(raw_deg)
-
-            # детект перехода 360 -> 0 (завершение оборота)
-            if last_deg is not None and last_deg > 270.0 and deg < 90.0:
-                got_wrap = True
-
-            # сохраняем последнюю дистанцию на этот точный угол (без округления)
-            distances[deg] = dist_m
-            last_deg = deg
-
-        if got_wrap:
+    last = None
+    while True:
+        for frame in frames_stream(ser):
+            parsed = parse_frame(frame)
+            if not parsed:
+                continue
+            for raw_deg, _, _ in parsed["points"]:
+                deg = transform_angle(raw_deg)
+                if last is not None and is_wrap(last, deg):
+                    last = deg  # стартовая точка после wrap
+                    break  # выходим на сбор
+                last = deg
+            else:
+                continue
+            break  # вышли по wrap
+        if last is not None:
             break
-
         if time.time() - t0 > max_revo_seconds:
-            break
+            return {}
 
-    if len(distances) < min_points:
-        return {}
-    return distances
+    # Фаза B: собираем до следующего wrap
+    distances: Dict[float, float] = {}
+    t1 = time.time()
+    while True:
+        for frame in frames_stream(ser):
+            parsed = parse_frame(frame)
+            if not parsed:
+                continue
+            for raw_deg, dist_m, _ in parsed["points"]:
+                deg = transform_angle(raw_deg)
+                if last is not None and is_wrap(last, deg):
+                    # завершили РОВНО один круг
+                    return distances if len(distances) >= min_points else {}
+                distances[deg] = dist_m
+                last = deg
+        if time.time() - t1 > max_revo_seconds:
+            return distances if len(distances) >= min_points else {}
 
 # -------------------- Пример запуска --------------------
 if __name__ == "__main__":
