@@ -1,11 +1,12 @@
 import json
 import time
 import traceback
+from typing import Dict
 import serial
 import threading
 import numpy as np
 
-from navigator_utils import normalize
+from navigator_utils import normalize, round_angle
 from robot_base import Robot
 from robot_lidar_alt import read_full_scan_from_serial
 
@@ -16,11 +17,13 @@ LIDAR_SERIAL_TIMEOUT = 0.2
 
 
 class RobotChassis(Robot):
-    WHEEL_DISTANCE = 15.15  # In cm
     MAX_ACCELERATION = 1.0
     MAX_SPEED_MpS = 0.53
     MAX_ROT_SPEED_RpS = 0.53
     MAX_ANG_ACCELERATION = 0.5
+
+    WHEEL_DISTANCE = 15.15  # In cm
+    LIDAR_BLIND_ZONES = [(180, 15)]
 
     def __init__(self, port: str = "/dev/ttyACM1", **kwargs):
         super().__init__(**kwargs)
@@ -89,6 +92,16 @@ class RobotChassis(Robot):
             self.lidar_thread.join()
             self.lidar_thread = None
 
+    def remove_lidar_blind_zones(self, distances_by_angle: Dict[float, float]):
+        angles = np.array(distances_by_angle.keys())
+        ranges = np.array(distances_by_angle.values())
+
+        blind_mask = np.zeros_like(angles, dtype=np.bool_)
+        for a, da in self.LIDAR_BLIND_ZONES:
+            blind_mask |= round_angle(angles - a, radians=False) < da
+        filtered = dict(zip(angles[~blind_mask], ranges[~blind_mask]))
+        return filtered
+
     def _capture_lidar(self):
         print("Started lidar capture")
         while self.do_capture_sensors:
@@ -103,6 +116,7 @@ class RobotChassis(Robot):
                 )
                 # self.lidar_distances_by_angle = distances_by_angle
                 # self.lidar_distances_by_direction = {-45: distances_by_angle[314], 0: distances_by_angle[0], 45: distances_by_angle[45]}
+                distances_by_angle = self.remove_lidar_blind_zones(distances_by_angle)
                 self._update_lidar(distances_by_angle)
                 # print(distances_by_angle)
             except:
