@@ -158,7 +158,7 @@ class RobotChassis(Robot):
         self.vel = np.array([linear_delta, 0], dtype=np.float32)
         
         # print("ODOM: ", delta_left, delta_right, linear_delta, delta_pos, self.pos)
-        self._update_odometry(self.pos, self.angle, self.vel, self.vth)
+        self._update_odometry(self.pos.copy(), self.angle, self.vel.copy(), self.vth)
 
 
     def sensors_callback(self, msg):  # TODO: взять это за основу?

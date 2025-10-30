@@ -12,16 +12,16 @@ driver.MAX_ROT_SPEED = 0.3
 driver.ANGLE_THRESHOLD = np.deg2rad(5)
 
 # повернуться на определённый градус
-print("Rotate 90")
-driver.rotate(10)
-driver.stop()
-print("done")
+# print("Rotate 90")
+# driver.rotate(10)
+# driver.stop()
+# print("done")
 
 # # проехать заданное расстояние
-# print("Drive 0.5 m")
-# driver.drive(max_speed=0.5, max_dist=0.5)
-# driver.freeze()
-# print("Done")
+print("Drive 0.5 m")
+driver.drive(max_speed=0.1, max_dist=0.1)
+driver.stop()
+print("Done")
 
 # # подъехать к стенке (не ближе заданного расстояния)
 # print("Drive until 0.5 m to wall")

@@ -29,7 +29,7 @@ class Candidate:
             ema_alpha = 1.0 / (self.hits + 1)  # «честное» среднее
 
         delta = p - self.pos
-        self.pos += ema_alpha * delta
+        self.pos = self.pos + ema_alpha * delta
         # обновим суммарный разброс (Welford light)
         self.sum_sq += float((p - self.pos) @ (p - self.pos))
         self.hits += 1
@@ -416,8 +416,8 @@ class Navigator:
         self.prev_odom_angle = odom_angle
 
         with self.lock:
-            # self.angle += odom_angle_delta
-            self.pos += odom_delta
+            # self.angle = self.angle + odom_angle_delta
+            self.pos = self.pos + odom_delta
             return self.pos, self.angle
         
     prev_gyro_time = time.monotonic()
@@ -435,7 +435,7 @@ class Navigator:
         dth = w_med * dt
 
         with self.lock:
-            self.angle += dth
+            self.angle = self.angle + dth
             return self.pos, self.angle
 
     def update_from_lidar(self, lidar_data: Dict[float, float]):
@@ -477,9 +477,9 @@ class Navigator:
         self.cur_matched_pts = pts_from
 
         with self.lock:
-            self.pos += dpos
-            self.angle += dth
-            self.odom_angle_offset += dth
+            self.pos = self.pos + dpos
+            self.angle = self.angle + dth
+            self.odom_angle_offset = self.odom_angle_offset + dth
             return self.pos, self.angle
 
     last_display_time = 0
