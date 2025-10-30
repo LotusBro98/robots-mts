@@ -1,4 +1,5 @@
 import json
+import math
 import time
 import traceback
 from typing import Dict
@@ -146,6 +147,7 @@ class RobotChassis(Robot):
             while self.do_capture_sensors:
                 gz_corr, angle_z, t_prev = read_yaw_rate_and_angle(self._imu, gz_bias, angle_z, t_prev)
                 print(f"Yaw speed: {gz_corr:+7.2f} °/с | Angle Z: {angle_z:+7.2f} ° | Norm: {wrap_angle_deg(angle_z):+7.2f} °")
+                self._update_gyro(math.radians(gz_corr))
                 # перекалибровка раз в 10 сек
                 if int(time.monotonic()) % 10 == 0:
                     gz_bias = recalibrate_imu(self._imu, seconds=1.0)
