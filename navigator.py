@@ -197,7 +197,7 @@ class Navigator:
             rect_w = _rect_world_from_robot_frame(res.x_mid, res.y_mid, gap_len, inlier_tol, pose_pos, pose_ang)
 
             color = "tab:purple" if side == "left" else "tab:red"
-            poly = mpatches.Polygon(rect_w, closed=True, fill=False, lw=2.0, ls="--", ec=color, zorder=6)
+            poly = mpatches.Polygon(rect_w, closed=True, fill=False, lw=2.0, ls="--", ec=color, zorder=0)
             self.ax.add_patch(poly)
             self._opening_artists.append(poly)
 
@@ -205,14 +205,14 @@ class Navigator:
             gap_world = getattr(res, "world_gap_center", None)
             if isinstance(gap_world, (tuple, list, np.ndarray)) and len(gap_world) == 2:
                 gx, gy = float(gap_world[0]), float(gap_world[1])
-                dot_gap = self.ax.scatter([gx], [gy], s=30, c=color, zorder=7)
+                dot_gap = self.ax.scatter([gx], [gy], s=30, c=color, zorder=0)
                 self._opening_artists.append(dot_gap)
 
             # проекция на ось движения (куда падает перпендикуляр из центра)
             proj_world = getattr(res, "world_proj_point", None)
             if isinstance(proj_world, (tuple, list, np.ndarray)) and len(proj_world) == 2:
                 px, py = float(proj_world[0]), float(proj_world[1])
-                mark = self.ax.scatter([px], [py], s=80, c="cyan", marker="o", edgecolors="black", zorder=8)
+                mark = self.ax.scatter([px], [py], s=80, c="cyan", marker="o", edgecolors="gray", zorder=0)
                 self._opening_artists.append(mark)
 
         try:
