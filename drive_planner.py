@@ -58,12 +58,9 @@ class RobotDrivePlanner:
             angle: float
             points: np.ndarray
         """
-        points_xy_world = self.navigator.points
-        robot_xy = self.navigator.pos
-        robot_heading_rad = self.navigator.angle
-        result_wall_openings = find_openings_left_right(points_xy_world, robot_xy, robot_heading_rad,
-                                    min_open=0.20, inlier_tol=0.06, dx=0.05)
-        # self.navigator.set_external_openings(result_wall_openings, inlier_tol=0.06)
+        result_wall_openings = find_openings_left_right(self.navigator)
+        print(result_wall_openings)
+        self.navigator.set_external_openings(result_wall_openings, inlier_tol=0.06)
         if result_wall_openings and result_wall_openings.get("nearest") and result_wall_openings["nearest"].side:
             result_distance_for_opening = result_wall_openings["nearest"]
             return result_distance_for_opening.side, result_distance_for_opening.distance

@@ -3,6 +3,8 @@ import numpy as np
 from dataclasses import dataclass
 from typing import Optional, Literal, Tuple
 
+from navigator import Navigator
+
 Side = Literal["left", "right"]
 
 @dataclass
@@ -16,45 +18,34 @@ class OpeningResult:
     y_mid: Optional[float]
     debug: dict                               # любые отладочные поля
 
-def _rotmat(theta):
-    c, s = math.cos(theta), math.sin(theta)
-    return np.array([[c, -s],[s, c]])
-
 def find_side_opening(
-    points_xy_world: np.ndarray,          # shape (N,2)
-    robot_xy: Tuple[float,float],         # (x,y) мира
-    robot_heading_rad: float,             # куда «смотрим»
+    navigator: Navigator,
     side: Side,
-    Smax: float = 4.0,                    # дальность вперёд для анализа
-    y_band: Tuple[float,float] = (0.08, 1.2),   # минимальная/максимальная |y| (м) для кандидатов стены
+    Smax: float = 5.0,                    # дальность вперёд для анализа
+    y_band: float = 0.5,   # минимальная/максимальная |y| (м) для кандидатов стены
     ransac_iters: int = 200,
-    inlier_tol: float = 0.06,             # полуширина «полосы стены» (м)
-    max_tilt_deg: float = 20.0,           # допустимый наклон стены к оси x (шум коридоров)
-    dx: float = 0.05,                     # размер бина по x (м)
+    inlier_tol: float = 0.1,             # полуширина «полосы стены» (м)
+    max_tilt_deg: float = 30.0,           # допустимый наклон стены к оси x (шум коридоров)
+    dx: float = 0.03,                      # размер бина по x (м)
     min_open: float = 0.20,               # минимальная длина разрыва (м) — «дверной проём»
-    need_wall_before_after_bins: int = 2  # требуем по ≥N бинов «есть стена» до и после проёма
+    need_wall_before_after_bins: int = 1  # требуем по ≥N бинов «есть стена» до и после проёма
 ) -> OpeningResult:
     """
     Возвращает первый (ближайший по x) валидный проём на выбранном борту.
     """
-    assert points_xy_world.ndim == 2 and points_xy_world.shape[1] == 2
+    # assert points_xy_world.ndim == 2 and points_xy_world.shape[1] == 2
 
     # 1) в СК робота
-    R = _rotmat(robot_heading_rad).T               # мир -> робот
-    p_rel = (points_xy_world - np.asarray(robot_xy)) @ R.T
-    x, y = p_rel[:,0], p_rel[:,1]
+    # R = _rotmat(robot_heading_rad).T               # мир -> робот
+    # p_rel = (points_xy_world - np.asarray(robot_xy)) @ R.T
+    pts = navigator.get_relative_points(max_abs_y=y_band, max_dist=Smax)
 
-    # фильтр «впереди» и по борту
     if side == "right":
-        mask_side = (x >= 0) & (x <= Smax) & (y <= -y_band[0]) & (y >= -y_band[1])
-    else:  # left
-        mask_side = (x >= 0) & (x <= Smax) & (y >=  y_band[0]) & (y <=  y_band[1])
+        pts = pts[pts[..., 1] < 0]
+    else:
+        pts = pts[pts[..., 1] > 0]
 
-    X = x[mask_side]
-    Y = y[mask_side]
-    pts = np.stack([X, Y], axis=1)
-    if pts.shape[0] < 8:
-        return OpeningResult(side, False, None, None, None, None, None, {"reason":"not_enough_points"})
+    X, Y = pts[:,0], pts[:,1]
 
     # 2) RANSAC по прямой y = a*x + b
     best_inliers = None
@@ -90,6 +81,7 @@ def find_side_opening(
         Yi = pts[best_inliers, 1]
         A = np.vstack([Xi, np.ones_like(Xi)]).T
         a, b = np.linalg.lstsq(A, Yi, rcond=None)[0]
+    print(a, b)
 
     # 3) дискретизация по x и карта наличия стены
     bins = np.arange(0.0, Smax + dx, dx)
@@ -118,9 +110,8 @@ def find_side_opening(
                 x_mid = (run_start*dx + run_end*dx)/2.0
                 y_mid = a*x_mid + b
                 # 5) обратно в мир: точка проекции на ось движения (y=0) и сам центр проёма
-                Rw = _rotmat(robot_heading_rad)          # робот -> мир
-                proj_world = np.array([x_mid, 0.0]) @ Rw.T + np.asarray(robot_xy)
-                gap_world  = np.array([x_mid, y_mid]) @ Rw.T + np.asarray(robot_xy)
+                proj_world = navigator.unproject_to_world(np.array([x_mid, 0.0]))
+                gap_world = navigator.unproject_to_world(np.array([x_mid, y_mid]))
                 return OpeningResult(
                     side=side, found=True, distance=float(x_mid),
                     world_proj_point=(float(proj_world[0]), float(proj_world[1])),
@@ -139,10 +130,10 @@ def find_side_opening(
     return OpeningResult(side, False, None, None, None, None, None,
                          {"reason":"no_valid_gap", "a":float(a), "b":float(b)})
 
-def find_openings_left_right(points_xy_world, robot_xy, robot_heading_rad, **kw) -> dict[str, OpeningResult]:
+def find_openings_left_right(navigator, **kw) -> dict[str, OpeningResult]:
     """Ищет проёмы и слева, и справа; возвращает ближайший по расстоянию вперёд."""
-    left  = find_side_opening(points_xy_world, robot_xy, robot_heading_rad, side="left", **kw)
-    right = find_side_opening(points_xy_world, robot_xy, robot_heading_rad, side="right", **kw)
+    left  = find_side_opening(navigator, side="left", **kw)
+    right = find_side_opening(navigator, side="right", **kw)
 
     best = None
     for res in (left, right):
