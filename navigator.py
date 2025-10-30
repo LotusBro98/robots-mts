@@ -6,6 +6,7 @@ from typing import Dict
 import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.patches import FancyArrowPatch
+import matplotlib.patches as mpatches
 import numpy as np
 from scipy.spatial import cKDTree
 
@@ -579,7 +580,7 @@ class Navigator:
             self._overlay_inlier_tol = float(inlier_tol)
 
     def _draw_external_openings(self):
-        """Вызывается из render thread. Рисует рамочки/точки по self._overlay_openings."""
+        """Вызывается из render thread. Рисует рамочки/точки по self._overlay_openings (OpeningResult)."""
         if self.fig is None or not hasattr(self, "_overlay_openings"):
             return
 
@@ -587,48 +588,67 @@ class Navigator:
         if not hasattr(self, "_opening_artists"):
             self._opening_artists = []
         for a in self._opening_artists:
-            try: a.remove()
-            except Exception: pass
+            try:
+                a.remove()
+            except Exception:
+                pass
         self._opening_artists.clear()
 
         openings = self._overlay_openings
         if not openings:
             return
 
-        import matplotlib.patches as mpatches
-
-        def _rect_world_from_robot_frame(x_mid, gap_len, inlier_tol, pose):
-            # прямоугольник в СК робота (ось X — вперёд, высота = 2*inlier_tol)
-            x0, x1 = x_mid - gap_len/2.0, x_mid + gap_len/2.0
+        def _rect_world_from_robot_frame(x_mid, gap_len, inlier_tol, pose_pos, pose_ang):
+            # прямоугольник в СК робота: длина = gap_len по оси X, высота = 2*inlier_tol по оси Y
+            x0, x1 = x_mid - gap_len / 2.0, x_mid + gap_len / 2.0
             y0, y1 = -inlier_tol, +inlier_tol
-            rect_rb = np.array([[x0,y0],[x1,y0],[x1,y1],[x0,y1]], dtype=float)
+            rect_rb = np.array([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], dtype=float)
 
-            pos = np.asarray(pose.get("pos", self.pos), dtype=float)
-            ang = float(pose.get("angle", self.angle))
-            R = np.array([[ np.cos(ang), -np.sin(ang)],
-                          [ np.sin(ang),  np.cos(ang)]], dtype=float)
-            return (rect_rb @ R.T) + pos
+            R = np.array([[np.cos(pose_ang), -np.sin(pose_ang)],
+                        [np.sin(pose_ang),  np.cos(pose_ang)]], dtype=float)
+            return (rect_rb @ R.T) + pose_pos
+
+        # толщину "стены" (полувысота рамки) берём из set_external_openings(..., inlier_tol=...)
+        inlier_tol = getattr(self, "_overlay_inlier_tol", 0.06)
 
         for side in ("left", "right"):
             res = openings.get(side) if openings else None
-            if not res or not res.get("x_mid"):
+            # res — это OpeningResult или None
+            if res is None or not getattr(res, "found", False) or (getattr(res, "x_mid", None) is None):
                 continue
 
-            pose = res.get("pose", {})  # можно не передавать
-            rect_w = _rect_world_from_robot_frame(res["x_mid"], res["gap_len"], self._overlay_inlier_tol, pose)
+            # поза на момент детекта (если ты её где-то прикладываешь),
+            # иначе текущая поза навигатора
+            pose = getattr(res, "pose", None)  # допустимо отсутствует у OpeningResult
+            pose_pos = np.asarray(pose.get("pos"), float) if isinstance(pose, dict) and "pos" in pose else self.pos
+            pose_ang = float(pose.get("angle")) if isinstance(pose, dict) and "angle" in pose else self.angle
+
+            # длина проёма: пробуем достать из debug, иначе дефолт
+            gap_len = None
+            dbg = getattr(res, "debug", None)
+            if isinstance(dbg, dict):
+                gap_len = dbg.get("gap_len", None)
+            if gap_len is None:
+                gap_len = 0.22  # аккуратный дефолт, если детектор не передал ширину
+
+            rect_w = _rect_world_from_robot_frame(res.x_mid, gap_len, inlier_tol, pose_pos, pose_ang)
 
             color = "tab:purple" if side == "left" else "tab:red"
             poly = mpatches.Polygon(rect_w, closed=True, fill=False, lw=2.0, ls="--", ec=color, zorder=6)
             self.ax.add_patch(poly)
             self._opening_artists.append(poly)
 
-            gx, gy = res.get("gap_world", (None, None))
-            if gx is not None:
+            # центр проёма на стене
+            gap_world = getattr(res, "world_gap_center", None)
+            if isinstance(gap_world, (tuple, list, np.ndarray)) and len(gap_world) == 2:
+                gx, gy = float(gap_world[0]), float(gap_world[1])
                 dot_gap = self.ax.scatter([gx], [gy], s=30, c=color, zorder=7)
                 self._opening_artists.append(dot_gap)
 
-            px, py = res.get("proj_world", (None, None))
-            if px is not None:
+            # проекция на ось движения (куда падает перпендикуляр из центра)
+            proj_world = getattr(res, "world_proj_point", None)
+            if isinstance(proj_world, (tuple, list, np.ndarray)) and len(proj_world) == 2:
+                px, py = float(proj_world[0]), float(proj_world[1])
                 mark = self.ax.scatter([px], [py], s=80, c="cyan", marker="o", edgecolors="black", zorder=8)
                 self._opening_artists.append(mark)
 
@@ -638,21 +658,21 @@ class Navigator:
         except Exception:
             pass
 
-    def stop_rendering(self):
-        if self._render_thread and self._render_thread.is_alive():
-            self._render_stop.set()
-            self._render_thread.join(timeout=1.0)
-        # Закрываем окно только в главном потоке и если реально было окно
-        if self.render_mode == "window" and threading.current_thread() is threading.main_thread():
+        def stop_rendering(self):
+            if self._render_thread and self._render_thread.is_alive():
+                self._render_stop.set()
+                self._render_thread.join(timeout=1.0)
+            # Закрываем окно только в главном потоке и если реально было окно
+            if self.render_mode == "window" and threading.current_thread() is threading.main_thread():
+                try:
+                    import matplotlib.pyplot as plt
+                    plt.close(self.fig)
+                except Exception:
+                    pass
+
+        def _safe_atexit_close(self):
+            # вызывается уже в момент сворачивания интерпретатора
             try:
-                import matplotlib.pyplot as plt
-                plt.close(self.fig)
+                self.stop_rendering()
             except Exception:
                 pass
-
-    def _safe_atexit_close(self):
-        # вызывается уже в момент сворачивания интерпретатора
-        try:
-            self.stop_rendering()
-        except Exception:
-            pass

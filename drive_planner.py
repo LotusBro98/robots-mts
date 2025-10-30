@@ -1,4 +1,3 @@
-import numpy as np
 from drive_planning.corridor_distance import find_openings_left_right
 from driver import Driver
 from navigator import Navigator
@@ -39,6 +38,7 @@ class RobotDrivePlanner:
         """
         Рассчитывает следующий манёвр для текущего положения робота.
         """
+        self._calculate_distance_to_next_turn_in_corridor()
         ret = self.DRIVES[self.cnt] + ({},)
         self.cnt += 1
         return ret
@@ -63,6 +63,7 @@ class RobotDrivePlanner:
         robot_heading_rad = self.navigator.angle
         result_wall_openings = find_openings_left_right(points_xy_world, robot_xy, robot_heading_rad,
                                     min_open=0.20, inlier_tol=0.06, dx=0.05)
-        self.navigator.set_external_openings(result_wall_openings, inlier_tol=0.06)
-        result_distance_for_opening = find_openings_left_right()["nearest"]
-        return result_distance_for_opening.side, result_distance_for_opening.distance
+        # self.navigator.set_external_openings(result_wall_openings, inlier_tol=0.06)
+        if result_wall_openings and result_wall_openings.get("nearest") and result_wall_openings["nearest"].side:
+            result_distance_for_opening = result_wall_openings["nearest"]
+            return result_distance_for_opening.side, result_distance_for_opening.distance
