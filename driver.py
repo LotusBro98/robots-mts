@@ -14,12 +14,12 @@ class Driver:
     SMOOTH_STOP_DIST = 0.0
     ANGLE_THRESHOLD = np.deg2rad(5)
     CONTROLLER_PERIOD = 0.05
-    MAZE_TURN_SPEED = 0.13
+    MAZE_TURN_SPEED = 0.15
     MAZE_TURN_RADIUS = 0.25
     MAZE_RIGHT_WALL_DIST = 0.235
     WALL_ROT_COEFF = 2.0
     WALL_ANGLE_COEFF = 3.0
-    WALL_MAX_DECLINE = np.deg2rad(10)
+    WALL_MAX_DECLINE = np.deg2rad(20)
     BRAKE_EPS_LINEAR = 0.1
     BRAKE_EPS_ANGULAR = 0.1
 
@@ -400,10 +400,10 @@ class Driver:
         print("[maze_forward] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_turn(self, target_angle, target_pos=None, radius=None, speed=None, max_rot_speed=None, brake_eps=None, target_rot_vel=0.1, relative=True):
+    def maze_turn(self, target_angle, target_pos=None, radius=None, max_speed=None, max_rot_speed=None, brake_eps=None, target_rot_vel=0.1, relative=True):
         target_angle = np.deg2rad(target_angle)
-        if speed is None:
-            speed = self.MAZE_TURN_SPEED
+        if max_speed is None:
+            max_speed = self.MAZE_TURN_SPEED
         if radius is None:
             radius = self.MAZE_TURN_RADIUS
         if brake_eps is None:
@@ -443,6 +443,9 @@ class Driver:
             angle_to_target = round_angle(target_angle - sens.angle) * angle_dir
             tgt_radius = start_radius + angle_to_target / full_angle * (end_radius - start_radius)
             th_vel = sens.angle_vel * angle_dir
+            # remaining_dist_curve = (start_radius + end_radius) / 2 * angle_to_target
+            # remaining_dist_lin = np.linalg.norm(sens.pos - )
+
 
             # delta_angle = sens.angle - prev_th
             # prev_th = sens.angle
@@ -461,8 +464,10 @@ class Driver:
                 print("\n[maze_turn] target reached")
                 break
 
+            speed = max_speed 
+
             if angle_to_target > self.estimate_angular_brake_distance(th_vel, target_rot_vel) + brake_eps:
-                rot = max_rot_speed * angle_dir
+                rot = max_rot_speed * angle_dir * (1 + (tgt_radius - cur_radius) * 0.5)
             else:
                 rot = target_rot_vel
 
@@ -488,5 +493,5 @@ class Driver:
 
 
     def maze_turnaround(self):
-        self.maze_turn(179.9, speed=0)
+        self.maze_turn(179.9, max_speed=0)
 

@@ -54,9 +54,9 @@ class RobotDrivePlanner:
         elif op_nearest.distance > self.DOOR_SIZE / 3:
             return self.driver.maze_forward, (op_nearest.distance,), {}
         elif op_right.found:
-            return self.driver.maze_turn, (-90,), {}
+            return self.driver.maze_turn, (-90,), {"target_pos": self.navigator.project_to_robot(op_right.world_gap_center)}
         elif op_left.found:
-            return self.driver.maze_turn, (90,), {}
+            return self.driver.maze_turn, (90,), {"target_pos": self.navigator.project_to_robot(op_left.world_gap_center)}
         else:
             print("Don't know what to do")
             return self.driver.maze_forward, (self.DOOR_SIZE,), {}

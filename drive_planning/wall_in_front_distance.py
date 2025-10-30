@@ -3,7 +3,7 @@ import math
 
 def front_clearance_simple(navigator,
                            Smax: float = 5.0,
-                           front_half_width: float = 0.10,
+                           front_half_width: float = 0.1,
                            min_pts: int = 6,
                            q: float = 0.10) -> tuple[float, dict]:
     """

@@ -25,7 +25,7 @@ def find_side_opening(
     navigator: Navigator,
     side: Side,
     Smax: float = 5.0,                    # дальность вперёд для анализа
-    y_band: float = 0.5,   # минимальная/максимальная |y| (м) для кандидатов стены
+    y_band: float = 0.55,   # минимальная/максимальная |y| (м) для кандидатов стены
     X_begin: float = 0.25,
     ransac_iters: int = 200,
     inlier_tol: float = 0.25,             # полуширина «полосы стены» (м)
