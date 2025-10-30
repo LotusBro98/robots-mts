@@ -1,4 +1,5 @@
 import math
+from matplotlib import pyplot as plt
 import numpy as np
 from dataclasses import dataclass
 from typing import Optional, Literal, Tuple
@@ -25,13 +26,13 @@ def find_side_opening(
     navigator: Navigator,
     side: Side,
     Smax: float = 5.0,                    # дальность вперёд для анализа
-    y_band: float = 0.55,   # минимальная/максимальная |y| (м) для кандидатов стены
+    y_band: float = 0.5,   # минимальная/максимальная |y| (м) для кандидатов стены
     X_begin: float = 0.25,
     ransac_iters: int = 200,
-    inlier_tol: float = 0.25,             # полуширина «полосы стены» (м)
-    max_tilt_deg: float = 30.0,           # допустимый наклон стены к оси x (шум коридоров)
+    inlier_tol: float = 0.05,             # полуширина «полосы стены» (м)
+    max_tilt_deg: float = 15.0,           # допустимый наклон стены к оси x (шум коридоров)
     dx: float = 0.02,                      # размер бина по x (м)
-    min_open: float = 0.35,               # минимальная длина разрыва (м) — «дверной проём»
+    min_open: float = 0.4,               # минимальная длина разрыва (м) — «дверной проём»
     need_wall_before_after_bins: int = 0  # требуем по ≥N бинов «есть стена» до и после проёма
 ) -> OpeningResult:
     """
@@ -44,12 +45,16 @@ def find_side_opening(
     # p_rel = (points_xy_world - np.asarray(robot_xy)) @ R.T
     pts = navigator.get_relative_points(max_abs_y=y_band, max_dist=Smax)
 
+    # Поиск стены перед роботом
+    wall_in_front_of_robot_dist, _ = front_clearance_simple(navigator)
+    wall_in_front_of_robot_dist += X_begin
+
     if side == "right":
         pts = pts[pts[..., 1] < 0]
     else:
         pts = pts[pts[..., 1] > 0]
     pts = pts + [X_begin, 0]
-    pts = pts[pts[..., 0] > 0]
+    pts = pts[(pts[..., 0] > 0) & (pts[..., 0] < wall_in_front_of_robot_dist + inlier_tol)]
     # print("PTS:", pts)
 
     X, Y = pts[:,0], pts[:,1]
@@ -99,10 +104,6 @@ def find_side_opening(
     for k in np.unique(bin_ids[near]):
         has_wall[k] = True
     # print(has_wall * 1)
-
-    # Поиск стены перед роботом
-    wall_in_front_of_robot_dist, _ = front_clearance_simple(navigator)
-    wall_in_front_of_robot_dist += X_begin
 
     # 4) собрать все валидные разрывы
     gaps = []  # элементы: (run_start, run_end, gap_len)

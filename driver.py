@@ -352,7 +352,7 @@ class Driver:
         while True:
             sens = self.robot.recv_sensors()
             distance_left = project_scalar(direction, target_pos - sens.pos)
-            wall_dist, wall_angle = self.robot.navigator.get_wall_dist_and_angle(center_angle=-90, max_angle=50, max_dist=0.5)
+            wall_dist, wall_angle = self.robot.navigator.get_wall_dist_and_angle(center_angle=-90, max_angle=60, max_dist=0.5)
             vel_fwd = sens.vel[0]
 
             if distance_left < 0:
@@ -401,7 +401,7 @@ class Driver:
         print("[maze_forward] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_turn(self, target_angle, target_pos=None, radius=None, max_speed=None, max_rot_speed=None, brake_eps=None, target_rot_vel=0.1, relative=True):
+    def maze_turn(self, target_angle, target_pos=None, radius=None, max_speed=None, max_rot_speed=None, brake_eps=None, target_rot_vel=0.1, relative=True, round_to_90=True):
         target_angle = np.deg2rad(target_angle)
         if max_speed is None:
             max_speed = self.MAZE_TURN_SPEED
@@ -415,20 +415,16 @@ class Driver:
         start_sens = self.robot.recv_sensors()
         if relative:
             target_angle = round_angle(target_angle + start_sens.angle)
+        if round_to_90:
+            target_angle = round(target_angle / (np.pi/2)) * (np.pi/2)
         
         if target_pos is not None:
-            target_pos = self.robot.navigator.project_to_robot(target_pos)
-            start_radius = abs(target_pos[1])
-            end_radius = abs(target_pos[0])
-        else:
-            start_radius = radius
-            end_radius = radius
+            target_pos_rel = self.robot.navigator.project_to_robot(target_pos)
 
-        target_pos_world = self.robot.navigator.unproject_to_world(target_pos) if target_pos is not None else None
         full_angle = abs(round_angle(target_angle - start_sens.angle))
         angle_dir = np.sign(round_angle(target_angle - start_sens.angle))
-        angle_to_center = start_sens.angle + angle_dir * np.pi/2
-        center = start_sens.pos + direction_vec(angle_to_center) * radius
+        angle_to_center = target_angle + angle_dir * np.pi/2
+        center = target_pos + direction_vec(angle_to_center) * radius
 
         target_rot_vel = target_rot_vel * angle_dir
 
@@ -436,12 +432,11 @@ class Driver:
         while True:
             sens = self.robot.recv_sensors()
             angle_to_target = round_angle(target_angle - sens.angle) * angle_dir
-            angle_to_center = round_angle(vec_angle(target_pos_world - center) - vec_angle(sens.pos - center)) * angle_dir
+            angle_to_center = round_angle(vec_angle(target_pos - center) - vec_angle(sens.pos - center)) * angle_dir
             cur_radius = np.linalg.norm(sens.pos - center)
-            tgt_radius = start_radius + angle_to_center / full_angle * (end_radius - start_radius)
+            # tgt_radius = start_radius + angle_to_center / full_angle * (end_radius - start_radius)
+            tgt_radius = radius
             th_vel = sens.angle_vel * angle_dir
-            remaining_dist_curve = (start_radius + end_radius) / 2 * angle_to_target
-            remaining_dist_lin = np.linalg.norm(sens.pos - target_pos_world) if target_pos_world is not None else remaining_dist_curve
 
             if angle_to_target < 0:
                 print("\n[maze_turn] target reached")
