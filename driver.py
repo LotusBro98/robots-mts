@@ -2,7 +2,7 @@ import time
 from matplotlib import pyplot as plt
 import numpy as np
 
-from navigator_utils import direction_vec, normalize, project_scalar, round_angle, transform_points
+from navigator_utils import direction_vec, normalize, project_scalar, round_angle, transform_points, vec_angle
 from robot_base import Robot
 
 
@@ -198,6 +198,7 @@ class Driver:
         vel_threshold = 0.01
         """Sends stop and wait it stopped."""
 
+        print()
         while True:
             sens = self.robot.recv_sensors()
 
@@ -414,60 +415,44 @@ class Driver:
         start_sens = self.robot.recv_sensors()
         if relative:
             target_angle = round_angle(target_angle + start_sens.angle)
-        elif target_pos is not None:
-            target_pos = self.robot.navigator.project_to_robot(target_pos)
-        full_angle = abs(round_angle(target_angle - start_sens.angle))
-        angle_dir = np.sign(round_angle(target_angle - start_sens.angle))
-        angle_to_center = start_sens.angle + angle_dir * np.pi/2
-        center = start_sens.pos + direction_vec(angle_to_center) * radius
+        
         if target_pos is not None:
-            start_radius = target_pos[1]
-            end_radius = target_pos[0]
+            target_pos = self.robot.navigator.project_to_robot(target_pos)
+            start_radius = abs(target_pos[1])
+            end_radius = abs(target_pos[0])
         else:
             start_radius = radius
             end_radius = radius
 
+        target_pos_world = self.robot.navigator.unproject_to_world(target_pos) if target_pos is not None else None
+        full_angle = abs(round_angle(target_angle - start_sens.angle))
+        angle_dir = np.sign(round_angle(target_angle - start_sens.angle))
+        angle_to_center = start_sens.angle + angle_dir * np.pi/2
+        center = start_sens.pos + direction_vec(angle_to_center) * radius
+
         target_rot_vel = target_rot_vel * angle_dir
 
-        # data = []
-        # start_time = time.monotonic()
-        # times = []
-        # prev_th = start_sens.angle
-        # prev_time = time.monotonic() - 0.1
-        # prev_th_vel = 0
-        ticks = 0
         print()
         while True:
             sens = self.robot.recv_sensors()
-            cur_radius = np.linalg.norm(sens.pos - center)
             angle_to_target = round_angle(target_angle - sens.angle) * angle_dir
-            tgt_radius = start_radius + angle_to_target / full_angle * (end_radius - start_radius)
+            angle_to_center = round_angle(vec_angle(target_pos_world - center) - vec_angle(sens.pos - center)) * angle_dir
+            cur_radius = np.linalg.norm(sens.pos - center)
+            tgt_radius = start_radius + angle_to_center / full_angle * (end_radius - start_radius)
             th_vel = sens.angle_vel * angle_dir
-            # remaining_dist_curve = (start_radius + end_radius) / 2 * angle_to_target
-            # remaining_dist_lin = np.linalg.norm(sens.pos - )
+            remaining_dist_curve = (start_radius + end_radius) / 2 * angle_to_target
+            remaining_dist_lin = np.linalg.norm(sens.pos - target_pos_world) if target_pos_world is not None else remaining_dist_curve
 
-
-            # delta_angle = sens.angle - prev_th
-            # prev_th = sens.angle
-
-            # time_now = time.monotonic()
-            # delta_time = time_now - prev_time
-            # prev_time = time_now
-
-            # th_vel = delta_angle / delta_time
-
-            # delta_vel = (th_vel - prev_th_vel) / delta_time
-            # prev_th_vel = th_vel 
-
-            ticks += 1
-            if angle_to_target < 0 and ticks > 5:
+            if angle_to_target < 0:
                 print("\n[maze_turn] target reached")
                 break
 
-            speed = max_speed 
+            # target_angle = angle_to_center
+
+            speed = max_speed * (1 + (angle_to_center - angle_to_target) * 1.0)
 
             if angle_to_target > self.estimate_angular_brake_distance(th_vel, target_rot_vel) + brake_eps:
-                rot = max_rot_speed * angle_dir * (1 + (tgt_radius - cur_radius) * 0.5)
+                rot = max_rot_speed * angle_dir * (1 + (cur_radius - tgt_radius) * 1.0)
             else:
                 rot = target_rot_vel
 
@@ -475,44 +460,38 @@ class Driver:
             msg += f"cur_radius: {cur_radius:6.3f} "
             msg += f"tgt_radius: {tgt_radius:6.3f} "
             msg += f"angle_to_target: {angle_to_target:6.3f} "
+            msg += f"angle_to_center: {angle_to_center:6.3f} "
             msg += f"th_vel: {th_vel:6.3f} "
             msg += f"rot: {rot:6.3f} "
             print(msg, end="", flush=True)
             self.robot.send_drive(speed, rot)
-            # times.append(time.monotonic() - start_time)
-            # data.append((angle_to_target, th_vel, rot))
             time.sleep(self.CONTROLLER_PERIOD)
-        # plt.close()
-        # plt.plot(times, data)
-        # plt.savefig("navigator_images/maze_turn.png")
-        # plt.close()
-        # print(np.max(data, axis=0))
 
         print("[maze_turn] stop")
         self.robot.send_drive(0, 0)
 
 
-    def maze_turnaround(self, target_rot_vel=0.1):
-        target_angle = np.deg2rad(180)
+    def maze_turnaround(self, target_rot_vel=0.1, brake_eps=None, max_rot_speed=None):
+        start_sens = self.robot.recv_sensors()
+        target_angle = np.deg2rad(180) + start_sens.angle
         if brake_eps is None:
             brake_eps = self.BRAKE_EPS_ANGULAR
         if max_rot_speed is None:
             max_rot_speed = self.MAX_ROT_SPEED
+        angle_dir = np.sign(round_angle(target_angle - start_sens.angle))
 
-        ticks = 0
         print()
         while True:
             sens = self.robot.recv_sensors()
-            angle_to_target = round_angle(target_angle - sens.angle)
+            angle_to_target = round_angle(target_angle - sens.angle) * angle_dir
             th_vel = sens.angle_vel
 
-            ticks += 1
-            if angle_to_target < 0 and ticks > 5:
+            if abs(angle_to_target) < np.pi / 2 and angle_to_target < 0:
                 print("\n[maze_turnaround] target reached")
                 break
 
-            if angle_to_target > self.estimate_angular_brake_distance(th_vel, target_rot_vel) + brake_eps:
-                rot = max_rot_speed
+            if abs(angle_to_target) > self.estimate_angular_brake_distance(th_vel, target_rot_vel) + brake_eps:
+                rot = max_rot_speed * angle_dir
             else:
                 rot = target_rot_vel
 

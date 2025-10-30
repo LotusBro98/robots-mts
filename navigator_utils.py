@@ -118,6 +118,8 @@ def estimate_update_point_to_line_robust(
 def normalize(vec: np.ndarray) -> np.ndarray:
     return vec / np.linalg.norm(vec, axis=-1, keepdims=True)
 
+def vec_angle(vec: np.ndarray) -> np.ndarray:
+    return np.arctan2(vec[..., 1], vec[..., 0])
 
 def project_scalar(base: np.ndarray, vec: np.ndarray) -> float:
     return (normalize(base) * vec).sum(-1)
