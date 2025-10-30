@@ -14,7 +14,7 @@ class Driver:
     SMOOTH_STOP_DIST = 0.0
     ANGLE_THRESHOLD = np.deg2rad(5)
     CONTROLLER_PERIOD = 0.05
-    MAZE_TURN_SPEED = 0.15
+    MAZE_TURN_SPEED = 0.13
     MAZE_TURN_RADIUS = 0.25
     MAZE_RIGHT_WALL_DIST = 0.235
     WALL_ROT_COEFF = 2.0
@@ -400,7 +400,7 @@ class Driver:
         print("[maze_forward] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_turn(self, target_angle, radius=None, speed=None, max_rot_speed=None, brake_eps=None, target_rot_vel=0.1, relative=True):
+    def maze_turn(self, target_angle, target_pos=None, radius=None, speed=None, max_rot_speed=None, brake_eps=None, target_rot_vel=0.1, relative=True):
         target_angle = np.deg2rad(target_angle)
         if speed is None:
             speed = self.MAZE_TURN_SPEED
@@ -414,9 +414,18 @@ class Driver:
         start_sens = self.robot.recv_sensors()
         if relative:
             target_angle = round_angle(target_angle + start_sens.angle)
+        elif target_pos is not None:
+            target_pos = self.robot.navigator.project_to_robot(target_pos)
+        full_angle = abs(round_angle(target_angle - start_sens.angle))
         angle_dir = np.sign(round_angle(target_angle - start_sens.angle))
         angle_to_center = start_sens.angle + angle_dir * np.pi/2
         center = start_sens.pos + direction_vec(angle_to_center) * radius
+        if target_pos is not None:
+            start_radius = target_pos[1]
+            end_radius = target_pos[0]
+        else:
+            start_radius = radius
+            end_radius = radius
 
         target_rot_vel = target_rot_vel * angle_dir
 
@@ -430,8 +439,9 @@ class Driver:
         print()
         while True:
             sens = self.robot.recv_sensors()
-            dist_to_center = np.linalg.norm(sens.pos - center)
+            cur_radius = np.linalg.norm(sens.pos - center)
             angle_to_target = round_angle(target_angle - sens.angle) * angle_dir
+            tgt_radius = start_radius + angle_to_target / full_angle * (end_radius - start_radius)
             th_vel = sens.angle_vel * angle_dir
 
             # delta_angle = sens.angle - prev_th
@@ -457,7 +467,8 @@ class Driver:
                 rot = target_rot_vel
 
             msg = f"\r[maze_turn] "
-            msg += f"dist_to_center: {dist_to_center:6.3f} "
+            msg += f"cur_radius: {cur_radius:6.3f} "
+            msg += f"tgt_radius: {tgt_radius:6.3f} "
             msg += f"angle_to_target: {angle_to_target:6.3f} "
             msg += f"th_vel: {th_vel:6.3f} "
             msg += f"rot: {rot:6.3f} "

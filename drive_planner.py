@@ -51,7 +51,7 @@ class RobotDrivePlanner:
         dead_end = not op_left.found and not op_right.found
         if dead_end:
             return self.driver.maze_turnaround, (), {}
-        elif op_nearest.distance > self.DOOR_SIZE:
+        elif op_nearest.distance > self.DOOR_SIZE / 3:
             return self.driver.maze_forward, (op_nearest.distance,), {}
         elif op_right.found:
             return self.driver.maze_turn, (-90,), {}

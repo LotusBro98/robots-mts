@@ -26,12 +26,13 @@ def find_side_opening(
     side: Side,
     Smax: float = 5.0,                    # дальность вперёд для анализа
     y_band: float = 0.5,   # минимальная/максимальная |y| (м) для кандидатов стены
+    X_begin: float = 0.25,
     ransac_iters: int = 200,
-    inlier_tol: float = 0.1,             # полуширина «полосы стены» (м)
+    inlier_tol: float = 0.25,             # полуширина «полосы стены» (м)
     max_tilt_deg: float = 30.0,           # допустимый наклон стены к оси x (шум коридоров)
-    dx: float = 0.03,                      # размер бина по x (м)
-    min_open: float = 0.30,               # минимальная длина разрыва (м) — «дверной проём»
-    need_wall_before_after_bins: int = 1  # требуем по ≥N бинов «есть стена» до и после проёма
+    dx: float = 0.02,                      # размер бина по x (м)
+    min_open: float = 0.35,               # минимальная длина разрыва (м) — «дверной проём»
+    need_wall_before_after_bins: int = 0  # требуем по ≥N бинов «есть стена» до и после проёма
 ) -> OpeningResult:
     """
     Возвращает первый (ближайший по x) валидный проём на выбранном борту.
@@ -47,6 +48,9 @@ def find_side_opening(
         pts = pts[pts[..., 1] < 0]
     else:
         pts = pts[pts[..., 1] > 0]
+    pts = pts + [X_begin, 0]
+    pts = pts[pts[..., 0] > 0]
+    # print("PTS:", pts)
 
     X, Y = pts[:,0], pts[:,1]
 
@@ -94,9 +98,11 @@ def find_side_opening(
     near = np.abs(Y - y_on_line) <= inlier_tol
     for k in np.unique(bin_ids[near]):
         has_wall[k] = True
+    # print(has_wall * 1)
 
     # Поиск стены перед роботом
     wall_in_front_of_robot_dist, _ = front_clearance_simple(navigator)
+    wall_in_front_of_robot_dist += X_begin
 
     # 4) собрать все валидные разрывы
     gaps = []  # элементы: (run_start, run_end, gap_len)
@@ -115,6 +121,7 @@ def find_side_opening(
             # требуем чтобы между gap и роботом не было стены
             x_mid = (run_start + run_end ) / 2.0 * dx
             no_wall_before_gap = x_mid < wall_in_front_of_robot_dist
+            # print(run_start, run_end, gap_len, gap_len >= min_open, before_ok, after_ok, no_wall_before_gap)
 
             if gap_len >= min_open and before_ok and after_ok and no_wall_before_gap:
                 gaps.append((run_start, run_end, gap_len))
@@ -132,8 +139,8 @@ def find_side_opening(
         run_start, run_end, gap_len = max(gaps, key=lambda g: g[0])   # max по индексу бина
 
     # центр и проекция
-    x_start = run_start * dx
-    x_mid   = (run_start * dx + run_end * dx) / 2.0
+    x_start = run_start * dx - X_begin
+    x_mid   = (run_start * dx + run_end * dx) / 2.0 - X_begin
     y_mid   = a * x_mid + b
 
     proj_world = navigator.unproject_to_world(np.array([x_start, 0.0]))
