@@ -9,7 +9,7 @@ from matplotlib.patches import FancyArrowPatch
 import numpy as np
 from scipy.spatial import cKDTree
 
-from navigator_utils import estimate_update_point_to_line_robust, transform_points
+from navigator_utils import estimate_update_point_to_line_robust, fit_line_polar_ransac, transform_points
 
 def _cell_key(pt, cell_size):
     # ключ ячейки в окрестности размером cell_size
@@ -501,6 +501,15 @@ class Navigator:
 
         min_dist = np.min(wall_dists)
         return min_dist
+    
+    def get_wall_dist_and_angle(self, center_angle=-45, max_angle=20, max_dist=2):
+        points = self._get_relative_points(max_dist=max_dist, angle_shift=center_angle, max_angle=max_angle)
+        if len(points) == 0:
+            return None, None
+
+        wall_dist, wall_angle, _ = fit_line_polar_ransac(points, min_inliers=5, max_wall_angle=30)
+        
+        return wall_dist, wall_angle
 
     def _render_loop(self):
         """Запускается только в render thread"""

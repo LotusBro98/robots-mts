@@ -145,3 +145,95 @@ def transform_points(points, dpos, dth, pos=(0,0)):
         points = (points - pos) @ M + pos + dpos
         return points
 
+def fit_line_polar_ransac(points: np.ndarray,
+                          dist_thresh: float = 0.05,
+                          min_inliers: int = 30,
+                          max_iters: int = 300,
+                          max_wall_angle: float = 30,
+                          seed: int | None = None):
+    """
+    Оценивает прямую x*cos(theta) + y*sin(theta) = rho (rho>=0) по точкам с выбросами.
+    RANSAC -> затем уточнение по инлаерам (total least squares).
+
+    Параметры:
+      points      : (N,2) массив точек.
+      dist_thresh : порог расстояния до прямой (м) для инлаеров.
+      min_inliers : минимум инлаеров, чтобы считать модель валидной.
+      max_iters   : число итераций RANSAC.
+      seed        : опционально для воспроизводимости.
+
+    Возвращает:
+      rho, theta, inliers_mask
+      (если модель не найдена: rho=None, theta=None, inliers_mask=None)
+    """
+    P = np.asarray(points, float)
+    if P.ndim != 2 or P.shape[1] != 2:
+        raise ValueError("points must be of shape (N,2)")
+    P = P[np.isfinite(P).all(axis=1)]
+    N = len(P)
+    if N < 2:
+        return None, None, None
+
+    rng = np.random.default_rng(seed)
+
+    best_inliers = None
+    best_count = 0
+
+    def model_from_two(a, b):
+        # нормаль к отрезку: n = R90*(b-a)
+        t = b - a
+        if np.allclose(t, 0):
+            return None, None  # вырождение
+        n = np.array([-t[1], t[0]], dtype=float)
+        n /= (np.linalg.norm(n) + 1e-12)
+        rho = float(n @ a)
+        # нормализуем знак так, чтобы rho >= 0
+        if rho < 0:
+            n = -n
+            rho = -rho
+        return n, rho
+
+    # --- RANSAC ---
+    for _ in range(max_iters):
+        i, j = rng.choice(N, size=2, replace=False)
+        n, rho = model_from_two(P[i], P[j])
+        if n is None:
+            continue
+        # расстояния до прямой: |n·p - rho|
+        d = np.abs(P @ n - rho)
+        inliers = d <= dist_thresh
+        cnt = int(inliers.sum())
+        if cnt > best_count:
+            best_count = cnt
+            best_inliers = inliers
+            # быстрый выход, если уже отличный консенсус
+            if best_count >= max(min_inliers, int(0.9 * N)):
+                break
+
+    if best_inliers is None or best_count < min_inliers:
+        return None, None, None
+
+    # --- Уточнение по инлаерам (total least squares / PCA) ---
+    Q = P[best_inliers]
+    # главная компонента = касательная к стене
+    mu = Q.mean(axis=0)
+    C = (Q - mu).T @ (Q - mu) / max(1, len(Q) - 1)
+    eigvals, eigvecs = np.linalg.eigh(C)
+    tangent = eigvecs[:, np.argmax(eigvals)]
+    normal = np.array([-tangent[1], tangent[0]])
+    normal /= (np.linalg.norm(normal) + 1e-12)
+
+    # направление нормали — «от робота к стене» (т.е. чтобы rho >= 0)
+    # для линии справедливо: n·p ≈ const -> возьмём среднее по инлаерам
+    rho = float(np.mean(Q @ normal))
+    if rho < 0:
+        normal = -normal
+        rho = -rho
+
+    theta = float(np.arctan2(normal[1], normal[0]))
+
+    if theta is not None and abs(theta) > np.deg2rad(max_wall_angle):
+        return None, None, None
+
+    return rho, theta, best_inliers
+

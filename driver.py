@@ -13,9 +13,13 @@ class Driver:
     MAX_SPEED = 1.0
     SMOOTH_STOP_DIST = 0.0
     ANGLE_THRESHOLD = np.deg2rad(5)
+    CONTROLLER_PERIOD = 0.05
     MAZE_TURN_SPEED = 0.15
     MAZE_TURN_RADIUS = 0.25
-    CONTROLLER_PERIOD = 0.05
+    MAZE_RIGHT_WALL_DIST = 0.235
+    WALL_ROT_COEFF = 3.0
+    WALL_ANGLE_COEFF = 1.5
+    WALL_MAX_DECLINE = np.deg2rad(10)
 
     def __init__(self, robot: Robot):
         self.robot = robot
@@ -320,27 +324,29 @@ class Driver:
         print("[drive] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_forward(self, target_pos, target_speed=None, brake_eps=0.1, max_speed=None, relative=True):
+    def maze_forward(self, target_pos, target_speed=None, brake_eps=0.1, right_wall_dist=None, max_speed=None, relative=True):
         target_pos = np.asarray(target_pos)
         if target_speed is None:
             target_speed = self.MAZE_TURN_SPEED
         if max_speed is None:
             max_speed = self.MAX_SPEED
+        if right_wall_dist is None:
+            right_wall_dist = self.MAZE_RIGHT_WALL_DIST
 
         start_sens = self.robot.recv_sensors()
         if relative:
-            print(target_pos, start_sens.pos, start_sens.angle)
             target_pos = transform_points(target_pos, start_sens.pos, start_sens.angle)
         direction = normalize(target_pos - start_sens.pos)
-        print(target_pos, direction)
 
         # data = []
         # start_time = time.monotonic()
         # times = []
         is_braking = False
+        print()
         while True:
             sens = self.robot.recv_sensors()
             distance_left = project_scalar(direction, target_pos - sens.pos)
+            wall_dist, wall_angle = self.robot.navigator.get_wall_dist_and_angle(center_angle=-90, max_angle=50, max_dist=0.5)
             vel_fwd = sens.vel[0]
 
             if distance_left < 0:
@@ -355,12 +361,29 @@ class Driver:
             else:
                 speed = max_speed
 
+            if wall_angle is None:
+                tgt_rel_angle = 0
+            elif is_braking:
+                tgt_rel_angle = wall_angle
+            else:
+                tgt_rel_angle = wall_angle
+                tgt_rel_angle += np.clip((right_wall_dist - wall_dist) * self.WALL_ANGLE_COEFF, -self.WALL_MAX_DECLINE, self.WALL_MAX_DECLINE)
+
+            rot = np.clip(tgt_rel_angle * self.WALL_ROT_COEFF, -1, 1) * self.MAX_ROT_SPEED
+
             msg = f"\r[maze_forward] "
             msg += f"dist: {distance_left:6.3f} "
             msg += f"vel_set: {speed:6.3f} "
             msg += f"vel: {vel_fwd:6.3f} "
+            msg += f"rot: {rot:6.3f} "
+            if wall_dist is None:
+                msg += f"wall_dist: {None}   "
+                msg += f"wall_angle: {None}   "
+            else:
+                msg += f"wall_dist: {wall_dist or -1:6.3f} "
+                msg += f"wall_angle: {wall_angle or -1:6.3f} "
             print(msg, end="", flush=True)
-            self.robot.send_drive(speed, 0)
+            self.robot.send_drive(speed, rot)
             # times.append(time.monotonic() - start_time)
             # data.append((distance_left, vel_fwd, speed))
             time.sleep(self.CONTROLLER_PERIOD)
@@ -394,6 +417,8 @@ class Driver:
         # prev_th = start_sens.angle
         # prev_time = time.monotonic() - 0.1
         # prev_th_vel = 0
+        ticks = 0
+        print()
         while True:
             sens = self.robot.recv_sensors()
             dist_to_center = np.linalg.norm(sens.pos - center)
@@ -412,7 +437,8 @@ class Driver:
             # delta_vel = (th_vel - prev_th_vel) / delta_time
             # prev_th_vel = th_vel 
 
-            if angle_to_target < 0:
+            ticks += 1
+            if angle_to_target < 0 and ticks > 5:
                 print("\n[maze_turn] target reached")
                 break
 
@@ -421,7 +447,7 @@ class Driver:
             else:
                 rot = target_rot_vel
 
-            msg = f"\r[maze_forward] "
+            msg = f"\r[maze_turn] "
             msg += f"dist_to_center: {dist_to_center:6.3f} "
             msg += f"angle_to_target: {angle_to_target:6.3f} "
             msg += f"th_vel: {th_vel:6.3f} "
