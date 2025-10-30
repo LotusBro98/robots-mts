@@ -9,6 +9,7 @@ robot.connect()
 driver = Driver(robot)
 driver.update_ref_angle()
 driver.MAX_ROT_SPEED = 0.3
+driver.MAX_SPEED = 0.5
 driver.ANGLE_THRESHOLD = np.deg2rad(5)
 
 # повернуться на определённый градус
@@ -24,10 +25,12 @@ driver.ANGLE_THRESHOLD = np.deg2rad(5)
 # print("Done")
 
 # подъехать к стенке (не ближе заданного расстояния)
-print("Drive until 0.5 m to wall")
-driver.drive(max_speed=0.1, front_wall_dist=0.5)
-driver.freeze()
-print("Done")
+# print("Drive until 0.5 m to wall")
+# driver.drive(max_speed=0.1, front_wall_dist=0.5)
+# driver.freeze()
+# print("Done")
+
+driver.maze_forward((1, 0), max_speed=0.5)
 
 # # поездить вдоль стенки
 # print("Drive right wall 2 m")
@@ -55,3 +58,5 @@ print("Done")
 # time.sleep(5)
 # robot.disconnect()
 # print("disconnect_robot")
+
+driver.stop()

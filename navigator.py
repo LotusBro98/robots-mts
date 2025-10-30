@@ -462,7 +462,7 @@ class Navigator:
             self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=3, max_candidate_age=15, candidate_cell_scale=0.1)
         
         # dpos *= 0
-        dpos *=  1e-1
+        # dpos *=  1e-1
         # MAX_DPOS = 1e-3
         # dpos = np.clip(dpos, -MAX_DPOS, MAX_DPOS)
         

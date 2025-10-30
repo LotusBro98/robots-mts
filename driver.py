@@ -320,10 +320,12 @@ class Driver:
         print("[drive] stop")
         self.robot.send_drive(0, 0)
 
-    def maze_forward(self, target_pos, target_speed=None, brake_eps=0.1, max_speed=1, relative=True):
+    def maze_forward(self, target_pos, target_speed=None, brake_eps=0.1, max_speed=None, relative=True):
         target_pos = np.asarray(target_pos)
         if target_speed is None:
             target_speed = self.MAZE_TURN_SPEED
+        if max_speed is None:
+            max_speed = self.MAX_SPEED
 
         start_sens = self.robot.recv_sensors()
         if relative:

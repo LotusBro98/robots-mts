@@ -17,6 +17,10 @@ LIDAR_SERIAL_TIMEOUT = 0.2
 
 class RobotChassis(Robot):
     WHEEL_DISTANCE = 15.15  # In cm
+    MAX_ACCELERATION = 1.0
+    MAX_SPEED_MpS = 0.53
+    MAX_ROT_SPEED_RpS = 0.53
+    MAX_ANG_ACCELERATION = 0.5
 
     def __init__(self, port: str = "/dev/ttyACM1", **kwargs):
         super().__init__(**kwargs)
