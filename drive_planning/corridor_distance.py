@@ -95,45 +95,59 @@ def find_side_opening(
     for k in np.unique(bin_ids[near]):
         has_wall[k] = True
 
-    # 4) поиск первого разрыва достаточной длины с «стеной» до и после
+    # 4) собрать все валидные разрывы
+    gaps = []  # элементы: (run_start, run_end, gap_len)
     run_start = None
     for k in range(len(has_wall)):
         if not has_wall[k] and run_start is None:
-            # начался разрыв
             run_start = k
         if (has_wall[k] and run_start is not None) or (k == len(has_wall)-1 and run_start is not None):
             run_end = k if has_wall[k] else k+1  # полуинтервалы
             gap_len = (run_end - run_start) * dx
-            # проверим окружение
-            before_ok = has_wall[max(0, run_start-need_wall_before_after_bins):run_start].all() if run_start>0 else False
-            after_ok  = has_wall[run_end:min(len(has_wall), run_end+need_wall_before_after_bins)].all() if run_end < len(has_wall) else False
+
+            # требуем стену до и после
+            before_ok = has_wall[max(0, run_start - need_wall_before_after_bins): run_start].all() if run_start > 0 else False
+            after_ok  = has_wall[run_end: min(len(has_wall), run_end + need_wall_before_after_bins)].all() if run_end < len(has_wall) else False
+
             if gap_len >= min_open and before_ok and after_ok:
-                # центр проёма по x
-                x_start = run_start*dx
-                x_mid = (run_start*dx + run_end*dx)/2.0
-                y_mid = a*x_mid + b
-                # 5) обратно в мир: точка проекции на ось движения (y=0) и сам центр проёма
-                proj_world = navigator.unproject_to_world(np.array([x_start, 0.0]))
-                gap_world = navigator.unproject_to_world(np.array([x_mid, y_mid]))
-                return OpeningResult(
-                    side=side, found=True, distance=float(x_start),
-                    world_proj_point=(float(proj_world[0]), float(proj_world[1])),
-                    world_gap_center=(float(gap_world[0]), float(gap_world[1])),
-                    x_start=float(x_start),
-                    x_mid=float(x_mid), y_mid=float(y_mid),
-                    pose={"pos": navigator.pos, "angle": navigator.angle},
-                    debug={
-                        "a": float(a), "b": float(b),
-                        "gap_len": float(gap_len),
-                        "run_bins": (int(run_start), int(run_end)),
-                        "inlier_tol": inlier_tol, "dx": dx,
-                        "max_inliers": int(max_inliers)
-                    }
-                )
+                gaps.append((run_start, run_end, gap_len))
             run_start = None
 
-    return OpeningResult(side, False, None, None, None, None, None, None, None,
-                         {"reason":"no_valid_gap", "a":float(a), "b":float(b)})
+    if not gaps:
+        return OpeningResult(side, False, None, None, None, None, None, None, None,
+                             {"reason": "no_valid_gap", "a": float(a), "b": float(b)})
+
+    # 5) выбрать нужный разрыв:
+    #    right -> ближайший (минимальный x_start), left -> самый дальний (максимальный x_start)
+    if side == "right":
+        run_start, run_end, gap_len = min(gaps, key=lambda g: g[0])   # min по индексу бина
+    else:  # side == "left"
+        run_start, run_end, gap_len = max(gaps, key=lambda g: g[0])   # max по индексу бина
+
+    # центр и проекция
+    x_start = run_start * dx
+    x_mid   = (run_start * dx + run_end * dx) / 2.0
+    y_mid   = a * x_mid + b
+
+    proj_world = navigator.unproject_to_world(np.array([x_start, 0.0]))
+    gap_world  = navigator.unproject_to_world(np.array([x_mid,   y_mid]))
+
+    return OpeningResult(
+        side=side, found=True, distance=float(x_start),
+        world_proj_point=(float(proj_world[0]), float(proj_world[1])),
+        world_gap_center=(float(gap_world[0]),  float(gap_world[1])),
+        x_start=float(x_start),
+        x_mid=float(x_mid), y_mid=float(y_mid),
+        pose={"pos": navigator.pos, "angle": navigator.angle},
+        debug={
+            "a": float(a), "b": float(b),
+            "gap_len": float(gap_len),
+            "run_bins": (int(run_start), int(run_end)),
+            "inlier_tol": inlier_tol, "dx": dx,
+            "max_inliers": int(max_inliers),
+            "picked_policy": "first(right)/last(left)"
+        }
+    )
 
 def find_openings_left_right(navigator, **kw) -> dict[str, OpeningResult]:
     """Ищет проёмы и слева, и справа; возвращает ближайший по расстоянию вперёд."""
