@@ -7,10 +7,10 @@ from driver import Driver
 robot = RobotChassis()
 robot.connect()
 driver = Driver(robot)
-driver.update_ref_angle()
+driver.MAX_SPEED = 0.2
 driver.MAX_ROT_SPEED = 0.02
-driver.MAX_SPEED = 0.05
-driver.ANGLE_THRESHOLD = np.deg2rad(5)
+driver.MAZE_TURN_SPEED = 0.05
+
 
 try:
     # повернуться на определённый градус
