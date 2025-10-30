@@ -50,23 +50,34 @@ def find_side_opening(
     wall_in_front_of_robot_dist += X_begin
 
     if side == "right":
-        pts = pts[pts[..., 1] < 0]
+        pts = pts[pts[:, 1] < 0]
     else:
-        pts = pts[pts[..., 1] > 0]
-    pts = pts + [X_begin, 0]
-    pts = pts[(pts[..., 0] > 0) & (pts[..., 0] < wall_in_front_of_robot_dist + inlier_tol)]
-    # print("PTS:", pts)
+        pts = pts[pts[:, 1] > 0]
 
-    X, Y = pts[:,0], pts[:,1]
+    pts = pts + np.array([X_begin, 0.0], dtype=float)
+    pts = pts[(pts[:, 0] > 0) & (pts[:, 0] < wall_in_front_of_robot_dist + inlier_tol)]
+
+    # --- РАННИЙ ВЫХОД, если точек мало ---
+    if pts.shape[0] < 2:
+        return OpeningResult(
+            side, False, None, None, None, None, None, None,
+            debug={"reason": "not_enough_points", "n_pts": int(pts.shape[0])},
+            pose={"pos": navigator.pos, "angle": navigator.angle},
+        )
+
+    X, Y = pts[:, 0], pts[:, 1]
 
     # 2) RANSAC по прямой y = a*x + b
     best_inliers = None
-    best_ab = (0.0, np.median(Y))  # запасной вариант — горизонтальная на медиане
+    best_ab = (0.0, float(np.median(Y)))
     max_inliers = 0
     max_tilt = math.tan(math.radians(max_tilt_deg))
 
     rng = np.random.default_rng(12345)
     for _ in range(ransac_iters):
+        # ещё одна защита: если вдруг n<2 (паранойя)
+        if pts.shape[0] < 2:
+            break
         i, j = rng.integers(0, pts.shape[0], size=2)
         if i == j:
             continue
@@ -101,8 +112,9 @@ def find_side_opening(
     y_on_line = a*X + b
     has_wall = np.zeros(len(bins)-1, dtype=bool)
     near = np.abs(Y - y_on_line) <= inlier_tol
-    for k in np.unique(bin_ids[near]):
-        has_wall[k] = True
+    if np.any(near):
+        for k in np.unique(bin_ids[near]):
+            has_wall[k] = True
     # print(has_wall * 1)
 
     # 4) собрать все валидные разрывы
