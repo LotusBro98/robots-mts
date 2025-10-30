@@ -10,11 +10,11 @@ from emulation.emulated_robot import EmulatedRobot
 HZ = 10.0
 V_MAX = 1.0
 W_MAX = 1.0
-DV_STEP = 0.05
-DW_STEP = 0.05
+DV_STEP = 0.01
+DW_STEP = 0.01
 ACCEL_MULT_SHIFT = 2.0
 ROBOT_CLASS = RobotChassis
-ROBOT_CLASS = EmulatedRobot
+# ROBOT_CLASS = EmulatedRobot
 
 
 HELP_TEXT = """

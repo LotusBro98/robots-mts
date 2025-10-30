@@ -57,7 +57,7 @@ class RobotChassis(Robot):
 
     def send_command(self, **kwargs):
         cmd_json = json.dumps(kwargs, separators=(',', ':'))
-        print("Cmd to chassis:", cmd_json)
+        # print("Cmd to chassis:", cmd_json)
         self.ser.write((cmd_json + "\r\n").encode())
 
     def _start_capture(self):
@@ -100,7 +100,7 @@ class RobotChassis(Robot):
                 # self.lidar_distances_by_angle = distances_by_angle
                 # self.lidar_distances_by_direction = {-45: distances_by_angle[314], 0: distances_by_angle[0], 45: distances_by_angle[45]}
                 self._update_lidar(distances_by_angle)
-                print(distances_by_angle)
+                # print(distances_by_angle)
             except:
                 traceback.print_exc()
                 break
@@ -135,7 +135,6 @@ class RobotChassis(Robot):
     def calc_odometry(self, msg, last_msg):  # TODO: отдавать отсюда odom_x, odom_y, odom_th, vx, vy, vth как из EmulatedRobot.recv_tel
         delta_left = msg["odl"] - last_msg["odl"]
         delta_right = msg["odr"] - last_msg["odr"]
-        print("ODOM: ", delta_left, delta_right)
 
         linear_delta = 0.5 * (delta_left + delta_right) * 0.01 # original unit is cm
         angular_delta = (delta_right - delta_left) / self.WHEEL_DISTANCE
@@ -158,11 +157,12 @@ class RobotChassis(Robot):
         self.vth = angular_delta / dt
         self.vel = np.array([linear_delta, 0], dtype=np.float32)
         
+        # print("ODOM: ", delta_left, delta_right, linear_delta, delta_pos, self.pos)
         self._update_odometry(self.pos, self.angle, self.vel, self.vth)
 
 
     def sensors_callback(self, msg):  # TODO: взять это за основу?
-        print("Chassis sensors: ", msg) # {"T":1001,"M1":0,"M2":0,"M3":0,"M4":0,"odl":3247,"odr":8920,"v":963}
+        # print("Chassis sensors: ", msg) # {"T":1001,"M1":0,"M2":0,"M3":0,"M4":0,"odl":3247,"odr":8920,"v":963}
         if self.last_msg is None:
             self.last_msg = msg
             return

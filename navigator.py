@@ -411,7 +411,7 @@ class Navigator:
             angle_offset = self.odom_angle_offset
 
         odom_delta = transform_points(odom_pos, -self.prev_odom_pos, angle_offset, pos=self.prev_odom_pos)
-        self.prev_odom_pos = odom_pos
+        self.prev_odom_pos = odom_pos.copy()
         odom_angle_delta = odom_angle - self.prev_odom_angle
         self.prev_odom_angle = odom_angle
 
