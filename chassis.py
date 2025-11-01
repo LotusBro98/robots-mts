@@ -9,7 +9,7 @@ import numpy as np
 
 from navigator_utils import normalize, round_angle
 from robot_base import Robot
-from robot_gyro import calibrate_gz, init_imu, read_yaw_rate_and_angle, recalibrate_imu, wrap_angle_deg
+# from robot_gyro import calibrate_gz, init_imu, read_yaw_rate_and_angle, recalibrate_imu, wrap_angle_deg
 from robot_lidar_alt import read_full_scan_from_serial
 
 
@@ -35,14 +35,14 @@ class RobotChassis(Robot):
     def connect(self):
         self.ser = serial.Serial(self.port, baudrate=115200, timeout=1)
         self.lidar_ser = serial.Serial(LIDAR_PORT, LIDAR_BAUT, timeout=LIDAR_SERIAL_TIMEOUT)
-        self._imu = init_imu()
+        # self._imu = init_imu()
         self._start_capture()
 
     def disconnect(self):
         self._stop_capture()
         self.ser.close()
         self.lidar_ser.close()
-        self._imu.close()
+        # self._imu.close()
 
     def send_drive(self, v: float, w: float):
         """
@@ -52,19 +52,20 @@ class RobotChassis(Robot):
 
         Моторы управляются в диапазоне -1800..1800.
         """
-        MAX_SPEED = 1800  # Единицы измерения - 0.1rpm
+        MAX_SPEED = 1798  # Единицы измерения - 0.1rpm
 
         v = max(-1.0, min(1.0, v))
         w = max(-1.0, min(1.0, w))
 
         # (v, w) → (left, right)
         # поворот влево: левый мотор медленнее, правый быстрее
-        left_speed  = (v - w) * MAX_SPEED
-        right_speed = (v + w) * MAX_SPEED
+        left_speed  = np.clip((v - w), -1, 1) * MAX_SPEED
+        right_speed = np.clip((v + w), -1, 1) * MAX_SPEED
 
         left_speed  = int(max(-MAX_SPEED, min(MAX_SPEED, left_speed)))
         right_speed = int(max(-MAX_SPEED, min(MAX_SPEED, right_speed)))
-        self.send_command(T=1, L=left_speed, R=right_speed)
+        # self.send_command(T=1, L=left_speed, R=right_speed)
+        self.send_command(T=11, M1=left_speed, M2=right_speed, M3=right_speed, M4=left_speed)
 
     def send_command(self, **kwargs):
         cmd_json = json.dumps(kwargs, separators=(',', ':'))
@@ -83,8 +84,8 @@ class RobotChassis(Robot):
         self.sensors_thread.start()
         self.lidar_thread = threading.Thread(target=self._capture_lidar, daemon=True)
         self.lidar_thread.start()
-        self.gyro_thread = threading.Thread(target=self._capture_imu, daemon=True)
-        self.gyro_thread.start()
+        # self.gyro_thread = threading.Thread(target=self._capture_imu, daemon=True)
+        # self.gyro_thread.start()
 
     def _stop_capture(self):
         self.do_capture_sensors = False
@@ -98,9 +99,9 @@ class RobotChassis(Robot):
             self.lidar_thread.join()
             self.lidar_thread = None
 
-        if self.gyro_thread is not None:
-            self.gyro_thread.join()
-            self.gyro_thread = None
+        # if self.gyro_thread is not None:
+        #     self.gyro_thread.join()
+        #     self.gyro_thread = None
 
     def remove_lidar_blind_zones(self, distances_by_angle: Dict[float, float]):
         angles = np.array(list(distances_by_angle.keys()), dtype=float)

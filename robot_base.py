@@ -6,6 +6,7 @@ from typing import Dict
 import numpy as np
 
 from navigator import Navigator
+from navigator_utils import round_angle
 
 
 class Latest:
@@ -59,11 +60,13 @@ class SensorData:
     lidar_ranges: Dict[float, float]
 
     def __post_init__(self):
-        right_pt = -15
-        left_pt = 15
-        self.cur_front_wall_dist = min((rng for angle, rng in self.lidar_ranges.items() if angle < left_pt and angle > right_pt), default=0)
-        self.cur_left_wall_dist = min((rng for angle, rng in self.lidar_ranges.items() if angle > left_pt), default=0) * np.sin(np.deg2rad(45))
-        self.cur_right_wall_dist = min((rng for angle, rng in self.lidar_ranges.items() if angle < right_pt), default=0) * np.sin(np.deg2rad(45))
+        right_end_pt = -80
+        right_pt = -30
+        left_pt = 30
+        left_end_pt = 80
+        self.cur_front_wall_dist = min((rng for angle, rng in self.lidar_ranges.items() if round_angle(angle, radians=False) < left_pt and round_angle(angle, radians=False) > right_pt), default=0)
+        self.cur_left_wall_dist = min((rng for angle, rng in self.lidar_ranges.items() if round_angle(angle, radians=False) < left_end_pt and round_angle(angle, radians=False) > left_pt), default=0) * np.sin(np.deg2rad(45))
+        self.cur_right_wall_dist = min((rng for angle, rng in self.lidar_ranges.items() if round_angle(angle, radians=False) > right_end_pt and round_angle(angle, radians=False) < right_pt), default=0) * np.sin(np.deg2rad(45))
 
 
 class Robot:

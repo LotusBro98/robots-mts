@@ -266,6 +266,8 @@ class Driver:
 
         while True:
             sens = self.robot.recv_sensors()
+            if sens.cur_right_wall_dist == 0:
+                sens.cur_right_wall_dist = right_wall_dist
             vel_front = sens.vel[0]
 
             dist = np.linalg.norm(start_pos - sens.pos)
