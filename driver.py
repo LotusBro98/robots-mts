@@ -249,19 +249,16 @@ class Driver:
 
     def drive_maze(
         self,
-        max_speed,
         front_wall_dist,
         front_wall_smooth_stop_dist,
         side_wall_smooth_stop_dist,
+        max_speed=None,
         left_wall_dist=None,
         right_wall_dist=None,
     ):
-        """
-        max_dist - на какое расстояние проехать
-        front_wall_dist - остановиться, если стенка ближе чем это расстояние
-        front_wall_smooth_stop_dist, side_wall_smooth_stop_dist - 
-            расстояние до конца, на котором начать плавно тормозить
-        """
+        if max_speed is None:
+            max_speed = self.MAX_SPEED
+
         sens = self.robot.recv_sensors()
         start_pos = sens.pos
 
@@ -270,16 +267,8 @@ class Driver:
         while True:
             sens = self.robot.recv_sensors()
             vel_front = sens.vel[0]
-            sens.cur_right_wall_dist = self.robot.navigator.get_wall_dist(center_angle=-50, max_angle=10)
 
             dist = np.linalg.norm(start_pos - sens.pos)
-
-            # if left_wall_dist is not None and sens.cur_left_wall_dist > left_wall_dist + side_wall_smooth_stop_dist:
-            #     print("\n[drive] lost left wall")
-            #     break
-            # if right_wall_dist is not None and sens.cur_right_wall_dist > right_wall_dist + side_wall_smooth_stop_dist:
-            #     print("\n[drive] lost right wall")
-            #     break
 
             if left_wall_dist is not None:
                 t = (sens.cur_left_wall_dist - left_wall_dist) / side_wall_smooth_stop_dist
@@ -301,7 +290,7 @@ class Driver:
             )
             # speed += 1 * (speed - vel_front)
 
-            # speed *= 1 - 0.8 * abs(rot / self.MAX_ROT_SPEED)
+            speed *= 1 - 0.8 * abs(rot / self.MAX_ROT_SPEED)
             rot = np.clip(
                 rot * abs(max_speed) / abs(speed), -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED
             )
@@ -317,8 +306,6 @@ class Driver:
             if right_wall_dist is not None:
                 msg += f"right_wall: {sens.cur_right_wall_dist:6.3f} "
             print(msg, end="", flush=True)
-            # speed = 0.00
-            # rot = 1
             self.robot.send_drive(speed, rot)
             time.sleep(self.CONTROLLER_PERIOD)
 
