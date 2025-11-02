@@ -260,17 +260,12 @@ class Driver:
             max_speed = self.MAX_SPEED
 
         sens = self.robot.recv_sensors()
-        start_pos = sens.pos
 
         assert left_wall_dist is None or right_wall_dist is None
 
         while True:
             sens = self.robot.recv_sensors()
-            if sens.cur_right_wall_dist == 0:
-                sens.cur_right_wall_dist = right_wall_dist
             vel_front = sens.vel[0]
-
-            dist = np.linalg.norm(start_pos - sens.pos)
 
             if left_wall_dist is not None:
                 t = (sens.cur_left_wall_dist - left_wall_dist) / side_wall_smooth_stop_dist
@@ -291,15 +286,15 @@ class Driver:
                 * np.sign(t)
                 * np.clip(abs(t) * abs(max_speed), self.MIN_SPEED, abs(max_speed))
             )
-            # speed += 1 * (speed - vel_front)
 
-            speed *= 1 - 0.8 * abs(rot / self.MAX_ROT_SPEED)
+            speed *= np.exp(-abs(rot / self.MAX_ROT_SPEED))
             rot = np.clip(
                 rot * abs(max_speed) / abs(speed), -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED
             )
 
             msg = f"\r[drive] "
-            msg += f"dist: {dist:6.3f} speed: {speed:6.3f} vel: {vel_front:6.3f} "
+            msg += f"speed: {speed:6.3f} "
+            msg += f"vel: {vel_front:6.3f} "
             if left_wall_dist is not None or right_wall_dist is not None:
                 msg += f"th: {sens.angle:6.3f} rot_speed: {rot:6.3f} "
             if front_wall_dist is not None:
