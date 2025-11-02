@@ -1,0 +1,60 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "../protos/TrafficCone.proto"
+
+PROTO GeneratedCones [ ] {
+  Group {
+    children [
+
+  TrafficCone {
+    translation 0.98 -3.32 0.0
+    name "cone_0"
+  }
+
+  TrafficCone {
+    translation -1.57 -1.94 0.0
+    name "cone_1"
+  }
+
+  TrafficCone {
+    translation 1.66 1.24 0.0
+    name "cone_2"
+  }
+
+  TrafficCone {
+    translation 2.75 -2.89 0.0
+    name "cone_3"
+  }
+
+  TrafficCone {
+    translation -0.55 -3.29 0.0
+    name "cone_4"
+  }
+
+  TrafficCone {
+    translation -1.97 0.04 0.0
+    name "cone_5"
+  }
+
+  TrafficCone {
+    translation -3.31 -2.11 0.0
+    name "cone_6"
+  }
+
+  TrafficCone {
+    translation 1.05 0.31 0.0
+    name "cone_7"
+  }
+
+  TrafficCone {
+    translation -1.96 0.62 0.0
+    name "cone_8"
+  }
+
+  TrafficCone {
+    translation 2.17 -3.45 0.0
+    name "cone_9"
+  }
+    ]
+  }
+}

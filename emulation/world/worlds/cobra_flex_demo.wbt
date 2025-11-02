@@ -1,0 +1,41 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "../objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "../objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "../objects/floors/protos/RectangleArena.proto"
+
+EXTERNPROTO "../protos/TrafficCone.proto"
+EXTERNPROTO "../protos/CobraFlex.proto"
+EXTERNPROTO "../protos/GeneratedMaze.proto"
+EXTERNPROTO "../protos/GeneratedCones.proto"
+
+WorldInfo {
+  title "MTS Maze"
+  basicTimeStep 16
+}
+Viewpoint {
+  orientation 0.2704778919174105 0.30892271133036786 -0.9118160277206185 1.787322460899992
+  position 2.091586362768177 5.704464683699639 3.4628250261046634
+}
+TexturedBackground { }
+TexturedBackgroundLight { }
+
+RectangleArena {
+  floorSize 8 8
+  wallHeight 0.4
+}
+
+# Maze
+GeneratedMaze { }
+GeneratedCones { }
+
+# Robot
+CobraFlex {
+  translation 3.75 3.75 0
+  rotation 0.9999999898646162 -0.0001006746426526702 0.00010067464265476338 1.5707963367140867
+  controller "udp_diff"
+  leftFrontAnchor 0.07730000000000001 0.03501373400000003 0.08200000000000009
+  leftRearAnchor -0.07730000000000002 0.03501373399999996 0.08200000000000003
+  rightFrontAnchor 0.07730000000000002 0.03501373400000014 -0.08200000000000003
+  rightRearAnchor -0.07729999999999998 0.03501373399999994 -0.08200000000000002
+}

@@ -1,0 +1,3700 @@
+#VRML_SIM R2025a utf8
+
+PROTO GeneratedMaze [ ] {
+  Group {
+    children [
+
+  Solid {
+    translation -3.75000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_0_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -3.25000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.99250 3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell0_2_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.75000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_2_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.25000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_3_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.99250 3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell0_4_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.75000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.25000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_5_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.75000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.25000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_7_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.25000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_8_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.75000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_9_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.25000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_10_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.75000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_11_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.00750 3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell0_12_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.25000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_12_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.75000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_13_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.25000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.75000 3.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell0_15_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 4.00750 3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell0_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.75000 3.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell1_0_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -3.49250 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_1_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.99250 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_2_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.49250 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.75000 3.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell1_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.25000 3.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell1_5_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.75000 3.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell1_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.49250 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_7_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.00750 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_8_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.50750 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_9_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.75000 3.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell1_9_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.25000 3.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell1_10_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.50750 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_11_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.00750 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_12_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.50750 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_13_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.75000 3.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell1_13_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.50750 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_15_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 4.00750 3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell1_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.49250 2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell2_1_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.49250 2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell2_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.25000 2.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell2_3_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.75000 2.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell2_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.25000 2.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell2_5_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.99250 2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell2_6_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.49250 2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell2_7_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.25000 2.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell2_7_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.50750 2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell2_9_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.00750 2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell2_10_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.50750 2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell2_11_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.25000 2.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell2_12_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.00750 2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell2_14_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 3.25000 2.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell2_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 4.00750 2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell2_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell3_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.25000 2.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell3_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.75000 2.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell3_2_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.49250 2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell3_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.99250 2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell3_4_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.75000 2.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell3_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.99250 2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell3_6_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.00750 2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell3_8_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.25000 2.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell3_8_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.25000 2.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell3_10_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.50750 2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell3_11_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.75000 2.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell3_11_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.25000 2.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell3_12_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.75000 2.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell3_13_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.50750 2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell3_15_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 3.75000 2.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell3_15_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 4.00750 2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell3_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell4_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.25000 1.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell4_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.99250 1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell4_2_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.49250 1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell4_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.25000 1.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell4_3_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.49250 1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell4_5_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.99250 1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell4_6_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.75000 1.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell4_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.25000 1.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell4_7_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.25000 1.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell4_8_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.75000 1.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell4_9_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.50750 1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell4_11_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.00750 1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell4_12_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.25000 1.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell4_12_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.75000 1.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell4_13_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.25000 1.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell4_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 4.00750 1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell4_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.75000 1.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell5_0_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.99250 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_2_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.99250 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_4_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.75000 1.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell5_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.49250 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_5_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.99250 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_6_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.49250 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_7_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.25000 1.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell5_7_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.50750 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_9_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.75000 1.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell5_9_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.00750 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_10_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.50750 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_11_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.25000 1.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell5_12_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.50750 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_13_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 3.25000 1.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell5_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.75000 1.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell5_15_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 4.00750 1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell5_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell6_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.25000 0.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell6_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.75000 0.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell6_2_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.49250 0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell6_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.25000 0.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell6_3_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.99250 0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell6_6_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.49250 0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell6_7_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.25000 0.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell6_8_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.50750 0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell6_9_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.75000 0.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell6_11_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.00750 0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell6_12_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.50750 0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell6_13_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 3.25000 0.99250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell6_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.50750 0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell6_15_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 4.00750 0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell6_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell7_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.25000 0.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell7_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.99250 0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell7_2_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.49250 0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell7_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.25000 0.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell7_3_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.75000 0.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell7_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.25000 0.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell7_5_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.49250 0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell7_7_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.25000 0.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell7_7_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.25000 0.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell7_8_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.50750 0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell7_9_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.00750 0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell7_10_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.25000 0.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell7_10_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.75000 0.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell7_11_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.50750 0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell7_13_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.75000 0.49250 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell7_13_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.50750 0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell7_15_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 4.00750 0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell7_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 -0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell8_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.75000 -0.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell8_0_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -3.25000 -0.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell8_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.49250 -0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell8_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.99250 -0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell8_4_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.75000 -0.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell8_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.49250 -0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell8_5_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.25000 -0.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell8_5_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.75000 -0.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell8_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.49250 -0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell8_7_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.50750 -0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell8_9_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.00750 -0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell8_10_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.75000 -0.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell8_11_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.00750 -0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell8_12_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.25000 -0.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell8_12_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.75000 -0.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell8_13_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.25000 -0.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell8_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 4.00750 -0.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell8_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 -0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell9_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.49250 -0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell9_1_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.25000 -0.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell9_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.49250 -0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell9_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.99250 -0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell9_4_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.99250 -0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell9_6_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.75000 -0.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell9_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.25000 -0.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell9_7_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.00750 -0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell9_8_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.75000 -0.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell9_9_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.25000 -0.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell9_10_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.50750 -0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell9_11_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.25000 -0.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell9_12_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.50750 -0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell9_13_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 3.25000 -0.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell9_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.75000 -0.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell9_15_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 4.00750 -0.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell9_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.25000 -1.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell10_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.99250 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_2_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.49250 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.75000 -1.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell10_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.49250 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_5_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.99250 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_6_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.25000 -1.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell10_7_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.25000 -1.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell10_8_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.50750 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_9_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.00750 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_10_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.75000 -1.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell10_11_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.00750 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_12_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.50750 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_13_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 3.25000 -1.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell10_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.50750 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_15_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 4.00750 -1.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell10_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 -1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell11_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.49250 -1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell11_1_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.75000 -1.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell11_2_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.25000 -1.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell11_3_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.49250 -1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell11_5_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.25000 -1.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell11_5_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.75000 -1.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell11_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.00750 -1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell11_8_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.25000 -1.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell11_8_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.00750 -1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell11_10_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.25000 -1.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell11_10_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.75000 -1.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell11_11_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.50750 -1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell11_13_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.75000 -1.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell11_13_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.25000 -1.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell11_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.50750 -1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell11_15_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 4.00750 -1.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell11_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 -2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell12_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.49250 -2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell12_1_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.25000 -2.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell12_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.75000 -2.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell12_2_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.25000 -2.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell12_3_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.99250 -2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell12_4_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.75000 -2.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell12_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.49250 -2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell12_5_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.75000 -2.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell12_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.25000 -2.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell12_7_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.00750 -2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell12_8_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.75000 -2.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell12_9_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.50750 -2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell12_11_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.75000 -2.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell12_11_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.25000 -2.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell12_12_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.00750 -2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell12_14_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 4.00750 -2.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell12_15_R"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 -2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell13_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.49250 -2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell13_1_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.25000 -2.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell13_1_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.49250 -2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell13_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.99250 -2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell13_4_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.75000 -2.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell13_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.49250 -2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell13_7_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.25000 -2.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell13_8_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.50750 -2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell13_9_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 0.75000 -2.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell13_9_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.25000 -2.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell13_10_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.00750 -2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell13_12_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.25000 -2.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell13_12_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.75000 -2.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell13_13_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.25000 -2.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell13_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.50750 -2.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell13_15_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.49250 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_1_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.99250 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_2_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.75000 -3.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell14_2_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.49250 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_3_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.75000 -3.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell14_4_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.49250 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_5_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -1.25000 -3.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell14_5_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.75000 -3.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell14_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.25000 -3.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell14_7_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.00750 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_8_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.00750 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_10_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.50750 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_11_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.75000 -3.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell14_11_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.50750 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_13_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.75000 -3.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell14_13_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.25000 -3.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell14_14_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.50750 -3.25000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell14_15_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.99250 -3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell15_0_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -3.75000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_0_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -3.25000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_1_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.99250 -3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell15_2_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -2.75000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_2_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.25000 -3.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_3_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -2.25000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_3_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.75000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_4_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -1.25000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_5_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.99250 -3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell15_6_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation -0.75000 -3.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_6_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.75000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_6_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation -0.25000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_7_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.25000 -3.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_8_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.25000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_8_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.75000 -3.50750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_9_T"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 0.75000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_9_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.25000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_10_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 1.50750 -3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell15_11_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 1.75000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_11_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.00750 -3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell15_12_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 2.25000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_12_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 2.75000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_13_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.00750 -3.75000 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.01500 0.30000 0.50000 }
+      }
+    ]
+    name "cell15_14_L"
+    boundingObject Box { size 0.01500 0.30000 0.50000 }
+  }
+
+  Solid {
+    translation 3.25000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_14_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+
+  Solid {
+    translation 3.75000 -4.00750 0.12
+    rotation 1 0 0 -1.5707953071795862
+    children [
+      Shape {
+        appearance PBRAppearance { baseColor 1 1 1 roughness 0 metalness 0 }
+        geometry Box { size 0.50000 0.30000 0.01500 }
+      }
+    ]
+    name "cell15_15_B"
+    boundingObject Box { size 0.50000 0.30000 0.01500 }
+  }
+    ]
+  }
+}

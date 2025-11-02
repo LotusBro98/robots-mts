@@ -20,7 +20,6 @@ try:
             front_wall_smooth_stop_dist=0.5,
             side_wall_smooth_stop_dist=0.3
         )
-        driver.freeze()
 finally:
     driver.stop()
     robot.disconnect()
