@@ -54,6 +54,7 @@ class EmulatedRobot(Robot):
 
     def _start_capture(self):
         self.do_capture_sensors = True
+        self.lidar_cnt = 0
         self.sensors_thread = threading.Thread(target=self._capture_worker, daemon=True)
         self.sensors_thread.start()
 
@@ -74,7 +75,11 @@ class EmulatedRobot(Robot):
 
             self._update_odometry(pos, th, vel, th_vel)
             self._update_gyro(gyro)
-            self._update_lidar(ranges)
+            if self.lidar_cnt > 10:
+                self.lidar_cnt = 0
+                self._update_lidar(ranges)
+            else:
+                self.lidar_cnt += 1
 
     def send_drive(self, v: float, w: float):
         packet = struct.pack("<2f", v, w)

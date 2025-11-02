@@ -40,8 +40,8 @@ SPEEDUP = int(os.getenv("SPEEDUP", "2"))
 # Реалистичные ограничения движения:
 BASE_MAX_LINEAR = 0.5  # м/с
 BASE_MAX_ANGULAR = 5.0  # рад/с
-BASE_MAX_LINEAR_ACC = 1.0  # м/с²
-BASE_MAX_ANGULAR_ACC = 5.0  # рад/с²
+BASE_MAX_LINEAR_ACC = 5.0  # м/с²
+BASE_MAX_ANGULAR_ACC = 20.0  # рад/с²
 
 # Ускоренные ограничения движения:
 MAX_LINEAR = BASE_MAX_LINEAR * SPEEDUP
@@ -249,8 +249,8 @@ class UdpDiffController:
     # ================================================================
     def diff_drive(self, v: float, w: float):
         # Ограничение диапазона
-        v = max(-MAX_LINEAR, min(MAX_LINEAR, v))
-        w = max(-MAX_ANGULAR, min(MAX_ANGULAR, w))
+        v = max(-1, min(1, v)) * MAX_LINEAR
+        w = max(-1, min(1, w)) * MAX_ANGULAR
 
         # Ограничение ускорений
         dv = v - self.current_v
