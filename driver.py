@@ -282,6 +282,7 @@ class Driver:
             else:
                 t = 0
             rot = np.clip(t * self.MAX_ROT_SPEED, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
+            rot -= sens.angle_vel * 0.2
 
             stop_dist = sens.cur_front_wall_dist - front_wall_dist
             t = np.clip(stop_dist / front_wall_smooth_stop_dist, -1, 1)
