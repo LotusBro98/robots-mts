@@ -9,7 +9,7 @@ from robot_base import Robot
 class Driver:
     MAX_ROT_SPEED = 1.0
     REGULATE_MAX_ANGLE = np.deg2rad(30)
-    MIN_SPEED = 0.1
+    MIN_SPEED = 0.01
     MAX_SPEED = 1.0
     SMOOTH_STOP_DIST = 0.0
     ANGLE_THRESHOLD = np.deg2rad(5)
@@ -282,7 +282,7 @@ class Driver:
             else:
                 t = 0
             rot = np.clip(t * self.MAX_ROT_SPEED, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
-            rot -= sens.angle_vel * 0.2
+            rot -= sens.angle_vel * 0.3
 
             stop_dist = sens.cur_front_wall_dist - front_wall_dist
             t = np.clip(stop_dist / front_wall_smooth_stop_dist, -1, 1)

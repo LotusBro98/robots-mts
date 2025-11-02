@@ -16,9 +16,9 @@ try:
     while True:
         driver.drive_maze(
             front_wall_dist=0.15,
-            right_wall_dist=0.20, 
+            right_wall_dist=0.15, 
             front_wall_smooth_stop_dist=0.5,
-            side_wall_smooth_stop_dist=0.1
+            side_wall_smooth_stop_dist=0.05
         )
 finally:
     driver.stop()
