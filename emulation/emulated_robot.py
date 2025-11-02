@@ -109,8 +109,8 @@ class EmulatedRobot(Robot):
             # cur_left_wall_dist = ranges[-1] * np.sin(np.deg2rad(45))
             # cur_right_wall_dist = ranges[0] * np.sin(np.deg2rad(45))
         # Для проверки: ranges_by_angle = {"-45": ranges[0], "0": ranges[len(ranges) // 2], "45": ranges[-1]}
-        ranges_by_angle = {round(angle, 3): rng for angle, rng in zip(np.arange(-45, 45, 0.25), ranges)}
-        ranges_by_angle[45] = ranges_by_angle[44.75]
+        ranges_by_angle = {round(angle, 3): rng for angle, rng in zip(np.arange(-180, 180, 1), ranges)}
+        ranges_by_angle[180] = ranges_by_angle[179]
         # return odom_x, odom_y, odom_th, (vx, vy, vth), (wx, wy, wz), ranges
         return (
             np.array([odom_x, odom_y]),

@@ -71,9 +71,9 @@ class SensorData:
         ranges_xy = {round_angle(np.deg2rad(angle)): rng for angle, rng in self.lidar_ranges.items()}
         ranges_xy = {angle: (rng * np.cos(angle), rng * np.sin(angle), rng) for angle, rng in ranges_xy.items()}
 
-        ROBOT_WIDTH = 0.25
-        self.cur_front_wall_dist = min((x for angle, (x, y, rng) in ranges_xy.items() if abs(y) < ROBOT_WIDTH / 2), default=0)
-        self.cur_right_wall_dist = min([1000] + [rng for angle, (x, y, rng) in ranges_xy.items() if y < 0 and x + y > 0 and x + y < ROBOT_WIDTH]) * np.sin(np.deg2rad(45))
+        ROBOT_WIDTH = 0.2
+        self.cur_front_wall_dist = min((x for angle, (x, y, rng) in ranges_xy.items() if abs(y) < ROBOT_WIDTH / 2 and x > 0), default=0)
+        self.cur_right_wall_dist = min([1000] + [rng for angle, (x, y, rng) in ranges_xy.items() if y < 0 and x + y > 0 and x + y < ROBOT_WIDTH / 2]) * np.sin(np.deg2rad(45))
 
 
 class Robot:

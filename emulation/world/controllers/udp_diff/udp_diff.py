@@ -39,9 +39,9 @@ SPEEDUP = int(os.getenv("SPEEDUP", "2"))
 
 # Реалистичные ограничения движения:
 BASE_MAX_LINEAR = 0.5  # м/с
-BASE_MAX_ANGULAR = 1.0  # рад/с
-BASE_MAX_LINEAR_ACC = 0.5  # м/с²
-BASE_MAX_ANGULAR_ACC = 1.0  # рад/с²
+BASE_MAX_ANGULAR = 5.0  # рад/с
+BASE_MAX_LINEAR_ACC = 1.0  # м/с²
+BASE_MAX_ANGULAR_ACC = 5.0  # рад/с²
 
 # Ускоренные ограничения движения:
 MAX_LINEAR = BASE_MAX_LINEAR * SPEEDUP
