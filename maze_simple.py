@@ -25,7 +25,7 @@ try:
             # right_wall_dist=0.15, 
             left_wall_dist=0.10, 
             front_wall_smooth_stop_dist=1.0,
-            side_wall_smooth_stop_dist=0.2
+            side_wall_smooth_stop_dist=0.4
         )
 finally:
     driver.stop()
