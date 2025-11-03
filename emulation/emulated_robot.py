@@ -3,6 +3,7 @@ import os
 import socket
 import struct
 import threading
+import time
 import traceback
 
 import numpy as np
@@ -23,6 +24,9 @@ class EmulatedRobot(Robot):
     MAX_SPEED_MpS = 0.42
     MAX_ROT_SPEED_RpS = 0.372
     MAX_ANG_ACCELERATION = 0.14883143
+
+    LIDAR_FPS = 5.0
+    ODOM_FPS = 19.6
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -54,7 +58,6 @@ class EmulatedRobot(Robot):
 
     def _start_capture(self):
         self.do_capture_sensors = True
-        self.lidar_cnt = 0
         self.sensors_thread = threading.Thread(target=self._capture_worker, daemon=True)
         self.sensors_thread.start()
 
@@ -64,6 +67,8 @@ class EmulatedRobot(Robot):
             self.sensors_thread.join()
             self.sensors_thread = None
 
+    prev_lidar_time = time.monotonic()
+    prev_odom_time = time.monotonic()
     def _capture_worker(self):
         while self.do_capture_sensors:
             try:
@@ -73,13 +78,14 @@ class EmulatedRobot(Robot):
                 break
             gyro *= self.GYRO_CORR_COEFF
 
-            self._update_odometry(pos, th, vel, th_vel)
+            cur_time = time.monotonic()
+            if cur_time - self.prev_odom_time > 1 / self.ODOM_FPS:
+                self.prev_odom_time = cur_time
+                self._update_odometry(pos, th, vel, th_vel)
             self._update_gyro(gyro)
-            if self.lidar_cnt > 10:
-                self.lidar_cnt = 0
+            if cur_time - self.prev_lidar_time > 1 / self.LIDAR_FPS:
+                self.prev_lidar_time = cur_time
                 self._update_lidar(ranges)
-            else:
-                self.lidar_cnt += 1
 
     def send_drive(self, v: float, w: float):
         packet = struct.pack("<2f", v, w)
