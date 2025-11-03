@@ -10,21 +10,21 @@ from emulation.emulated_robot import EmulatedRobot
 robot = RobotChassis()
 robot.connect()
 driver = Driver(robot)
-driver.MAX_SPEED = 1.0
-driver.MAX_ROT_SPEED = 0.8
+driver.MAX_SPEED = 0.6
+driver.MAX_ROT_SPEED = 0.3
 
 # Ограничение линейной скорости *на поворотах*
-driver.MAX_SPEED_ON_TURN = 0.5
+driver.MAX_SPEED_ON_TURN = 0.2
 # Коэффициент дифференциальной части для регулятора поворота
-driver.SIDE_WALL_STABILIZE_COEFF = 10
+driver.SIDE_WALL_STABILIZE_COEFF = 0
 
 try:
     while True:
         driver.drive_maze(
-            front_wall_dist=0.15,
+            front_wall_dist=0.10,
             # right_wall_dist=0.15, 
-            left_wall_dist=0.15, 
-            front_wall_smooth_stop_dist=0.5,
+            left_wall_dist=0.10, 
+            front_wall_smooth_stop_dist=1.0,
             side_wall_smooth_stop_dist=0.2
         )
 finally:

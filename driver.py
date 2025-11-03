@@ -310,6 +310,7 @@ class Driver:
             # Linear speed regulator
             stop_dist = sens.cur_front_wall_dist - front_wall_dist
             t = np.clip(stop_dist / front_wall_smooth_stop_dist, -1, 1)
+            t += 0.1
             speed = (
                 np.sign(max_speed)
                 * np.sign(t)

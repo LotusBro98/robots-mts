@@ -72,10 +72,11 @@ class SensorData:
         ranges_xy = {angle: (rng * np.cos(angle), rng * np.sin(angle), rng) for angle, rng in ranges_xy.items()}
 
         ROBOT_WIDTH = 0.2
-        self.cur_front_wall_dist = min((x for angle, (x, y, rng) in ranges_xy.items() if abs(y) < ROBOT_WIDTH / 2 and x > 0), default=0)
+        OFFS = -0.0
+        self.cur_front_wall_dist = min((x for angle, (x, y, rng) in ranges_xy.items() if abs(y) < ROBOT_WIDTH / 2 and x > ROBOT_WIDTH / 4), default=0)
         # right and left wall estimated in stripe, not in cone
-        self.cur_right_wall_dist = min([rng for angle, (x, y, rng) in ranges_xy.items() if y < 0 and x + y > -ROBOT_WIDTH / 4 and x + y < ROBOT_WIDTH / 4], default=1000) * np.sin(np.deg2rad(45))
-        self.cur_left_wall_dist = min([rng for angle, (x, y, rng) in ranges_xy.items() if y > 0 and x - y > -ROBOT_WIDTH / 4 and x - y < ROBOT_WIDTH / 4], default=1000) * np.sin(np.deg2rad(45))
+        self.cur_right_wall_dist = min([rng for angle, (x, y, rng) in ranges_xy.items() if y < 0 and x + y > -ROBOT_WIDTH / 2 + OFFS and x + y < ROBOT_WIDTH / 2 + OFFS], default=1000) * np.sin(np.deg2rad(45))
+        self.cur_left_wall_dist = min([rng for angle, (x, y, rng) in ranges_xy.items() if y > 0 and x - y > -ROBOT_WIDTH / 2 + OFFS and x - y < ROBOT_WIDTH / 2 + OFFS], default=1000) * np.sin(np.deg2rad(45))
 
 
 class Robot:
