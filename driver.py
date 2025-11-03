@@ -247,6 +247,7 @@ class Driver:
         print("[freeze] stopped")
         self.robot.send_drive(0, 0)
 
+    prev_rwd = None
     def drive_maze(
         self,
         front_wall_dist,
@@ -272,16 +273,22 @@ class Driver:
             elif right_wall_dist is not None:
                 if max(sens.cur_front_wall_dist, sens.cur_right_wall_dist) < right_wall_dist * 1.5:
                     t = 1
+                elif sens.cur_right_wall_dist > right_wall_dist * 1.5:
+                    t = -1
                 else:
                     t = (
                         -(sens.cur_right_wall_dist - right_wall_dist)
                         / side_wall_smooth_stop_dist
                     )
+                    if self.prev_rwd is None:
+                        self.prev_rwd = right_wall_dist
+                    rwd_speed = (sens.cur_right_wall_dist - self.prev_rwd) / self.CONTROLLER_PERIOD
+                    self.prev_rwd = sens.cur_right_wall_dist
+                    t -= rwd_speed * 10
             else:
                 t = 0
             t_rot = t
             rot = t * self.MAX_ROT_SPEED
-            # rot -= sens.angle_vel * 0.4
 
             stop_dist = sens.cur_front_wall_dist - front_wall_dist
             t = np.clip(stop_dist / front_wall_smooth_stop_dist, -1, 1)
