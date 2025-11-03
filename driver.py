@@ -22,6 +22,7 @@ class Driver:
     WALL_MAX_DECLINE = np.deg2rad(20)
     BRAKE_EPS_LINEAR = 0.1
     BRAKE_EPS_ANGULAR = 0.1
+    SIDE_WALL_STABILIZE_COEFF = 10
 
     def __init__(self, robot: Robot):
         self.robot = robot
@@ -248,6 +249,7 @@ class Driver:
         self.robot.send_drive(0, 0)
 
     prev_rwd = None
+    prev_lwd = None
     def drive_maze(
         self,
         front_wall_dist,
@@ -270,22 +272,35 @@ class Driver:
 
             # Angular speed regulator
             if left_wall_dist is not None:
-                t = (sens.cur_left_wall_dist - left_wall_dist) / side_wall_smooth_stop_dist
+                if max(sens.cur_front_wall_dist, sens.cur_left_wall_dist) < left_wall_dist * 1.5:
+                    t = -1
+                    self.prev_lwd = None
+                elif sens.cur_left_wall_dist > left_wall_dist * 1.5:
+                    t = 1
+                    self.prev_lwd = None
+                else:
+                    if self.prev_lwd is None:
+                        self.prev_lwd = left_wall_dist
+                    lwd_speed = (sens.cur_left_wall_dist - self.prev_lwd) / self.CONTROLLER_PERIOD
+                    self.prev_lwd = sens.cur_left_wall_dist
+
+                    t = (sens.cur_left_wall_dist - left_wall_dist) / side_wall_smooth_stop_dist
+                    t += lwd_speed * self.SIDE_WALL_STABILIZE_COEFF
             elif right_wall_dist is not None:
                 if max(sens.cur_front_wall_dist, sens.cur_right_wall_dist) < right_wall_dist * 1.5:
                     t = 1
+                    self.prev_rwd = None
                 elif sens.cur_right_wall_dist > right_wall_dist * 1.5:
                     t = -1
+                    self.prev_rwd = None
                 else:
-                    t = (
-                        -(sens.cur_right_wall_dist - right_wall_dist)
-                        / side_wall_smooth_stop_dist
-                    )
                     if self.prev_rwd is None:
                         self.prev_rwd = right_wall_dist
                     rwd_speed = (sens.cur_right_wall_dist - self.prev_rwd) / self.CONTROLLER_PERIOD
                     self.prev_rwd = sens.cur_right_wall_dist
-                    t -= rwd_speed * 10
+
+                    t = -(sens.cur_right_wall_dist - right_wall_dist) / side_wall_smooth_stop_dist
+                    t -= rwd_speed * self.SIDE_WALL_STABILIZE_COEFF
             else:
                 t = 0
             t_rot = t
