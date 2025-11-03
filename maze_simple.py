@@ -5,14 +5,17 @@ from emulation.emulated_robot import EmulatedRobot
 # robot = EmulatedRobot(demo_render_navigator=False, file_rendering_navigator=True)  # Flags: demo_render_navigator, file_rendering_navigator
 # robot.connect()
 # driver = Driver(robot)
+# driver.MAX_ROT_SPEED = 0.5
 
 robot = RobotChassis()
 robot.connect()
 driver = Driver(robot)
-driver.MAX_SPEED = 0.8
+driver.MAX_SPEED = 1.0
 driver.MAX_ROT_SPEED = 0.8
 
+# Ограничение скорости на поворотах
 driver.MAZE_TURN_SPEED = 0.5
+# Коэффициент дифференциальной части для регулятора поворота
 driver.SIDE_WALL_STABILIZE_COEFF = 10
 
 try:
