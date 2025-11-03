@@ -13,8 +13,8 @@ driver = Driver(robot)
 driver.MAX_SPEED = 1.0
 driver.MAX_ROT_SPEED = 0.8
 
-# Ограничение скорости на поворотах
-driver.MAZE_TURN_SPEED = 0.5
+# Ограничение линейной скорости *на поворотах*
+driver.MAX_SPEED_ON_TURN = 0.5
 # Коэффициент дифференциальной части для регулятора поворота
 driver.SIDE_WALL_STABILIZE_COEFF = 10
 

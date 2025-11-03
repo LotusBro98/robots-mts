@@ -9,7 +9,7 @@ robot.connect()
 driver = Driver(robot)
 driver.MAX_SPEED = 0.2
 driver.MAX_ROT_SPEED = 0.02
-driver.MAZE_TURN_SPEED = 0.05
+driver.MAX_SPEED_ON_TURN = 0.05
 
 
 try:

@@ -14,7 +14,7 @@ class Driver:
     SMOOTH_STOP_DIST = 0.0
     ANGLE_THRESHOLD = np.deg2rad(5)
     CONTROLLER_PERIOD = 0.05
-    MAZE_TURN_SPEED = 0.15
+    MAX_SPEED_ON_TURN = 0.15
     MAZE_TURN_RADIUS = 0.25
     MAZE_RIGHT_WALL_DIST = 0.235
     WALL_ROT_COEFF = 2.0
@@ -317,7 +317,7 @@ class Driver:
             )
             # Speed clamp on turn
             if abs(rot) > 0.5 * self.MAX_ROT_SPEED:
-                speed = np.clip(speed, None, self.MAZE_TURN_SPEED)
+                speed = np.clip(speed, None, self.MAX_SPEED_ON_TURN)
 
             msg = f"\r[drive] "
             msg += f"speed: {speed:6.3f} "
@@ -345,7 +345,7 @@ class Driver:
         target_pos = (target_dist, 0)
         target_pos = np.asarray(target_pos)
         if target_speed is None:
-            target_speed = self.MAZE_TURN_SPEED
+            target_speed = self.MAX_SPEED_ON_TURN
         if max_speed is None:
             max_speed = self.MAX_SPEED
         if right_wall_dist is None:
@@ -418,7 +418,7 @@ class Driver:
     def maze_turn(self, target_angle, target_pos=None, radius=None, max_speed=None, max_rot_speed=None, brake_eps=None, target_rot_vel=0.1, relative=True, round_to_90=True):
         target_angle = np.deg2rad(target_angle)
         if max_speed is None:
-            max_speed = self.MAZE_TURN_SPEED
+            max_speed = self.MAX_SPEED_ON_TURN
         if radius is None:
             radius = self.MAZE_TURN_RADIUS
         if brake_eps is None:
