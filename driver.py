@@ -281,7 +281,7 @@ class Driver:
                 t = 0
             t_rot = t
             rot = t * self.MAX_ROT_SPEED
-            rot -= sens.angle_vel * 0.4
+            # rot -= sens.angle_vel * 0.4
 
             stop_dist = sens.cur_front_wall_dist - front_wall_dist
             t = np.clip(stop_dist / front_wall_smooth_stop_dist, -1, 1)
@@ -291,7 +291,9 @@ class Driver:
                 * np.clip(abs(t) * abs(max_speed), self.MIN_SPEED, abs(max_speed))
             )
 
-            speed *= np.exp(-abs(rot / self.MAX_ROT_SPEED))
+            if abs(rot) > 0.5:
+                speed = np.clip(speed, None, self.MAZE_TURN_SPEED)
+            # speed *= np.exp(-abs(rot / self.MAX_ROT_SPEED / 2))
             rot = np.clip(rot, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
 
             msg = f"\r[drive] "

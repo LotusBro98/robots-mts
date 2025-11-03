@@ -5,12 +5,14 @@ from emulation.emulated_robot import EmulatedRobot
 # robot = EmulatedRobot(demo_render_navigator=False, file_rendering_navigator=True)  # Flags: demo_render_navigator, file_rendering_navigator
 # robot.connect()
 # driver = Driver(robot)
+# driver.MAZE_TURN_SPEED = 0.5
 
 robot = RobotChassis()
 robot.connect()
 driver = Driver(robot)
 driver.MAX_SPEED = 0.8
 driver.MAX_ROT_SPEED = 0.8
+driver.MAZE_TURN_SPEED = 0.5
 
 try:
     while True:

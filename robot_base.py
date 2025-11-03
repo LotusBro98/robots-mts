@@ -73,7 +73,7 @@ class SensorData:
 
         ROBOT_WIDTH = 0.2
         self.cur_front_wall_dist = min((x for angle, (x, y, rng) in ranges_xy.items() if abs(y) < ROBOT_WIDTH / 2 and x > 0), default=0)
-        self.cur_right_wall_dist = min([1000] + [rng for angle, (x, y, rng) in ranges_xy.items() if y < 0 and x + y > -ROBOT_WIDTH / 2 and x + y < ROBOT_WIDTH / 2]) * np.sin(np.deg2rad(45))
+        self.cur_right_wall_dist = min([1000] + [rng for angle, (x, y, rng) in ranges_xy.items() if y < 0 and x + y > -ROBOT_WIDTH / 4 and x + y < ROBOT_WIDTH / 4]) * np.sin(np.deg2rad(45))
 
 
 class Robot:
