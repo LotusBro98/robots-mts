@@ -82,6 +82,8 @@ class Robot:
     MAX_ROT_SPEED_RpS: float
     MAX_ANG_ACCELERATION: float
 
+    prev_angle_vel = 0
+
     def __init__(self, demo_render_navigator: bool = False, file_rendering_navigator: bool = True) -> None:
         if demo_render_navigator:
             self.navigator = Navigator(show_demo=True, render_mode="window", render_fps=15.0)
@@ -113,11 +115,14 @@ class Robot:
         (nav_pos, nav_angle), ts = self._latest_nav.get()
         (odom_pos, odom_th, odom_vel, odom_th_vel), ts = self._latest_odometry.get()
         (lidar_ranges), ts = self._latest_lidar.get()
+
+        alpha = 0.1
+        self.prev_angle_vel = odom_th_vel * alpha + self.prev_angle_vel * (1 - alpha)
         data = SensorData(
             pos=nav_pos,
             angle=nav_angle,
             vel=odom_vel,
-            angle_vel=odom_th_vel,
+            angle_vel=self.prev_angle_vel,
             lidar_ranges=lidar_ranges
         )
         return data

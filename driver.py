@@ -270,14 +270,18 @@ class Driver:
             if left_wall_dist is not None:
                 t = (sens.cur_left_wall_dist - left_wall_dist) / side_wall_smooth_stop_dist
             elif right_wall_dist is not None:
-                t = (
-                    -(sens.cur_right_wall_dist - right_wall_dist)
-                    / side_wall_smooth_stop_dist
-                )
+                if max(sens.cur_front_wall_dist, sens.cur_right_wall_dist) < right_wall_dist * 1.5:
+                    t = 1
+                else:
+                    t = (
+                        -(sens.cur_right_wall_dist - right_wall_dist)
+                        / side_wall_smooth_stop_dist
+                    )
             else:
                 t = 0
-            rot = np.clip(t * self.MAX_ROT_SPEED, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
-            rot -= sens.angle_vel * 0.3
+            t_rot = t
+            rot = t * self.MAX_ROT_SPEED
+            rot -= sens.angle_vel * 0.4
 
             stop_dist = sens.cur_front_wall_dist - front_wall_dist
             t = np.clip(stop_dist / front_wall_smooth_stop_dist, -1, 1)
@@ -288,13 +292,13 @@ class Driver:
             )
 
             speed *= np.exp(-abs(rot / self.MAX_ROT_SPEED))
-            rot = np.clip(
-                rot * abs(max_speed) / abs(speed), -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED
-            )
+            rot = np.clip(rot, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
 
             msg = f"\r[drive] "
             msg += f"speed: {speed:6.3f} "
             msg += f"vel: {vel_front:6.3f} "
+            msg += f"t_rot: {t_rot:6.3f} "
+            msg += f"th_vel: {sens.angle_vel:6.3f} "
             if left_wall_dist is not None or right_wall_dist is not None:
                 msg += f"th: {sens.angle:6.3f} rot_speed: {rot:6.3f} "
             if front_wall_dist is not None:
