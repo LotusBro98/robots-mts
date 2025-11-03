@@ -301,7 +301,7 @@ class Driver:
                 * np.clip(abs(t) * abs(max_speed), self.MIN_SPEED, abs(max_speed))
             )
             # Speed clamp on turn
-            if abs(rot) > 0.5:
+            if abs(rot) > 0.5 * self.MAX_ROT_SPEED:
                 speed = np.clip(speed, None, self.MAZE_TURN_SPEED)
 
             msg = f"\r[drive] "
