@@ -1,7 +1,7 @@
 import os
 import threading
 import time
-from typing import Dict
+from typing import Dict, Tuple
 
 import matplotlib
 from matplotlib import pyplot as plt
@@ -17,14 +17,18 @@ def _cell_key(pt, cell_size):
     return (int(np.floor(pt[0] / cell_size)), int(np.floor(pt[1] / cell_size)))
 
 class Candidate:
-    __slots__ = ("pos", "hits", "sum_sq", "last_frame")
+    __slots__ = ("pos", "hits", "sum_sq", "last_frame", "_promoted")
     def __init__(self, pos, frame_id):
         self.pos = pos.astype(float)
         self.hits = 1
         self.sum_sq = 0.0   # сумма квадратов смещений относительно текущего центра (для std)
         self.last_frame = frame_id
+        self._promoted = False
 
     def update(self, p, ema_alpha=None):
+        if self._promoted:
+            return
+        
         # экспоненциальное/гармоническое усреднение
         if ema_alpha is None:
             ema_alpha = 1.0 / (self.hits + 1)  # «честное» среднее
@@ -34,6 +38,9 @@ class Candidate:
         # обновим суммарный разброс (Welford light)
         self.sum_sq += float((p - self.pos) @ (p - self.pos))
         self.hits += 1
+
+    def promote(self):
+        self._promoted = True
 
     @property
     def std(self):
@@ -56,7 +63,7 @@ class Navigator:
         self.angle = 0
         self.points = np.zeros((0, 2), dtype=np.float32)
         self._grid = {}                               # воксельная сетка для быстрой проверки (cell -> index в points)
-        self.candidates = {}                          # cell -> Candidate
+        self.candidates: Dict[Tuple[int,int], Candidate] = {}                      # cell -> Candidate
         self._frame_id = 0
 
         # Для безопасного вызова display() даже без демо
@@ -95,8 +102,8 @@ class Navigator:
         self.fig, self.ax = plt.subplots(figsize=(12, 12))
         if self.render_mode == "window":
             plt.show(block=False)
-        self.ax.set_xlim(-6, 6)
-        self.ax.set_ylim(-6, 6)
+        self.ax.set_xlim(-0.5, 8)
+        self.ax.set_ylim(-0.5, 8)
         self.ax.set_aspect("equal", adjustable="box")
         self.scat1 = self.ax.scatter([], [], s=4)
         self.scat2 = self.ax.scatter([], [], s=4)
@@ -401,27 +408,6 @@ class Navigator:
         )
 
         return -dpos, -dth
-    
-    def _add_new_points(self, points, min_dist, inside_dist=0.1, ignore_outliers=True):
-        if len(self.points) == 0:
-            self.points = points[:1]
-            for pt in points:
-                self._add_new_points(pt[None], min_dist, inside_dist, ignore_outliers=False)
-            return
-
-        tree_big = cKDTree(self.points)
-        dists, idx = tree_big.query(points, k=1, workers=-1)
-
-        if ignore_outliers:
-            tree_small = cKDTree(points)
-            dists_small, idx = tree_small.query(points, k=2, workers=-1)
-            dists_small = dists_small[:, 1]
-            outliers_mask = dists_small < inside_dist
-        else:
-            outliers_mask = np.ones_like(dists, dtype=np.bool_)
-        
-        new_points = points[(dists > min_dist) & outliers_mask]
-        self.points = np.append(self.points, new_points, axis=0)
 
     def _rebuild_grid(self, cell_size):
         self._grid.clear()
@@ -492,7 +478,7 @@ class Navigator:
         for p in candidate_pts:
             key = _cell_key(p, cand_cell)
             seen_cells.add(key)
-            c = self.candidates.get(key)
+            c: Candidate = self.candidates.get(key)
             if c is None:
                 self.candidates[key] = Candidate(p, self._frame_id)
             else:
@@ -502,7 +488,7 @@ class Navigator:
         # 5) понижаем «возраст» для не увиденных кандидатов и удаляем старые
         dead = []
         for key, c in self.candidates.items():
-            if key not in seen_cells and (self._frame_id - c.last_frame) > max_candidate_age:
+            if key not in seen_cells and (self._frame_id - c.last_frame) > max_candidate_age and not c._promoted:
                 dead.append(key)
         for key in dead:
             self.candidates.pop(key, None)
@@ -525,7 +511,7 @@ class Navigator:
                 self._grid[_cell_key(p, min_dist)] = len(self.points) - 1  # индексы тут примерные; сетка всё равно только для окрестности
             # убираем повышенных из кандидатов
             for k in to_promote:
-                self.candidates.pop(k, None)
+                self.candidates[k].promote()
 
     def update_from_odometry(self, odom_pos, odom_angle):
         with self.lock:
@@ -572,35 +558,30 @@ class Navigator:
             angle = self.angle
             pos = self.pos
 
-        points = transform_points(relative_points, pos, angle, (0, 0))
+        print("NAVVV")
+        for i in range(1000):
+            points = transform_points(relative_points, pos, angle, (0, 0))
 
-        pts_from, pts_to = self.match_nearest(points, self.points, max_dist=0.2, unique=True)
-        dpos, dth = self._estimate_transform(pts_from, pts_to, pos)
-        points = transform_points(points, dpos, dth, pos)
-        if len(self.points) == 0:
-            self._add_new_points(points, min_dist=0.05)
-        else:
-            self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=3, max_candidate_age=15, candidate_cell_scale=0.1)
-        
-        # dpos *= 0
-        # dpos *=  1e-1
-        # MAX_DPOS = 1e-3
-        # dpos = np.clip(dpos, -MAX_DPOS, MAX_DPOS)
-        
-        # dth *= 0
-        # dth *= 1e-2
-        # MAX_DTH = 1e-3
-        # dth = np.clip(dth, -MAX_DTH, MAX_DTH)
-        # print()
-        # print(dpos, dth)
+            pts_from, pts_to = self.match_nearest(points, self.points, max_dist=0.2, unique=True)
+            dpos, dth = self._estimate_transform(pts_from, pts_to, pos)
+            pos = pos + dpos
+            angle = angle + dth
+
+            print(np.linalg.norm(dpos), abs(dth))
+            if np.linalg.norm(dpos) < 1e-3 and abs(dth) < 1e-2:
+                break
+        print()
+            
+        points = transform_points(relative_points, pos, angle, (0, 0))
+        self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=3, max_candidate_age=15, candidate_cell_scale=1.0, ema_alpha=0.01)
     
         self.cur_lidar_pts = points
         self.cur_matched_pts = pts_from
 
         with self.lock:
-            self.pos = self.pos + dpos
-            self.angle = self.angle + dth
-            self.odom_angle_offset = self.odom_angle_offset + dth
+            self.pos = pos
+            self.odom_angle_offset = self.odom_angle_offset + angle - self.angle
+            self.angle = angle
             return self.pos, self.angle
 
     last_display_time = 0
