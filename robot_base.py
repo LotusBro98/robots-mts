@@ -91,7 +91,7 @@ class Robot:
         if demo_render_navigator:
             self.navigator = Navigator(show_demo=True, render_mode="window", render_fps=15.0)
         elif file_rendering_navigator:
-            self.navigator = Navigator(show_demo=True, render_mode="file", render_fps=1.0, render_out_dir="navigator_images")
+            self.navigator = Navigator(show_demo=True, render_mode="file", render_fps=2.0, render_out_dir="navigator_images")
         else:
             self.navigator = Navigator(show_demo=False)
         self._latest_odometry = Latest("odometry")

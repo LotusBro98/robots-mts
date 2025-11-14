@@ -36,8 +36,8 @@ def estimate_update_point_to_line_robust(
     min_cond=1e-3,                # минимум отношения s_min/s_max для (A^T W A)
     min_obs_rot=1e-3,             # минимум наблюдаемости угла (сумма |n^T J p|)
     min_obs_trans=1e-2,           # минимум наблюдаемости трансляции (сумма ||n||; в 2D ~число точек)
-    soft_clip_pos=0.2,            # мягкий лимит нормы dpos (м) за шаг
-    soft_clip_th=np.deg2rad(5.0), # мягкий лимит |dθ| за шаг
+    soft_clip_pos=0.05,            # мягкий лимит нормы dpos (м) за шаг
+    soft_clip_th=np.deg2rad(3.0), # мягкий лимит |dθ| за шаг
 ):
     """
     Возвращает:
@@ -108,9 +108,9 @@ def estimate_update_point_to_line_robust(
         dth = np.sign(dth) * soft_clip_th
 
     # применяем адаптивный gain (0..1)
-    tx *= quality
-    ty *= quality
-    dth *= quality
+    # tx *= quality
+    # ty *= quality
+    # dth *= quality
 
     return np.array([tx, ty]), float(dth), quality, info
 
@@ -146,6 +146,9 @@ def transform_points(points, dpos, dth, pos=(0,0)):
         ])
         points = (points - pos) @ M + pos + dpos
         return points
+
+def keep_closer(points, center, max_dist):
+    return points[np.linalg.norm(points - center, axis=-1) < max_dist]
 
 def fit_line_polar_ransac(points: np.ndarray,
                           dist_thresh: float = 0.05,
@@ -239,3 +242,113 @@ def fit_line_polar_ransac(points: np.ndarray,
 
     return rho, theta, best_inliers
 
+def filter_visible_2d(
+    points: np.ndarray,
+    origin: np.ndarray,
+    n_bins: int = 720,
+    fov: float | None = None,
+    max_range: float | None = None,
+    eps: float = 1e-6,
+) -> np.ndarray:
+    """
+    Возвращает булеву маску 'видимых' точек (не заслонённых более близкими)
+    при наблюдении из точки origin в 2D.
+
+    points : (N,2)
+    origin : (2,)
+    n_bins : количество угловых "лучей" (чем больше, тем точнее).
+    fov    : поле зрения в радианах (если None — полный круг 2π).
+    max_range : максимум дистанции (если None — без ограничения).
+    """
+    pts = np.asarray(points, dtype=float)
+    o = np.asarray(origin, dtype=float)
+
+    rel = pts - o  # (N,2)
+    dists = np.linalg.norm(rel, axis=1)  # (N,)
+    angles = np.arctan2(rel[:, 1], rel[:, 0])  # [-pi, pi]
+
+    # Ограничим FOV, если задан
+    if fov is not None:
+        # допустим, центр FOV — по оси x, тогда |angle| <= fov/2
+        half = fov / 2.0
+        fov_mask = (angles >= -half) & (angles <= half)
+    else:
+        fov_mask = np.ones_like(dists, dtype=bool)
+
+    # Ограничим дальность
+    if max_range is not None:
+        range_mask = dists <= max_range
+    else:
+        range_mask = np.ones_like(dists, dtype=bool)
+
+    base_mask = fov_mask & range_mask
+
+    if base_mask.sum() == 0:
+        return np.zeros((0, 2))
+
+    # Только кандидаты в зоне FOV и диапазона
+    idx = np.nonzero(base_mask)[0]
+    dists_sub = dists[idx]
+    angles_sub = angles[idx]
+
+    # Перевод углов в [0, 2*pi) и разбиение на бины
+    ang = (angles_sub + 2 * np.pi) % (2 * np.pi)
+    bin_size = 2 * np.pi / n_bins
+    bins = np.floor(ang / bin_size).astype(int)
+    bins = np.clip(bins, 0, n_bins - 1)
+
+    # Для каждого бина найдём минимальное расстояние
+    min_dist_per_bin = np.full(n_bins, np.inf)
+    for b, d in zip(bins, dists_sub):
+        if d < min_dist_per_bin[b]:
+            min_dist_per_bin[b] = d
+
+    # Точка видима, если её дистанция близка к минимальной в своём бине
+    visible_mask_local = np.zeros_like(dists_sub, dtype=bool)
+    for i, (b, d) in enumerate(zip(bins, dists_sub)):
+        if d <= min_dist_per_bin[b] + eps:
+            visible_mask_local[i] = True
+
+    # Возвращаем маску в исходной нумерации points
+    visible_mask = np.zeros_like(dists, dtype=bool)
+    visible_mask[idx[visible_mask_local]] = True
+
+    # return visible_mask
+    return points[visible_mask]
+
+
+def voxel_downsample(points: np.ndarray, grid_size: float):
+    points = np.asarray(points, dtype=float)
+    if points.size == 0:
+        return points.copy()
+
+    voxel_idx = np.floor(points / grid_size).astype(int)
+    uniq, inv = np.unique(voxel_idx, axis=0, return_inverse=True)
+    M = uniq.shape[0]  # число финальных вокселей
+
+    # Считаем количество точек в каждом вокселе
+    counts = np.bincount(inv, minlength=M)  # shape (M,)
+
+    # Суммы координат по вокселям:
+    # Для этого используем bincount по каждому измерению
+    D = points.shape[1]
+    sums = np.zeros((M, D), dtype=float)
+    for d in range(D):
+        sums[:, d] = np.bincount(inv, weights=points[:, d], minlength=M)
+
+    # Центроид = сумма / количество
+    out = sums / counts[:, None]
+    return out
+
+
+def mean_nearest_distance(a: np.ndarray, b: np.ndarray, median=False) -> float:
+    if len(a) == 0 or len(b) == 0:
+        return 0
+    ta = cKDTree(b)
+    tb = cKDTree(a)
+    da = np.square(ta.query(a, k=1)[0])
+    db = np.square(tb.query(b, k=1)[0])
+    if median:
+        return 0.5 * (np.median(da) + np.median(db))
+    else:
+        return np.sqrt((da.mean() + db.mean()) * 0.5)

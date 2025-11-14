@@ -10,11 +10,11 @@ import matplotlib.patches as mpatches
 import numpy as np
 from scipy.spatial import cKDTree
 
-from navigator_utils import estimate_update_point_to_line_robust, fit_line_polar_ransac, transform_points
+from navigator_utils import estimate_update_point_to_line_robust, filter_visible_2d, fit_line_polar_ransac, keep_closer, mean_nearest_distance, transform_points, voxel_downsample
 
 def _cell_key(pt, cell_size):
     # ключ ячейки в окрестности размером cell_size
-    return (int(np.floor(pt[0] / cell_size)), int(np.floor(pt[1] / cell_size)))
+    return (int(np.round(pt[0] / cell_size)), int(np.round(pt[1] / cell_size)))
 
 class Candidate:
     __slots__ = ("pos", "hits", "sum_sq", "last_frame", "_promoted")
@@ -25,9 +25,8 @@ class Candidate:
         self.last_frame = frame_id
         self._promoted = False
 
-    def update(self, p, ema_alpha=None):
-        if self._promoted:
-            return
+    def update(self, p, ema_alpha, all_cands, cand_cell):
+        old_key = _cell_key(self.pos, cand_cell)
         
         # экспоненциальное/гармоническое усреднение
         if ema_alpha is None:
@@ -38,6 +37,14 @@ class Candidate:
         # обновим суммарный разброс (Welford light)
         self.sum_sq += float((p - self.pos) @ (p - self.pos))
         self.hits += 1
+
+        new_key = _cell_key(self.pos, cand_cell)
+        if new_key != old_key:
+            all_cands.pop(old_key)
+            if new_key in all_cands:
+                all_cands[new_key].update(self.pos, ema_alpha, all_cands, cand_cell)
+            else:
+                all_cands[new_key] = self
 
     def promote(self):
         self._promoted = True
@@ -65,6 +72,7 @@ class Navigator:
         self._grid = {}                               # воксельная сетка для быстрой проверки (cell -> index в points)
         self.candidates: Dict[Tuple[int,int], Candidate] = {}                      # cell -> Candidate
         self._frame_id = 0
+        self._tree = cKDTree(np.zeros((0, 2)))
 
         # Для безопасного вызова display() даже без демо
         self.cur_lidar_pts = np.zeros((0, 2), dtype=np.float32)
@@ -362,13 +370,18 @@ class Navigator:
         points = points @ M + self.pos
         return points
     
-    def project_to_robot(self, points):
-        dth = -self.angle
+    def project_to_robot(self, points, pos=None, angle=None):
+        if pos is None:
+            pos = self.pos
+        if angle is None:
+            angle = self.angle
+
+        dth = -angle
         M = np.array([
             [np.cos(dth), np.sin(dth)],
             [-np.sin(dth), np.cos(dth)],
         ])
-        points = (points - self.pos) @ M
+        points = (points - pos) @ M
         return points
     
     def _estimate_transform(self, pts_from, pts_to, center):
@@ -396,15 +409,6 @@ class Navigator:
 
         dpos, dth, quality, info = estimate_update_point_to_line_robust(
             pts_from, pts_to, center=center,
-            k_normals=8,
-            huber_delta=0.10,
-            reg_tangential=1e-3,
-            min_pts=20,
-            min_cond=1e-3,
-            min_obs_rot=1e-3,
-            min_obs_trans=1e-2,
-            soft_clip_pos=0.15,               # под твою скорость и частоту
-            soft_clip_th=np.deg2rad(3.0),
         )
 
         return -dpos, -dth
@@ -429,6 +433,9 @@ class Navigator:
                     return False
         # опционально можно добить точной проверкой по KDTree, если нужно
         return True
+    
+    def _update_tree(self):
+        self._tree = cKDTree(self.points)
 
     def add_scan_with_buffer(self,
                              points_world: np.ndarray,
@@ -451,26 +458,27 @@ class Navigator:
         """
         self._frame_id += 1
         points = np.asarray(points_world, dtype=float)
+        points = voxel_downsample(points, min_dist)
         if points.size == 0:
             return
 
         # 1) быстрая проверка «точка не одиночка» в самом скане
         #    (игнорируем выбросы, у которых ближайший сосед в текущем кадре далеко)
-        from scipy.spatial import cKDTree
-        tree_small = cKDTree(points)
-        nn_d, nn_i = tree_small.query(points, k=2, workers=-1)   # вторая колонка — ближайший сосед кроме самой точки
-        is_dense = nn_d[:, 1] < inside_dist
+        # from scipy.spatial import cKDTree
+        # tree_small = cKDTree(points)
+        # nn_d, nn_i = tree_small.query(points, k=2, workers=-1)   # вторая колонка — ближайший сосед кроме самой точки
+        # is_dense = nn_d[:, 1] < inside_dist
 
         # 2) подготовим сетку карты (если пустая — ускорим старт)
-        if len(self._grid) == 0 and self.points.shape[0] > 0:
-            self._rebuild_grid(min_dist)
+        # if len(self._grid) == 0 and self.points.shape[0] > 0:
+        #     self._rebuild_grid(min_dist)
 
         # 3) отсекаем точки, которые слишком близко к существующей карте (соблюдаем разрежение min_dist)
         #    («далеко от карты» — кандидаты на добавление/обновление)
-        far_mask = np.empty(points.shape[0], dtype=bool)
-        for i, p in enumerate(points):
-            far_mask[i] = self._is_far_from_map(p, min_dist)
-        candidate_pts = points[is_dense & far_mask]
+        # far_mask = np.empty(points.shape[0], dtype=bool)
+        # for i, p in enumerate(points):
+        #     far_mask[i] = self._is_far_from_map(p, min_dist)
+        candidate_pts = points#[is_dense]# & far_mask]
 
         # 4) обновляем/создаём кандидатов в сетке кандидатов
         cand_cell = min_dist * candidate_cell_scale
@@ -482,7 +490,7 @@ class Navigator:
             if c is None:
                 self.candidates[key] = Candidate(p, self._frame_id)
             else:
-                c.update(p, ema_alpha)
+                c.update(p, ema_alpha, self.candidates, cand_cell)
                 c.last_frame = self._frame_id
 
         # 5) понижаем «возраст» для не увиденных кандидатов и удаляем старые
@@ -499,19 +507,22 @@ class Navigator:
             if c.hits >= promote_hits and c.std <= promote_std and self._is_far_from_map(c.pos, min_dist):
                 to_promote.append(key)
 
-        if to_promote:
-            new_pts = np.array([self.candidates[k].pos for k in to_promote], dtype=float)
+        self.points = np.stack([c.pos for c in self.candidates.values()])
+        self._update_tree()
+        # if to_promote:
+            # new_pts = np.array([self.candidates[k].pos for k in to_promote], dtype=float)
             # добавляем в карту
-            if self.points.size == 0:
-                self.points = new_pts
-            else:
-                self.points = np.vstack([self.points, new_pts])
+            # if self.points.size == 0:
+            #     self.points = new_pts
+            # else:
+            #     self.points = np.vstack([self.points, new_pts])
+            
             # обновляем сетку карты локально
-            for p in new_pts:
-                self._grid[_cell_key(p, min_dist)] = len(self.points) - 1  # индексы тут примерные; сетка всё равно только для окрестности
+            # for p in new_pts:
+            #     self._grid[_cell_key(p, min_dist)] = len(self.points) - 1  # индексы тут примерные; сетка всё равно только для окрестности
             # убираем повышенных из кандидатов
-            for k in to_promote:
-                self.candidates[k].promote()
+        for k in to_promote:
+            self.candidates[k].promote()
 
     def update_from_odometry(self, odom_pos, odom_angle):
         with self.lock:
@@ -556,30 +567,40 @@ class Navigator:
 
         with self.lock:
             angle = self.angle
-            pos = self.pos
+            pos = self.pos.copy()
 
-        print("NAVVV")
-        for i in range(1000):
+        max_dist_robot = 5.0
+        
+        for i in range(10):
             points = transform_points(relative_points, pos, angle, (0, 0))
+            points = keep_closer(points, pos, max_dist_robot)
+            world_points = filter_visible_2d(self.points, pos, max_range=max_dist_robot)
 
-            pts_from, pts_to = self.match_nearest(points, self.points, max_dist=0.2, unique=True)
+            pts_from, pts_to = self.match_nearest(points, world_points, max_dist=0.1, unique=True)
             dpos, dth = self._estimate_transform(pts_from, pts_to, pos)
             pos = pos + dpos
             angle = angle + dth
-
-            print(np.linalg.norm(dpos), abs(dth))
-            if np.linalg.norm(dpos) < 1e-3 and abs(dth) < 1e-2:
-                break
-        print()
             
+            if np.linalg.norm(dpos) < 5e-3 and abs(dth) < 5e-3:
+                break
+            
+        err_median = mean_nearest_distance(pts_from, pts_to, median=True)
+        failed = err_median > 5e-4
+
+        if failed:
+            print()
+            print("FAILED", dpos, dth, err_median)
+            with self.lock:
+                return self.pos.copy(), self.angle
+
         points = transform_points(relative_points, pos, angle, (0, 0))
-        self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=3, max_candidate_age=15, candidate_cell_scale=1.0, ema_alpha=0.01)
+        self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=5, max_candidate_age=3, candidate_cell_scale=1.0, ema_alpha=0.1)
     
         self.cur_lidar_pts = points
         self.cur_matched_pts = pts_from
 
         with self.lock:
-            self.pos = pos
+            self.pos = pos.copy()
             self.odom_angle_offset = self.odom_angle_offset + angle - self.angle
             self.angle = angle
             return self.pos, self.angle
