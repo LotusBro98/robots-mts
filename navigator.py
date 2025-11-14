@@ -526,13 +526,16 @@ class Navigator:
 
     def update_from_odometry(self, odom_pos, odom_angle):
         with self.lock:
-            angle_offset = self.odom_angle_offset
+            angle = self.angle
 
-        odom_delta = transform_points(odom_pos, -self.prev_odom_pos, angle_offset, pos=self.prev_odom_pos)
+        odom_delta = odom_pos - self.prev_odom_pos
         self.prev_odom_pos = odom_pos.copy()
+
         odom_angle_delta = odom_angle - self.prev_odom_angle
         self.prev_odom_angle = odom_angle
 
+        odom_delta = transform_points(odom_delta, 0, angle - odom_angle)
+        
         with self.lock:
             # self.angle = self.angle + odom_angle_delta
             self.pos = self.pos + odom_delta
