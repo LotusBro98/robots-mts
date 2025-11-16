@@ -256,7 +256,7 @@ def remove_far_outliers(points: np.ndarray, dist_thresh: float):
 def filter_visible_2d(points, 
                       origin, 
                       radius=0.05, 
-                      eps=0.05):
+                      dist_tol=0.2):
     pts = np.asarray(points, float)
     o = np.asarray(origin, float)
     if pts.size == 0:
@@ -285,7 +285,7 @@ def filter_visible_2d(points,
         dtheta = ang - a_i
         dtheta = (dtheta + np.pi) % (2.0 * np.pi) - np.pi
 
-        farther = dist > d_i + eps
+        farther = dist > d_i + dist_tol
         in_sector = np.abs(dtheta) <= alpha_i
         mask = farther & in_sector
 
