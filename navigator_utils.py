@@ -253,59 +253,45 @@ def remove_far_outliers(points: np.ndarray, dist_thresh: float):
 
     return points[min_dist <= dist_thresh]
 
-def filter_visible_2d(
-    points: np.ndarray,
-    origin: np.ndarray,
-    radius: float = 0.035,
-    max_range: float | None = None,
-):
-    pts = np.asarray(points, dtype=float)
-    o = np.asarray(origin, dtype=float)
-
+def filter_visible_2d(points, 
+                      origin, 
+                      radius=0.05, 
+                      eps=0.05):
+    pts = np.asarray(points, float)
+    o = np.asarray(origin, float)
     if pts.size == 0:
-        return pts.reshape(0, 2)
+        return pts
 
     rel = pts - o
-    dists = np.linalg.norm(rel, axis=1)
-    angles = np.arctan2(rel[:, 1], rel[:, 0])
+    dist = np.linalg.norm(rel, axis=1)
+    ang = np.arctan2(rel[:, 1], rel[:, 0])
 
-    if max_range is not None:
-        base_mask = dists <= max_range
-    else:
-        base_mask = np.ones_like(dists, dtype=bool)
-
-    if not np.any(base_mask):
-        return pts.reshape(0, 2)
-
-    idx = np.nonzero(base_mask)[0]
-    d = dists[idx]
-    ang = angles[idx]
-
-    order = np.argsort(d)
-    d = d[order]
-    ang = ang[order]
-    orig_idx = idx[order]
-
-    safe_d = np.maximum(d, 1e-12)
+    safe_d = np.maximum(dist, 1e-12)
     alpha = np.arcsin(np.clip(radius / safe_d, -1.0, 1.0))
 
-    K = len(d)
-    visible = np.zeros(K, dtype=bool)
-    occluded = np.zeros(K, dtype=bool)
+    N = len(pts)
+    visible = np.ones(N, dtype=bool)
 
-    for i in range(K):
-        if occluded[i]:
-            continue
-        visible[i] = True
-        if i + 1 >= K:
-            continue
-        dtheta = ang[i+1:] - ang[i]
-        dtheta = (dtheta + np.pi) % (2*np.pi) - np.pi
-        occluded[i+1:] |= np.abs(dtheta) <= alpha[i]
+    # Обрабатываем точки от ближних к дальним
+    order = np.argsort(dist)
 
-    res_mask = np.zeros_like(dists, dtype=bool)
-    res_mask[orig_idx[visible]] = True
-    return pts[res_mask]
+    for i in order:
+        if not visible[i]:
+            continue
+        d_i = dist[i]
+        a_i = ang[i]
+        alpha_i = alpha[i]
+
+        dtheta = ang - a_i
+        dtheta = (dtheta + np.pi) % (2.0 * np.pi) - np.pi
+
+        farther = dist > d_i + eps
+        in_sector = np.abs(dtheta) <= alpha_i
+        mask = farther & in_sector
+
+        visible[mask] = False
+
+    return pts[visible]
 
 
 def voxel_downsample(points: np.ndarray, grid_size: float):

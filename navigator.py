@@ -457,6 +457,7 @@ class Navigator:
         self._frame_id += 1
         points = np.asarray(points_world, dtype=float)
         points = voxel_downsample(points, min_dist)
+        points = remove_far_outliers(points, min_dist * 2)
         if points.size == 0:
             return
 
@@ -536,6 +537,7 @@ class Navigator:
         ], axis=-1)
 
         relative_points = keep_closer(relative_points, 0, max_dist_robot)
+        relative_points = voxel_downsample(relative_points, grid_size=0.05)
         # relative_points = resample_lidar_by_distance(relative_points, step=0.05, max_gap=0.2)
         # relative_points = remove_far_outliers(relative_points, dist_thresh=0.1)
 
@@ -543,36 +545,28 @@ class Navigator:
             angle = self.angle
             pos = self.pos.copy()
 
+        world_points = self.points
+        world_points = keep_closer(world_points, pos, max_dist_robot)
+        world_points = filter_visible_2d(world_points, pos)
+        self.cur_matched_pts = world_points
         for i in range(10):
             points = transform_points(relative_points, pos, angle, (0, 0))
-            world_points = filter_visible_2d(self.points, pos, max_range=max_dist_robot)
 
-            pts_from, pts_to = self.match_nearest(points, world_points, max_dist=0.3, unique=True)
+            pts_from, pts_to = self.match_nearest(points, world_points, max_dist=0.2, unique=True)
             dpos, dth = self._estimate_transform(pts_from, pts_to, pos)
             pos = pos + dpos
             angle = angle + dth
             
             if np.linalg.norm(dpos) < 1e-3 and abs(dth) < 1e-3:
                 break
-        self.cur_matched_pts = pts_from
             
         points = transform_points(relative_points, pos, angle, (0, 0))
-        world_points = filter_visible_2d(self.points, pos, max_range=max_dist_robot)
-        err_median = mean_nearest_distance(points, world_points, median=True)
-        failed = err_median > 1e-1
-
+        self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=10, world_enter_hits=2, max_candidate_age=2, ema_alpha=0.1)
         self.cur_lidar_pts = points
-        self.cur_matched_pts = world_points
-
-        self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=5, world_enter_hits=2, max_candidate_age=3, ema_alpha=0.05)
 
         with self.lock:
-            if failed:
-                print()
-                print("FAILED", dpos, dth, err_median)
-            else:
-                self.pos = pos.copy()
-                self.angle = angle
+            self.pos = pos.copy()
+            self.angle = angle
             return self.pos, self.angle
 
     def get_wall_dist(self, center_angle=-45, max_angle=20, max_dist=2):
