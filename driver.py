@@ -337,8 +337,6 @@ class Driver:
             self.robot.send_drive(speed, rot)
             time.sleep(self.CONTROLLER_PERIOD)
 
-            self.robot.navigator.display()
-
         print("[drive] stop")
         self.robot.send_drive(0, 0)
 

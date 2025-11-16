@@ -242,79 +242,70 @@ def fit_line_polar_ransac(points: np.ndarray,
 
     return rho, theta, best_inliers
 
+def remove_far_outliers(points: np.ndarray, dist_thresh: float):
+    if len(points) < 2:
+        return points
+
+    tree = cKDTree(points)
+    # расстояние до второго ближайшего соседа (k=2, k=1 — сама точка)
+    d, _ = tree.query(points, k=2)
+    min_dist = d[:, 1]
+
+    return points[min_dist <= dist_thresh]
+
 def filter_visible_2d(
     points: np.ndarray,
     origin: np.ndarray,
-    n_bins: int = 720,
-    fov: float | None = None,
+    radius: float = 0.035,
     max_range: float | None = None,
-    eps: float = 1e-6,
-) -> np.ndarray:
-    """
-    Возвращает булеву маску 'видимых' точек (не заслонённых более близкими)
-    при наблюдении из точки origin в 2D.
-
-    points : (N,2)
-    origin : (2,)
-    n_bins : количество угловых "лучей" (чем больше, тем точнее).
-    fov    : поле зрения в радианах (если None — полный круг 2π).
-    max_range : максимум дистанции (если None — без ограничения).
-    """
+):
     pts = np.asarray(points, dtype=float)
     o = np.asarray(origin, dtype=float)
 
-    rel = pts - o  # (N,2)
-    dists = np.linalg.norm(rel, axis=1)  # (N,)
-    angles = np.arctan2(rel[:, 1], rel[:, 0])  # [-pi, pi]
+    if pts.size == 0:
+        return pts.reshape(0, 2)
 
-    # Ограничим FOV, если задан
-    if fov is not None:
-        # допустим, центр FOV — по оси x, тогда |angle| <= fov/2
-        half = fov / 2.0
-        fov_mask = (angles >= -half) & (angles <= half)
-    else:
-        fov_mask = np.ones_like(dists, dtype=bool)
+    rel = pts - o
+    dists = np.linalg.norm(rel, axis=1)
+    angles = np.arctan2(rel[:, 1], rel[:, 0])
 
-    # Ограничим дальность
     if max_range is not None:
-        range_mask = dists <= max_range
+        base_mask = dists <= max_range
     else:
-        range_mask = np.ones_like(dists, dtype=bool)
+        base_mask = np.ones_like(dists, dtype=bool)
 
-    base_mask = fov_mask & range_mask
+    if not np.any(base_mask):
+        return pts.reshape(0, 2)
 
-    if base_mask.sum() == 0:
-        return np.zeros((0, 2))
-
-    # Только кандидаты в зоне FOV и диапазона
     idx = np.nonzero(base_mask)[0]
-    dists_sub = dists[idx]
-    angles_sub = angles[idx]
+    d = dists[idx]
+    ang = angles[idx]
 
-    # Перевод углов в [0, 2*pi) и разбиение на бины
-    ang = (angles_sub + 2 * np.pi) % (2 * np.pi)
-    bin_size = 2 * np.pi / n_bins
-    bins = np.floor(ang / bin_size).astype(int)
-    bins = np.clip(bins, 0, n_bins - 1)
+    order = np.argsort(d)
+    d = d[order]
+    ang = ang[order]
+    orig_idx = idx[order]
 
-    # Для каждого бина найдём минимальное расстояние
-    min_dist_per_bin = np.full(n_bins, np.inf)
-    for b, d in zip(bins, dists_sub):
-        if d < min_dist_per_bin[b]:
-            min_dist_per_bin[b] = d
+    safe_d = np.maximum(d, 1e-12)
+    alpha = np.arcsin(np.clip(radius / safe_d, -1.0, 1.0))
 
-    # Точка видима, если её дистанция близка к минимальной в своём бине
-    visible_mask_local = np.zeros_like(dists_sub, dtype=bool)
-    for i, (b, d) in enumerate(zip(bins, dists_sub)):
-        if d <= min_dist_per_bin[b] + eps:
-            visible_mask_local[i] = True
+    K = len(d)
+    visible = np.zeros(K, dtype=bool)
+    occluded = np.zeros(K, dtype=bool)
 
-    # Возвращаем маску в исходной нумерации points
-    visible_mask = np.zeros_like(dists, dtype=bool)
-    visible_mask[idx[visible_mask_local]] = True
+    for i in range(K):
+        if occluded[i]:
+            continue
+        visible[i] = True
+        if i + 1 >= K:
+            continue
+        dtheta = ang[i+1:] - ang[i]
+        dtheta = (dtheta + np.pi) % (2*np.pi) - np.pi
+        occluded[i+1:] |= np.abs(dtheta) <= alpha[i]
 
-    # return visible_mask
-    return points[visible_mask]
+    res_mask = np.zeros_like(dists, dtype=bool)
+    res_mask[orig_idx[visible]] = True
+    return pts[res_mask]
 
 
 def voxel_downsample(points: np.ndarray, grid_size: float):
@@ -352,3 +343,61 @@ def mean_nearest_distance(a: np.ndarray, b: np.ndarray, median=False) -> float:
         return 0.5 * (np.median(da) + np.median(db))
     else:
         return np.sqrt((da.mean() + db.mean()) * 0.5)
+
+def resample_lidar_by_distance(
+    points: np.ndarray,
+    step: float,
+    max_gap: float | None = None,
+) -> np.ndarray:
+    points = np.asarray(points, dtype=float)
+    if len(points) < 2:
+        return points.copy()
+
+    # длины отрезков между соседями
+    diffs = points[1:] - points[:-1]
+    seg_len = np.linalg.norm(diffs, axis=1)  # (N-1,)
+
+    # маска "разрывов" — где расстояние слишком большое
+    if max_gap is not None:
+        breaks = seg_len > max_gap
+    else:
+        breaks = np.zeros_like(seg_len, dtype=bool)
+
+    # индексы, где скан рвётся: сегменты [start_i, end_i]
+    # разрыв между i и i+1 => сегмент заканчивается на i
+    break_idx = np.where(breaks)[0]
+    starts = np.concatenate([[0], break_idx + 1])
+    ends   = np.concatenate([break_idx, [len(points) - 1]])
+
+    out = []
+
+    for s, e in zip(starts, ends):
+        if e <= s:
+            continue
+
+        seg_pts = points[s:e+1]          # (K,2)
+        seg_diffs = seg_pts[1:] - seg_pts[:-1]
+        seg_seglen = np.linalg.norm(seg_diffs, axis=1)
+
+        # кумулятивная длина вдоль сегмента
+        cumlen = np.concatenate([[0.0], np.cumsum(seg_seglen)])  # (K,)
+
+        total_len = cumlen[-1]
+        if total_len <= 0:
+            continue
+
+        # новые "целевые" длины вдоль сегмента: 0, step, 2*step, ...
+        num_new = int(np.floor(total_len / step)) + 1
+        target_s = np.linspace(0.0, total_len, num_new)
+
+        # интерполяция по длине дуги для x и y отдельно
+        x = np.interp(target_s, cumlen, seg_pts[:, 0])
+        y = np.interp(target_s, cumlen, seg_pts[:, 1])
+
+        seg_resampled = np.stack([x, y], axis=1)
+        out.append(seg_resampled)
+
+    if not out:
+        return points[:1].copy()
+
+    return np.vstack(out)
