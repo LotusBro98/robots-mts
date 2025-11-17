@@ -8,10 +8,9 @@ from matplotlib import pyplot as plt
 from matplotlib.patches import FancyArrowPatch
 import matplotlib.patches as mpatches
 import numpy as np
-from scipy.spatial import cKDTree
 
 from cartographer import Cartographer
-from navigator_utils import estimate_update_point_to_line_robust, filter_visible_2d, fit_line_polar_ransac, keep_closer, mean_nearest_distance, points_to_grid, remove_far_outliers, resample_lidar_by_distance, transform_points, voxel_downsample
+from navigator_utils import fit_line_polar_ransac, transform_points
 from pathfinder import Pathfinder
 
 

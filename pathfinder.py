@@ -5,8 +5,40 @@ from typing import Callable, Tuple
 import numpy as np
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.finder.a_star import AStarFinder
+from scipy.spatial import cKDTree
+# import cv2 as cv
 
-from navigator_utils import points_to_grid
+from pathfinding.core.grid import Grid
+
+def points_to_grid(pts, robot_size=0.05, grid_size=0.05, additional_pts=(np.zeros((0, 2)))):
+    pts = np.asarray(pts, float)
+    additional_pts = np.stack(additional_pts, axis=0)
+
+    minmax_pts = np.concatenate([pts, additional_pts], axis=0)
+    xmin, ymin = np.min(minmax_pts, axis=0) - 2 * grid_size
+    xmax, ymax = np.max(minmax_pts, axis=0) + 2 * grid_size
+
+    nx = int((xmax - xmin)/grid_size) + 1
+    ny = int((ymax - ymin)/grid_size) + 1
+
+    grid = np.zeros((ny, nx), dtype=np.uint8)
+
+    pts_grid = np.stack(np.meshgrid(
+        np.linspace(xmin, xmax, nx), 
+        np.linspace(ymin, ymax, ny),
+    ), axis=-1)
+    tree = cKDTree(pts)
+
+    dists, idx = tree.query(pts_grid, k=1) 
+    
+    weights = (1 / ((dists - robot_size) / robot_size))
+
+    # cv.imshow("grid", weights)
+    # cv.waitKey(1)
+
+    grid = Grid(matrix=weights)
+
+    return grid, grid_size, xmin, ymin
 
 
 def find_shortest_path(points, pos, goal):
