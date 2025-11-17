@@ -392,13 +392,13 @@ def resample_lidar_by_distance(
 
     return np.vstack(out)
 
-def points_to_grid(pts, robot_size=0.05, grid_size=0.03, additional_pts=()):
+def points_to_grid(pts, robot_size=0.05, grid_size=0.03, additional_pts=(np.zeros((0, 2)))):
     pts = np.asarray(pts, float)
+    additional_pts = np.stack(additional_pts, axis=0)
 
-    xmin, ymin = np.min(np.concatenate([pts, *[np.broadcast_arrays(pt, pts)[0] for pt in additional_pts]]), axis=0) - 2 * grid_size
-    xmax, ymax = np.max(np.concatenate([pts, *[np.broadcast_arrays(pt, pts)[0] for pt in additional_pts]]), axis=0) + 2 * grid_size
-
-    print(xmax, xmin)
+    minmax_pts = np.concatenate([pts, additional_pts], axis=0)
+    xmin, ymin = np.min(minmax_pts, axis=0) - 2 * grid_size
+    xmax, ymax = np.max(minmax_pts, axis=0) + 2 * grid_size
 
     nx = int((xmax - xmin)/grid_size) + 1
     ny = int((ymax - ymin)/grid_size) + 1

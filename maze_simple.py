@@ -31,6 +31,7 @@ def main():
             )
     finally:
         driver.stop()
+        robot.navigator.stop()
         robot.disconnect()
         # robot.navigator.stop_rendering()
 

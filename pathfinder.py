@@ -1,4 +1,7 @@
 import multiprocessing as mp
+import signal
+import threading
+from typing import Callable, Tuple
 import numpy as np
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.finder.a_star import AStarFinder
@@ -6,7 +9,7 @@ from pathfinding.finder.a_star import AStarFinder
 from navigator_utils import points_to_grid
 
 
-def find_shortest_path_worker(points, pos, goal):
+def find_shortest_path(points, pos, goal):
     # Это почти твоя логика, только вынесенная в отдельную функцию
     grid, grid_size, xmin, ymin = points_to_grid(points, additional_pts=[pos, goal])
 
@@ -30,34 +33,59 @@ def find_shortest_path_worker(points, pos, goal):
     return path
 
 
+def _pathfinder_process(req_q: mp.Queue, res_q: mp.Queue):
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+        # этот код крутится в отдельном ПРОЦЕССЕ → на другом ядре
+        while True:
+            points, pos, goal, stop = req_q.get()
+            if stop:
+                break
+            try:
+                path = find_shortest_path(points, pos, goal)
+            except KeyboardInterrupt:
+                pass
+            res_q.put(path)
+
+
 class Pathfinder:
-    def __init__(self):
-        self.points = None
-        self.pos    = (0.0, 0.0)
-        self.goal   = (2.0, 2.0)
-        self.path   = np.zeros((0, 2), dtype=np.float32)
+    def __init__(self, input_cb: Callable[[], Tuple[np.ndarray, np.ndarray, np.ndarray]], output_cb: Callable[[np.ndarray], None]):
+        self.input_cb = input_cb
+        self.output_cb = output_cb
 
         self._req_q = mp.Queue()
         self._res_q = mp.Queue()
 
         self._proc = mp.Process(
-            target=self._pathfinder_process,
-            daemon=True
+            target=_pathfinder_process,
+            daemon=True,
+            args=[self._req_q, self._res_q]
         )
         self._proc.start()
 
-    def _pathfinder_process(self):
-        # этот код крутится в отдельном ПРОЦЕССЕ → на другом ядре
-        while True:
-            points, pos, goal = self._req_q.get()
-            path = find_shortest_path_worker(points, pos, goal)
-            self._res_q.put(path)
+        self._stop = False
+        self._thr = threading.Thread(
+            target=self._pathfinder_thread,
+            daemon=True,
+        )
+        self._thr.start()
 
-    def update_request(self, points, pos, goal):
+    def stop(self):
+        self._stop = True
+        self._thr.join()
+
+    def _pathfinder_thread(self):
+        while not self._stop:
+            self._update_request(*self.input_cb(), False)
+            self.output_cb(self._poll_result())
+        self._update_request(None, None, None, True)
+        self._proc.join()
+
+    def _update_request(self, points, pos, goal, stop):
         # вызывать из основного процесса, когда появились новые points/pos/goal
-        self._req_q.put((points, pos, goal))
+        self._req_q.put((points, pos, goal, stop))
 
-    def poll_result(self) -> np.ndarray:
+    def _poll_result(self) -> np.ndarray:
         # не блокируемся, просто забираем путь, если уже посчитали
         path = self._res_q.get()
         return path

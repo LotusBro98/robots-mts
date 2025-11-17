@@ -101,6 +101,7 @@ class Navigator:
         self.bg = None
         self.arrow = None
         self.path = np.zeros((0, 2))
+        self.goal = np.array([2, 2])
 
         # Поток рендера
         self._render_stop = threading.Event()
@@ -109,8 +110,15 @@ class Navigator:
             self._render_thread = threading.Thread(target=self._render_loop, daemon=True)
             self._render_thread.start()
 
-        self._pathfinder_thread = threading.Thread(target=self._pathfinder_worker, daemon=True)
-        self._pathfinder_thread.start()
+        self.pathfinder = Pathfinder(
+            input_cb=lambda: (self.points, self.pos, self.goal), 
+            output_cb=lambda path: setattr(self, "path", path),
+        )
+
+    def stop(self):
+        self.pathfinder.stop()
+        self._render_stop.set()
+        self._render_thread.join()
 
     def _init_plot(self):
         if self.fig is not None:  # уже создано
@@ -663,15 +671,3 @@ class Navigator:
         with self.lock:
             self._overlay_openings = openings
             self._overlay_inlier_tol = float(inlier_tol)
-
-    def _pathfinder_worker(self):
-        pathfinder = Pathfinder()
-
-        self.goal = (2, 2)
-
-        while True:
-            if len(self.points) == 0:
-                time.sleep(0.1)
-                continue
-            pathfinder.update_request(self.points, self.pos, self.goal)
-            self.path = pathfinder.poll_result()
