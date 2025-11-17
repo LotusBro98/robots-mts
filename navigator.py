@@ -1,7 +1,7 @@
 import os
 import threading
 import time
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 import matplotlib
 from matplotlib import pyplot as plt
@@ -10,11 +10,15 @@ import matplotlib.patches as mpatches
 import numpy as np
 from scipy.spatial import cKDTree
 
-from navigator_utils import estimate_update_point_to_line_robust, filter_visible_2d, fit_line_polar_ransac, keep_closer, mean_nearest_distance, remove_far_outliers, resample_lidar_by_distance, transform_points, voxel_downsample
+from navigator_utils import estimate_update_point_to_line_robust, filter_visible_2d, fit_line_polar_ransac, keep_closer, mean_nearest_distance, points_to_grid, remove_far_outliers, resample_lidar_by_distance, transform_points, voxel_downsample
+from pathfinder import Pathfinder
 
-def _cell_key(pt, cell_size):
+def _cell_key(pt: np.ndarray, cell_size):
     # ключ ячейки в окрестности размером cell_size
-    return (int(np.round(pt[0] / cell_size)), int(np.round(pt[1] / cell_size)))
+    if len(pt.shape) == 1:
+        return (int(np.round(pt[0] / cell_size)), int(np.round(pt[1] / cell_size)))
+    else:
+        return [tuple(np.int32(np.round(p / cell_size)).tolist()) for p in pt]
 
 class Candidate:
     __slots__ = ("pos", "hits", "sum_sq", "last_frame", "_promoted")
@@ -96,6 +100,7 @@ class Navigator:
         self.scat1 = self.scat2 = self.scat3 = self.scat4 = None
         self.bg = None
         self.arrow = None
+        self.path = np.zeros((0, 2))
 
         # Поток рендера
         self._render_stop = threading.Event()
@@ -103,6 +108,9 @@ class Navigator:
         if self.render_mode in ("window", "file"):
             self._render_thread = threading.Thread(target=self._render_loop, daemon=True)
             self._render_thread.start()
+
+        self._pathfinder_thread = threading.Thread(target=self._pathfinder_worker, daemon=True)
+        self._pathfinder_thread.start()
 
     def _init_plot(self):
         if self.fig is not None:  # уже создано
@@ -117,6 +125,7 @@ class Navigator:
         self.scat2 = self.ax.scatter([], [], s=4)
         self.scat3 = self.ax.scatter([], [], s=1)
         self.scat4 = self.ax.scatter([], [], s=100, c='green')
+        self.scat5 = self.ax.scatter([], [], s=2)
         self.arrow = FancyArrowPatch(
             (0, 0), (0, 0),
             arrowstyle='-|>',
@@ -138,6 +147,7 @@ class Navigator:
         self.scat2.set_offsets(pts_from)
         self.scat3.set_offsets(points)
         self.scat4.set_offsets(robot_pos[None, :])
+        self.scat5.set_offsets(self.path)
 
         # Стрелка
         arrow_len = 0.4
@@ -152,6 +162,7 @@ class Navigator:
         self.ax.draw_artist(self.scat2)
         self.ax.draw_artist(self.scat3)
         self.ax.draw_artist(self.scat4)
+        self.ax.draw_artist(self.scat5)
         self.ax.draw_artist(self.arrow)
         self.fig.canvas.blit(self.ax.bbox)
         self.fig.canvas.flush_events()
@@ -653,3 +664,14 @@ class Navigator:
             self._overlay_openings = openings
             self._overlay_inlier_tol = float(inlier_tol)
 
+    def _pathfinder_worker(self):
+        pathfinder = Pathfinder()
+
+        self.goal = (2, 2)
+
+        while True:
+            if len(self.points) == 0:
+                time.sleep(0.1)
+                continue
+            pathfinder.update_request(self.points, self.pos, self.goal)
+            self.path = pathfinder.poll_result()
