@@ -38,11 +38,11 @@ def _pathfinder_process(req_q: mp.Queue, res_q: mp.Queue):
 
     # этот код крутится в отдельном ПРОЦЕССЕ → на другом ядре
     while True:
-        points, pos, goal, stop = req_q.get()
+        points, pos, goal, stop = req_q.get(timeout=2)
         if stop:
             break
         path = find_shortest_path(points, pos, goal)
-        res_q.put(path)
+        res_q.put(path, timeout=2)
 
 
 class Pathfinder:
@@ -80,9 +80,9 @@ class Pathfinder:
 
     def _update_request(self, points, pos, goal, stop):
         # вызывать из основного процесса, когда появились новые points/pos/goal
-        self._req_q.put((points, pos, goal, stop))
+        self._req_q.put((points, pos, goal, stop), timeout=2)
 
     def _poll_result(self) -> np.ndarray:
         # не блокируемся, просто забираем путь, если уже посчитали
-        path = self._res_q.get()
+        path = self._res_q.get(timeout=2)
         return path
