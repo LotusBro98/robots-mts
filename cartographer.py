@@ -230,10 +230,12 @@ def _cartographer_process(req_q: mp.Queue, res_q: mp.Queue):
     nest = CartohrapherNested()
     while True:
         world_points, relative_points, pos, angle, stop = req_q.get()
+        orig_pos = pos.copy()
+        orig_angle = angle
         if stop:
             break
         world_points, cur_matched_pts, points, pos, angle = nest.update_map(world_points, relative_points, pos, angle)
-        res_q.put((world_points, cur_matched_pts, points, pos, angle))
+        res_q.put((world_points, cur_matched_pts, points, pos - orig_pos, angle - orig_angle))
 
 
 class Cartographer:
@@ -264,8 +266,8 @@ class Cartographer:
 
     def _cartographer_thread(self):
         while not self._stop:
-            world_points, cur_matched_pts, points, pos, angle = self._res_q.get()
-            self.output_cb(world_points, cur_matched_pts, points, pos, angle)
+            world_points, cur_matched_pts, points, dpos, dth = self._res_q.get()
+            self.output_cb(world_points, cur_matched_pts, points, dpos, dth)
         self._req_q.put((None, None, None, None, True))
         self._proc.join()
 

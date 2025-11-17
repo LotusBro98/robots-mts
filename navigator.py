@@ -72,12 +72,13 @@ class Navigator:
             output_cb=self._cartographer_update_cb,
         )
 
-    def _cartographer_update_cb(self, world_points, cur_matched_pts, points, pos, angle):
+    def _cartographer_update_cb(self, world_points, cur_matched_pts, points, dpos, dth):
         self.points = world_points
         self.cur_matched_pts = cur_matched_pts
         self.cur_lidar_pts = points
-        self.pos = pos
-        self.angle = angle
+        with self.lock:
+            self.pos = self.pos + dpos
+            self.angle = self.angle + dth
 
     def stop(self):
         self.pathfinder.stop()
