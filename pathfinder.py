@@ -34,18 +34,15 @@ def find_shortest_path(points, pos, goal):
 
 
 def _pathfinder_process(req_q: mp.Queue, res_q: mp.Queue):
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-        # этот код крутится в отдельном ПРОЦЕССЕ → на другом ядре
-        while True:
-            points, pos, goal, stop = req_q.get()
-            if stop:
-                break
-            try:
-                path = find_shortest_path(points, pos, goal)
-            except KeyboardInterrupt:
-                pass
-            res_q.put(path)
+    # этот код крутится в отдельном ПРОЦЕССЕ → на другом ядре
+    while True:
+        points, pos, goal, stop = req_q.get()
+        if stop:
+            break
+        path = find_shortest_path(points, pos, goal)
+        res_q.put(path)
 
 
 class Pathfinder:

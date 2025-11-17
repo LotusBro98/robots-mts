@@ -30,7 +30,7 @@ def main():
                 side_wall_smooth_stop_dist=0.4
             )
     finally:
-        driver.stop()
+        driver.robot.send_drive(0, 0)
         robot.navigator.stop()
         robot.disconnect()
         # robot.navigator.stop_rendering()
