@@ -69,14 +69,14 @@ class Pathfinder:
 
     def stop(self):
         self._stop = True
-        self._thr.join()
+        self._thr.join(timeout=2)
 
     def _pathfinder_thread(self):
         while not self._stop:
             self._update_request(*self.input_cb(), False)
             self.output_cb(self._poll_result())
         self._update_request(None, None, None, True)
-        self._proc.join()
+        self._proc.join(timeout=2)
 
     def _update_request(self, points, pos, goal, stop):
         # вызывать из основного процесса, когда появились новые points/pos/goal
