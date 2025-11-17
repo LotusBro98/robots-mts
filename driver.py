@@ -333,7 +333,7 @@ class Driver:
                 msg += f"left_wall: {sens.cur_left_wall_dist:6.3f} "
             if right_wall_dist is not None:
                 msg += f"right_wall: {sens.cur_right_wall_dist:6.3f} "
-            print(msg, end="", flush=True)
+            # print(msg, end="", flush=True)
             self.robot.send_drive(speed, rot)
             time.sleep(self.CONTROLLER_PERIOD)
 
