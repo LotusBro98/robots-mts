@@ -71,7 +71,7 @@ class LSM6DS3SPI:
         self.spi.xfer2([reg & 0x7F, val & 0xFF])
 
     def read_gyro_dps(self):
-        b = self.spi.xfer2([OUTX_L_G | RD | AI] + [0x00]*6)[1:]
+        b = self.spi.xfer2([OUTX_L_G | RD] + [0x00]*6)[1:]
         gx = twos_compl(b[0], b[1]) * self.g_sens_dps_per_lsb
         gy = twos_compl(b[2], b[3]) * self.g_sens_dps_per_lsb
         gz = twos_compl(b[4], b[5]) * self.g_sens_dps_per_lsb
