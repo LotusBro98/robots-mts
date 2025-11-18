@@ -2,7 +2,7 @@ import time
 from matplotlib import pyplot as plt
 import numpy as np
 
-from navigator_utils import direction_vec, normalize, project_scalar, round_angle, transform_points, vec_angle
+from navigator_utils import direction_vec, heading_and_crosstrack_error, normalize, project_scalar, round_angle, transform_points, vec_angle
 from robot_base import Robot
 
 
@@ -514,3 +514,34 @@ class Driver:
         print("[maze_turnaround] stop")
         self.robot.send_drive(0, 0)
 
+    def drive_trajectory(self):
+        while True:
+            sens = self.robot.recv_sensors()
+            vel_front = sens.vel[0]
+
+            angle_error, crosstrack_error = heading_and_crosstrack_error(self.robot.navigator.path, sens.pos, sens.angle)
+
+            angle_error -= crosstrack_error * 0.5
+            
+            # Angular speed regulator
+            rot = angle_error * 1
+            rot = np.clip(rot, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
+
+            # Linear speed regulator
+            speed = 1
+            # Speed clamp on turn
+            if abs(rot) > 0.5 * self.MAX_ROT_SPEED:
+                speed = np.clip(speed, None, self.MAX_SPEED_ON_TURN)
+
+            msg = f"\r[drive] "
+            msg += f"speed: {speed:6.3f} "
+            msg += f"vel: {vel_front:6.3f} "
+            msg += f"th_vel: {sens.angle_vel:6.3f} "
+            msg += f"th_er: {angle_error:6.3f} "
+            msg += f"ct_er: {crosstrack_error:6.3f} "
+            print(msg, end="", flush=True)
+            self.robot.send_drive(speed, rot)
+            time.sleep(self.CONTROLLER_PERIOD)
+
+        print("[drive] stop")
+        self.robot.send_drive(0, 0)

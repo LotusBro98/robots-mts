@@ -388,3 +388,69 @@ def resample_lidar_by_distance(
         return points[:1].copy()
 
     return np.vstack(out)
+
+def heading_and_crosstrack_error(path_pts, robot_pos, robot_heading):
+    """
+    path_pts: np.ndarray shape (N, 2) — упорядоченный набор точек траектории
+    robot_pos: np.ndarray shape (2,) — [x_r, y_r]
+    robot_heading: float — угол робота в радианах (глобальный), как из atan2
+
+    return:
+        angle_error: float — отклонение угла робота от направления траектории (рад, [-pi, pi))
+        cross_track_error: float — поперечное отклонение (м), со знаком:
+                           >0 — робот слева от траектории (по направлению движения по траектории)
+                           <0 — справа
+    """
+    path_pts = np.asarray(path_pts, dtype=float)
+    robot_pos = np.asarray(robot_pos, dtype=float)
+
+    if path_pts.shape[0] < 2:
+        raise ValueError("Нужно минимум 2 точки траектории")
+
+    best_dist2 = float("inf")
+    best_seg_vec = None
+    best_Q = None  # ближайшая точка на траектории
+
+    for i in range(path_pts.shape[0] - 1):
+        A = path_pts[i]
+        B = path_pts[i + 1]
+        v = B - A          # вектор отрезка
+        w = robot_pos - A  # от A до робота
+
+        vv = np.dot(v, v)
+        if vv == 0:
+            continue  # две одинаковые точки
+
+        t = np.dot(w, v) / vv
+        t_clamped = np.clip(t, 0.0, 1.0)
+
+        Q = A + t_clamped * v  # проекция робота на отрезок
+        diff = Q - robot_pos
+        dist2 = np.dot(diff, diff)
+
+        if dist2 < best_dist2:
+            best_dist2 = dist2
+            best_seg_vec = v
+            best_Q = Q
+
+    if best_seg_vec is None or best_Q is None:
+        raise RuntimeError("Не удалось найти корректный отрезок траектории")
+
+    # 1) Угловая ошибка (как раньше)
+    path_angle = np.arctan2(best_seg_vec[1], best_seg_vec[0])
+    angle_error = round_angle(path_angle - robot_heading)
+
+    # 2) Поперечная ошибка
+    # вектор от траектории к роботу
+    n = robot_pos - best_Q
+    cross_track_dist = np.linalg.norm(n)
+
+    if cross_track_dist == 0.0:
+        cross_track_error = 0.0
+    else:
+        # знак через "z-компоненту" векторного произведения v x n
+        z = best_seg_vec[0] * n[1] - best_seg_vec[1] * n[0]
+        sign = np.sign(z) if z != 0 else 0.0
+        cross_track_error = sign * cross_track_dist
+
+    return angle_error, cross_track_error

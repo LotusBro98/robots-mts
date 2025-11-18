@@ -111,7 +111,7 @@ class Robot:
     def _update_lidar(self, lidar_ranges):
         self._latest_lidar.set(lidar_ranges)
         self._latest_nav.set(self.navigator.update_from_lidar(lidar_ranges))
-        self.initialized = len(self.navigator.points) > 0
+        self.initialized = len(self.navigator.path) > 0
 
     def recv_sensors(self) -> SensorData:
         self.wait_until_initialized()
