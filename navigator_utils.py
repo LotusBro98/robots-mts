@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 import numpy as np
 from scipy.spatial import cKDTree
 
@@ -34,10 +35,7 @@ def estimate_update_point_to_line_robust(
     huber_delta=0.10, reg_tangential=1e-3,
     # робаст-пороги:
     min_pts=20,                   # минимальное число пар
-    min_cond=1e-3,                # минимум отношения s_min/s_max для (A^T W A)
-    min_obs_rot=1e-3,             # минимум наблюдаемости угла (сумма |n^T J p|)
-    min_obs_trans=1e-2,           # минимум наблюдаемости трансляции (сумма ||n||; в 2D ~число точек)
-    soft_clip_pos=0.05,            # мягкий лимит нормы dpos (м) за шаг
+    soft_clip_pos=0.05,           # мягкий лимит нормы dpos (м) за шаг
     soft_clip_th=np.deg2rad(3.0), # мягкий лимит |dθ| за шаг
 ):
     """
@@ -72,28 +70,6 @@ def estimate_update_point_to_line_robust(
     Aw = A * w[:, None]
     bw = b * w
 
-    # наблюдаемость: трансляция и угол
-    obs_rot = np.sum(np.abs(Aw[:, 2]))          # n^T Jp вклад по углу
-    obs_trans = np.linalg.norm(Aw[:, :2], 'fro')  # суммарная «сила» по tx,ty
-
-    # условность
-    H = Aw.T @ Aw  # нормальные уравнения
-    s = np.linalg.svd(H, compute_uv=False)
-    cond = s[-1] / (s[0] + 1e-12) if s[0] > 0 else 0.0
-
-    info.update(N=N, obs_rot=obs_rot, obs_trans=obs_trans, cond=cond)
-
-    # жёсткие отказы (совсем плохо) — нулевой апдейт
-    if (obs_rot < min_obs_rot and obs_trans < min_obs_trans) or cond < min_cond:
-        info["reason"] = "unobservable_or_ill_conditioned"
-        return np.zeros(2), 0.0, 0.0, info
-
-    # мягкий «gain» по трём факторам качества: количество, условность, наблюдаемость
-    qN   = np.clip((N - min_pts) / (3*min_pts), 0.0, 1.0)        # от 0 к 1 по мере роста N
-    qC   = np.clip((cond - min_cond) / (1.0 - min_cond), 0.0, 1.0)  # лучше при большем cond
-    qObs = np.clip(min(obs_rot/(10*min_obs_rot), 1.0) * min(obs_trans/(10*min_obs_trans), 1.0), 0.0, 1.0)
-    quality = float((qN * qC * qObs) ** (1/2))   # можно настроить степень
-
     # решение с небольшой регуляризацией по всем трём параметрам
     lam = reg_tangential
     Rreg = np.sqrt(lam) * np.eye(3)
@@ -108,12 +84,13 @@ def estimate_update_point_to_line_robust(
     if abs(dth) > soft_clip_th:
         dth = np.sign(dth) * soft_clip_th
 
-    # применяем адаптивный gain (0..1)
-    # tx *= quality
-    # ty *= quality
-    # dth *= quality
+    # Используем знание о том что стены под 90 градусов
+    angles = np.arctan2(n[:, 1], n[:, 0])
+    angles = round_angle(angles * 4) / 4
+    ang_offs = np.median(angles)
+    dth = ang_offs
 
-    return np.array([tx, ty]), float(dth), quality, info
+    return np.array([tx, ty]), float(dth), 0, None
 
 
 def normalize(vec: np.ndarray) -> np.ndarray:
