@@ -64,7 +64,7 @@ class EmulatedRobot(Robot):
     def _stop_capture(self):
         self.do_capture_sensors = False
         if self.sensors_thread is not None:
-            self.sensors_thread.join(timeout=1)
+            self.sensors_thread.join()
             self.sensors_thread = None
 
     prev_lidar_time = time.monotonic()

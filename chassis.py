@@ -91,16 +91,16 @@ class RobotChassis(Robot):
         self.do_capture_sensors = False
 
         if self.sensors_thread is not None:
-            self.sensors_thread.join(timeout=1)
+            self.sensors_thread.join()
             self.sensors_thread = None
             self.send_command(T=131, cmd=0)
         
         if self.lidar_thread is not None:
-            self.lidar_thread.join(timeout=1)
+            self.lidar_thread.join()
             self.lidar_thread = None
 
         # if self.gyro_thread is not None:
-        #     self.gyro_thread.join(timeout=1)
+        #     self.gyro_thread.join()
         #     self.gyro_thread = None
 
     def remove_lidar_blind_zones(self, distances_by_angle: Dict[float, float]):

@@ -83,7 +83,7 @@ class Navigator:
         self.pathfinder.stop()
         self.cartographer.stop()
         self._render_stop.set()
-        self._render_thread.join(timeout=1)
+        self._render_thread.join()
 
     def _init_plot(self):
         if self.fig is not None:  # уже создано
@@ -223,7 +223,7 @@ class Navigator:
         def stop_rendering(self):
             if self._render_thread and self._render_thread.is_alive():
                 self._render_stop.set()
-                self._render_thread.join(timeout=1.0)
+                self._render_thread.join()
             # Закрываем окно только в главном потоке и если реально было окно
             if self.render_mode == "window" and threading.current_thread() is threading.main_thread():
                 try:
