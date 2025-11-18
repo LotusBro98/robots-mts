@@ -23,6 +23,7 @@ class Driver:
     BRAKE_EPS_LINEAR = 0.1
     BRAKE_EPS_ANGULAR = 0.1
     SIDE_WALL_STABILIZE_COEFF = 10
+    FRONT_WALL_DIST = 0.15
 
     def __init__(self, robot: Robot):
         self.robot = robot
@@ -528,7 +529,9 @@ class Driver:
             rot = np.clip(rot, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
 
             # Linear speed regulator
-            speed = self.MAX_SPEED
+            wall_error = np.clip((sens.cur_front_wall_dist - self.FRONT_WALL_DIST) / self.FRONT_WALL_DIST, -1, 1)
+            speed = self.MAX_SPEED * wall_error
+            
             # Speed clamp on turn
             if abs(rot) > 0.5 * self.MAX_ROT_SPEED:
                 speed = np.clip(speed, None, self.MAX_SPEED_ON_TURN)
@@ -540,6 +543,8 @@ class Driver:
             msg += f"th_vel: {sens.angle_vel:6.3f} "
             msg += f"th_er: {angle_error:6.3f} "
             msg += f"ct_er: {crosstrack_error:6.3f} "
+            msg += f"fw: {sens.cur_front_wall_dist:6.3f} "
+            msg += f"we: {wall_error:6.3f} "
             print(msg, end="", flush=True)
             self.robot.send_drive(speed, rot)
             time.sleep(self.CONTROLLER_PERIOD)
