@@ -7,7 +7,9 @@ def main():
     # robot = EmulatedRobot(demo_render_navigator=True, file_rendering_navigator=False)  # Flags: demo_render_navigator, file_rendering_navigator
     robot.connect()
     driver = Driver(robot)
+    driver.MAX_SPEED = 1
     # driver.MAX_ROT_SPEED = 0.5
+    robot.navigator.goal = (7.5, 7.5)
 
     # robot = RobotChassis()
     # robot.connect()
@@ -16,7 +18,7 @@ def main():
     # driver.MAX_ROT_SPEED = 0.8
 
     # Ограничение линейной скорости *на поворотах*
-    driver.MAX_SPEED_ON_TURN = 0.2
+    driver.MAX_SPEED_ON_TURN = 1.0
     # Коэффициент дифференциальной части для регулятора поворота
     driver.SIDE_WALL_STABILIZE_COEFF = 0
 

@@ -521,14 +521,14 @@ class Driver:
 
             angle_error, crosstrack_error = heading_and_crosstrack_error(self.robot.navigator.path, sens.pos, sens.angle)
 
-            angle_error -= crosstrack_error * 0.5
+            angle_error -= np.clip(crosstrack_error * self.WALL_ANGLE_COEFF, -self.WALL_MAX_DECLINE, self.WALL_MAX_DECLINE)
             
             # Angular speed regulator
-            rot = angle_error * 1
+            rot = angle_error * self.WALL_ROT_COEFF
             rot = np.clip(rot, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
 
             # Linear speed regulator
-            speed = 1
+            speed = self.MAX_SPEED
             # Speed clamp on turn
             if abs(rot) > 0.5 * self.MAX_ROT_SPEED:
                 speed = np.clip(speed, None, self.MAX_SPEED_ON_TURN)
