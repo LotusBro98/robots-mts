@@ -9,7 +9,7 @@ import numpy as np
 
 from navigator_utils import normalize, round_angle
 from robot_base import Robot
-# from robot_gyro import calibrate_gz, init_imu, read_yaw_rate_and_angle, recalibrate_imu, wrap_angle_deg
+from robot_gyro import calibrate_gz, init_imu, read_yaw_rate_and_angle, recalibrate_imu, wrap_angle_deg
 from robot_lidar_alt import read_full_scan_from_serial
 
 
@@ -35,14 +35,14 @@ class RobotChassis(Robot):
     def connect(self):
         self.ser = serial.Serial(self.port, baudrate=115200, timeout=1)
         self.lidar_ser = serial.Serial(LIDAR_PORT, LIDAR_BAUT, timeout=LIDAR_SERIAL_TIMEOUT)
-        # self._imu = init_imu()
+        self._imu = init_imu()
         self._start_capture()
 
     def disconnect(self):
         self._stop_capture()
         self.ser.close()
         self.lidar_ser.close()
-        # self._imu.close()
+        self._imu.close()
 
     def send_drive(self, v: float, w: float):
         """
@@ -84,8 +84,8 @@ class RobotChassis(Robot):
         self.sensors_thread.start()
         self.lidar_thread = threading.Thread(target=self._capture_lidar, daemon=True)
         self.lidar_thread.start()
-        # self.gyro_thread = threading.Thread(target=self._capture_imu, daemon=True)
-        # self.gyro_thread.start()
+        self.gyro_thread = threading.Thread(target=self._capture_imu, daemon=True)
+        self.gyro_thread.start()
 
     def _stop_capture(self):
         self.do_capture_sensors = False
@@ -99,9 +99,9 @@ class RobotChassis(Robot):
             self.lidar_thread.join()
             self.lidar_thread = None
 
-        # if self.gyro_thread is not None:
-        #     self.gyro_thread.join()
-        #     self.gyro_thread = None
+        if self.gyro_thread is not None:
+            self.gyro_thread.join()
+            self.gyro_thread = None
 
     def remove_lidar_blind_zones(self, distances_by_angle: Dict[float, float]):
         angles = np.array(list(distances_by_angle.keys()), dtype=float)
@@ -151,8 +151,8 @@ class RobotChassis(Robot):
                 # print(f"Yaw speed: {gz_corr:+7.2f} °/с | Angle Z: {angle_z:+7.2f} ° | Norm: {wrap_angle_deg(angle_z):+7.2f} °")
                 self._update_gyro((0, math.radians(gz_corr), 0))
                 # перекалибровка раз в 10 сек  TODO: call before motors on
-                if int(time.monotonic()) % 10 == 0:
-                    self._gz_bias = recalibrate_imu(self._imu, seconds=1.0)
+                # if int(time.monotonic()) % 10 == 0:
+                #     self._gz_bias = recalibrate_imu(self._imu, seconds=1.0)
 
                 time.sleep(0.002)
         finally:

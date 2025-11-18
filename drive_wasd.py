@@ -163,6 +163,9 @@ def main():
     finally:
         try: robot.send_drive(0.0, 0.0)
         except Exception: pass
+        robot._stop_capture()
+        robot.navigator.stop()
+        robot.disconnect()
 
 if __name__ == "__main__":
     main()

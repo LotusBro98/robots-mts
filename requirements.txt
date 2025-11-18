@@ -15,3 +15,5 @@ tornado==6.5.2
 scipy
 matplotlib
 # spidev
+opencv-python
+pathfinding
