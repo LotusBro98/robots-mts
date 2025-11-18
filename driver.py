@@ -520,6 +520,9 @@ class Driver:
             sens = self.robot.recv_sensors()
             vel_front = sens.vel[0]
 
+            if len(self.robot.navigator.path) < 2:
+                print("\n[drive] path is empty")
+                break
             angle_error, crosstrack_error = heading_and_crosstrack_error(self.robot.navigator.path, sens.pos, sens.angle)
 
             angle_error -= np.clip(crosstrack_error * self.WALL_ANGLE_COEFF, -self.WALL_MAX_DECLINE, self.WALL_MAX_DECLINE)
