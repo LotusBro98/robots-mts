@@ -200,7 +200,7 @@ class CartohrapherNested:
     
     def update_map(self, world_points, relative_points, pos, angle):
         relative_points = keep_closer(relative_points, 0, self.max_dist_robot)
-        relative_points = voxel_downsample(relative_points, grid_size=0.05)
+        relative_points = voxel_downsample(relative_points, grid_size=0.01)
         # relative_points = resample_lidar_by_distance(relative_points, step=0.05, max_gap=0.2)
         # relative_points = remove_far_outliers(relative_points, dist_thresh=0.1)
         
@@ -219,7 +219,7 @@ class CartohrapherNested:
                 break
             
         points = transform_points(relative_points, pos, angle, (0, 0))
-        world_points = self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=3, world_enter_hits=-1, max_candidate_age=10, ema_alpha=0.1)
+        world_points = self.add_scan_with_buffer(points, min_dist=0.025, promote_hits=10, world_enter_hits=3, max_candidate_age=3, ema_alpha=0.1)
         
         return world_points, cur_matched_pts, points, pos, angle
     

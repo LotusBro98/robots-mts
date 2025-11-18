@@ -91,8 +91,8 @@ class Navigator:
         self.fig, self.ax = plt.subplots(figsize=(12, 12))
         if self.render_mode == "window":
             plt.show(block=False)
-        self.ax.set_xlim(-0.5, 8)
-        self.ax.set_ylim(-0.5, 8)
+        self.ax.set_xlim(-3, 3)
+        self.ax.set_ylim(-3, 3)
         self.ax.set_aspect("equal", adjustable="box")
         self.scat1 = self.ax.scatter([], [], s=4)
         self.scat2 = self.ax.scatter([], [], s=4)

@@ -10,7 +10,7 @@ from scipy.spatial import cKDTree
 
 from pathfinding.core.grid import Grid
 
-def points_to_grid(pts, robot_size=0.05, grid_size=0.05, additional_pts=(np.zeros((0, 2)))):
+def points_to_grid(pts, robot_size=0.1, grid_size=0.02, additional_pts=(np.zeros((0, 2)))):
     pts = np.asarray(pts, float)
     additional_pts = np.stack(additional_pts, axis=0)
 

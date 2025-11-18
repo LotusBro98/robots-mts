@@ -31,7 +31,7 @@ def _huber_weights(r, delta=0.1):
     return w
 
 def estimate_update_point_to_line_robust(
-    pts_from, pts_to, center=None, k_normals=8,
+    pts_from, pts_to, center=None, k_normals=6,
     huber_delta=0.10, reg_tangential=1e-3,
     # робаст-пороги:
     min_pts=20,                   # минимальное число пар

@@ -25,7 +25,8 @@ class RobotChassis(Robot):
     MAX_ANG_ACCELERATION = 0.5
 
     WHEEL_DISTANCE = 15.15  # In cm
-    LIDAR_BLIND_ZONES = [(180, 15)]
+    # LIDAR_BLIND_ZONES = [(180, 15)]
+    LIDAR_BLIND_ZONES = []
 
     def __init__(self, port: str = "/dev/ttyACM1", **kwargs):
         super().__init__(**kwargs)
@@ -84,6 +85,7 @@ class RobotChassis(Robot):
         self.sensors_thread.start()
         self.lidar_thread = threading.Thread(target=self._capture_lidar, daemon=True)
         self.lidar_thread.start()
+        self._gz_bias = calibrate_gz(self._imu, seconds=1.0)
         self.gyro_thread = threading.Thread(target=self._capture_imu, daemon=True)
         self.gyro_thread.start()
 
@@ -121,7 +123,7 @@ class RobotChassis(Robot):
                 distances_by_angle: dict[float, float] = read_full_scan_from_serial(  # массив расстояний
                     self.lidar_ser,
                     # LIDAR_SERIAL_TIMEOUT,
-                    angle_offset=0.0,
+                    angle_offset=180.0,
                     clockwise=False,
                     max_revo_seconds=2.0,
                     # sort_by_angle=True,
@@ -143,7 +145,7 @@ class RobotChassis(Robot):
     def _capture_imu(self):
         print("Started IMU capture (yaw only)")
         t_prev = time.monotonic()
-        self._gz_bias = calibrate_gz(self._imu, seconds=1.0)
+        # self._gz_bias = calibrate_gz(self._imu, seconds=1.0)
         angle_z = 0.0
         try:
             while self.do_capture_sensors:
