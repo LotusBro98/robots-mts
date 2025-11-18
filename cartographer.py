@@ -262,14 +262,14 @@ class Cartographer:
 
     def stop(self):
         self._stop = True
-        self._thr.join(timeout=2)
+        self._thr.join(timeout=1)
 
     def _cartographer_thread(self):
         while not self._stop:
             world_points, cur_matched_pts, points, dpos, dth = self._res_q.get(timeout=2)
             self.output_cb(world_points, cur_matched_pts, points, dpos, dth)
         self._req_q.put((None, None, None, None, True), timeout=2)
-        self._proc.join(timeout=2)
+        self._proc.join(timeout=1)
 
     def notify(self):
         world_points, relative_points, pos, angle = self.input_cb()

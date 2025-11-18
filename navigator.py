@@ -83,7 +83,7 @@ class Navigator:
         self.pathfinder.stop()
         self.cartographer.stop()
         self._render_stop.set()
-        self._render_thread.join()
+        self._render_thread.join(timeout=1)
 
     def _init_plot(self):
         if self.fig is not None:  # уже создано
