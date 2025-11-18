@@ -389,17 +389,57 @@ def resample_lidar_by_distance(
 
     return np.vstack(out)
 
-def heading_and_crosstrack_error(path_pts, robot_pos, robot_heading):
+def _smoothed_direction(path_pts, start_idx, max_points_ahead=5, decay=0.7):
     """
-    path_pts: np.ndarray shape (N, 2) — упорядоченный набор точек траектории
-    robot_pos: np.ndarray shape (2,) — [x_r, y_r]
-    robot_heading: float — угол робота в радианах (глобальный), как из atan2
+    Усреднённое направление по нескольким отрезкам вперёд.
+    
+    path_pts: (N, 2) — точки траектории
+    start_idx: int — индекс отрезка, с которого начинаем (отрезок [i, i+1])
+    max_points_ahead: сколько отрезков максимум смотреть вперёд
+    decay: коэффициент затухания (0<decay<=1), чем меньше — тем локальнее усреднение.
+    """
+    N = path_pts.shape[0]
+    # последний индекс отрезка, который можем взять (отрезок j — это [j, j+1], j <= N-2)
+    last_seg_idx = min(N - 2, start_idx + max_points_ahead - 1)
 
+    dir_vec = np.zeros(2, dtype=float)
+    any_seg = False
+
+    for j in range(start_idx, last_seg_idx + 1):
+        seg = path_pts[j + 1] - path_pts[j]
+        if np.allclose(seg, 0):
+            continue
+        w = decay ** (j - start_idx)  # 1, decay, decay^2, ...
+        dir_vec += w * seg
+        any_seg = True
+
+    if not any_seg or np.allclose(dir_vec, 0):
+        # запасной вариант — просто первый отрезок
+        j = min(start_idx, N - 2)
+        dir_vec = path_pts[j + 1] - path_pts[j]
+
+    return dir_vec
+
+def heading_and_crosstrack_error(
+        path_pts,
+        robot_pos,
+        robot_heading,
+        max_points_ahead=5,
+        decay=0.7
+    ):
+    """
+    То же самое, что раньше, но направление траектории берём как
+    усреднённое по нескольким отрезкам вперёд.
+    
+    path_pts: np.ndarray (N, 2) — упорядоченный набор точек траектории
+    robot_pos: np.ndarray (2,) — [x_r, y_r]
+    robot_heading: float — угол робота в радианах
+    max_points_ahead: int — сколько отрезков смотреть вперёд для усреднения
+    decay: float — коэффициент затухания весов (0<decay<=1)
+    
     return:
-        angle_error: float — отклонение угла робота от направления траектории (рад, [-pi, pi))
-        cross_track_error: float — поперечное отклонение (м), со знаком:
-                           >0 — робот слева от траектории (по направлению движения по траектории)
-                           <0 — справа
+        angle_error: float — отклонение угла робота (рад, [-pi, pi))
+        cross_track_error: float — поперечное отклонение (м) со знаком
     """
     path_pts = np.asarray(path_pts, dtype=float)
     robot_pos = np.asarray(robot_pos, dtype=float)
@@ -408,8 +448,9 @@ def heading_and_crosstrack_error(path_pts, robot_pos, robot_heading):
         raise ValueError("Нужно минимум 2 точки траектории")
 
     best_dist2 = float("inf")
+    best_seg_idx = None
     best_seg_vec = None
-    best_Q = None  # ближайшая точка на траектории
+    best_Q = None
 
     for i in range(path_pts.shape[0] - 1):
         A = path_pts[i]
@@ -419,36 +460,57 @@ def heading_and_crosstrack_error(path_pts, robot_pos, robot_heading):
 
         vv = np.dot(v, v)
         if vv == 0:
-            continue  # две одинаковые точки
+            continue
 
         t = np.dot(w, v) / vv
         t_clamped = np.clip(t, 0.0, 1.0)
 
-        Q = A + t_clamped * v  # проекция робота на отрезок
+        Q = A + t_clamped * v
         diff = Q - robot_pos
         dist2 = np.dot(diff, diff)
 
         if dist2 < best_dist2:
             best_dist2 = dist2
+            best_seg_idx = i
             best_seg_vec = v
             best_Q = Q
 
-    if best_seg_vec is None or best_Q is None:
+    if best_seg_idx is None or best_Q is None:
         raise RuntimeError("Не удалось найти корректный отрезок траектории")
 
-    # 1) Угловая ошибка (как раньше)
-    path_angle = np.arctan2(best_seg_vec[1], best_seg_vec[0])
+    # Можно слегка "сдвинуть" стартовый индекс вперёд, если робот ближе к концу отрезка:
+    # например, если проекция ближе к P_{i+1}, считаем, что мы уже "на" следующем отрезке.
+    A = path_pts[best_seg_idx]
+    B = path_pts[best_seg_idx + 1]
+    v = B - A
+    vv = np.dot(v, v)
+    if vv > 0:
+        t_along = np.dot(best_Q - A, v) / vv  # в [0,1]
+        if t_along > 0.5 and best_seg_idx < path_pts.shape[0] - 2:
+            start_idx_for_dir = best_seg_idx + 1
+        else:
+            start_idx_for_dir = best_seg_idx
+    else:
+        start_idx_for_dir = best_seg_idx
+
+    # 1) Сглаженное направление пути
+    smooth_vec = _smoothed_direction(
+        path_pts,
+        start_idx=start_idx_for_dir,
+        max_points_ahead=max_points_ahead,
+        decay=decay
+    )
+    path_angle = np.arctan2(smooth_vec[1], smooth_vec[0])
     angle_error = round_angle(path_angle - robot_heading)
 
-    # 2) Поперечная ошибка
-    # вектор от траектории к роботу
+    # 2) Поперечная ошибка (как раньше — относительно ближайшей точки best_Q)
     n = robot_pos - best_Q
     cross_track_dist = np.linalg.norm(n)
 
     if cross_track_dist == 0.0:
         cross_track_error = 0.0
     else:
-        # знак через "z-компоненту" векторного произведения v x n
+        # знак через псевдо-crossproduct между локальным направлением best_seg_vec и n
         z = best_seg_vec[0] * n[1] - best_seg_vec[1] * n[0]
         sign = np.sign(z) if z != 0 else 0.0
         cross_track_error = sign * cross_track_dist

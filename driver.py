@@ -535,6 +535,7 @@ class Driver:
 
             msg = f"\r[drive] "
             msg += f"speed: {speed:6.3f} "
+            msg += f"rot: {rot:6.3f} "
             msg += f"vel: {vel_front:6.3f} "
             msg += f"th_vel: {sens.angle_vel:6.3f} "
             msg += f"th_er: {angle_error:6.3f} "
