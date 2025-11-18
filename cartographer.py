@@ -219,7 +219,7 @@ class CartohrapherNested:
                 break
             
         points = transform_points(relative_points, pos, angle, (0, 0))
-        world_points = self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=5, world_enter_hits=0, max_candidate_age=2, ema_alpha=0.1)
+        world_points = self.add_scan_with_buffer(points, min_dist=0.05, promote_hits=3, world_enter_hits=-1, max_candidate_age=10, ema_alpha=0.1)
         
         return world_points, cur_matched_pts, points, pos, angle
     
