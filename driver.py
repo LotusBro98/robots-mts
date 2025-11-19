@@ -515,13 +515,13 @@ class Driver:
         print("[maze_turnaround] stop")
         self.robot.send_drive(0, 0)
 
-    def drive_trajectory(self):
+    def drive_trajectory(self, goal_dist=0.05):
         while True:
             sens = self.robot.recv_sensors()
             vel_front = sens.vel[0]
 
-            if len(self.robot.navigator.path) < 2:
-                print("\n[drive] path is empty")
+            if len(self.robot.navigator.path) < 2 or np.linalg.norm(self.robot.navigator.goal - sens.pos) < goal_dist:
+                print("\n[drive] reached goal")
                 break
             angle_error, crosstrack_error = heading_and_crosstrack_error(self.robot.navigator.path, sens.pos, sens.angle)
 
