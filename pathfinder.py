@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import os
 import signal
 import threading
 import time
@@ -78,6 +79,7 @@ def find_shortest_path(points, pos, goal):
 
 def _pathfinder_process(req_q: mp.Queue, res_q: mp.Queue):
     signal.signal(signal.SIGINT, signal.SIG_IGN)
+    os.nice(19)
 
     # этот код крутится в отдельном ПРОЦЕССЕ → на другом ядре
     while True:

@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import os
 from queue import Empty, Full
 import signal
 import threading
@@ -226,6 +227,7 @@ class CartohrapherNested:
 
 def _cartographer_process(req_q: mp.Queue, res_q: mp.Queue):
     signal.signal(signal.SIGINT, signal.SIG_IGN)
+    os.nice(18)
 
     nest = CartohrapherNested()
     while True:

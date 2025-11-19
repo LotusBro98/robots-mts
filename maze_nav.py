@@ -15,9 +15,9 @@ def main():
     robot = RobotChassis()
     robot.connect()
     driver = Driver(robot)
-    driver.MAX_SPEED = 0.4
+    driver.MAX_SPEED = 0.6
     driver.MAX_ROT_SPEED = 0.5
-    driver.MAX_SPEED_ON_TURN = 0.4
+    driver.MAX_SPEED_ON_TURN = 0.5
     driver.WALL_ANGLE_COEFF = 1
     driver.SIDE_WALL_STABILIZE_COEFF = 0.1
     robot.navigator.goal = (2.45, 2.45)

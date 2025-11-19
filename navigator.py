@@ -261,6 +261,7 @@ class Navigator:
         return points
     
     def unproject_to_world(self, points):
+        points = np.array(points, float)
         dth = self.angle
         M = np.array([
             [np.cos(dth), np.sin(dth)],
