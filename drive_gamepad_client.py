@@ -5,12 +5,12 @@ import time
 import pygame
 
 # ==== НАСТРОЙКИ СЕТИ ====
-ROBOT_IP = "192.168.0.100"   # <-- сюда IP робота
+ROBOT_IP = "192.168.1.11"   # <-- сюда IP робота
 ROBOT_PORT = 9999
 
 # ==== НАСТРОЙКИ СКОРОСТЕЙ ====
-MAX_LINEAR_SPEED = 0.5   # м/с, подстрой под своего робота
-MAX_ANGULAR_SPEED = 1.5  # рад/с
+MAX_LINEAR_SPEED = 1.0   # м/с, подстрой под своего робота
+MAX_ANGULAR_SPEED = 1.0  # рад/с
 
 # ==== ОСИ ГЕЙМПАДА (МОЖЕШЬ ПОДШУММИТЬ ПОД СВОЙ) ====
 AXIS_LINEAR = 1   # обычно левый стик: вертикальная ось
@@ -61,8 +61,8 @@ def main():
             axis_ang = apply_deadzone(axis_ang_raw, DEADZONE)
 
             # Обычно ось линейного инвертирована: -1 = вперед
-            linear_speed = -axis_lin * MAX_LINEAR_SPEED
-            angular_speed = axis_ang * MAX_ANGULAR_SPEED
+            linear_speed = -axis_lin**3 * MAX_LINEAR_SPEED
+            angular_speed = -axis_ang**3 * MAX_ANGULAR_SPEED
 
             # Пакуем и отправляем
             data = struct.pack(packet_format, linear_speed, angular_speed)
