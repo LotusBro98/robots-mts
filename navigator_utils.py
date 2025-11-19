@@ -31,12 +31,12 @@ def _huber_weights(r, delta=0.1):
         w[m] = delta / (a[m] + 1e-12)
     return w
 
-def largest_value_cluster(arr, eps):
-    arr = np.array(arr).reshape(-1, 1)
+def largest_value_cluster(arr: np.ndarray, eps):
+    arr = arr.reshape(-1, 1)
     labels = DBSCAN(eps=eps, min_samples=1).fit(arr).labels_
     unique, counts = np.unique(labels, return_counts=True)
     best_label = unique[np.argmax(counts)]
-    cluster_mean = np.array(arr)[labels == best_label].mean()
+    cluster_mean = np.median(arr[labels == best_label])
     return cluster_mean
 
 def estimate_update_point_to_line_robust(
