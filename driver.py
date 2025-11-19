@@ -22,7 +22,7 @@ class Driver:
     WALL_MAX_DECLINE = np.deg2rad(20)
     BRAKE_EPS_LINEAR = 0.1
     BRAKE_EPS_ANGULAR = 0.1
-    SIDE_WALL_STABILIZE_COEFF = 10
+    SIDE_WALL_STABILIZE_COEFF = 0.1
     FRONT_WALL_DIST = 0.15
 
     def __init__(self, robot: Robot):
@@ -516,6 +516,8 @@ class Driver:
         self.robot.send_drive(0, 0)
 
     def drive_trajectory(self, goal_dist=0.05):
+        prev_ang_err = 0
+
         while True:
             sens = self.robot.recv_sensors()
             vel_front = sens.vel[0]
@@ -524,12 +526,14 @@ class Driver:
                 print("\n[drive] reached goal")
                 break
             angle_error, crosstrack_error = heading_and_crosstrack_error(self.robot.navigator.path, sens.pos, sens.angle)
-
             angle_error -= np.clip(crosstrack_error * self.WALL_ANGLE_COEFF, -self.WALL_MAX_DECLINE, self.WALL_MAX_DECLINE)
+            err_diff = angle_error - prev_ang_err
+            prev_ang_err = angle_error
             
             # Angular speed regulator
             rot = angle_error * self.WALL_ROT_COEFF
-            rot = np.clip(rot, -self.MAX_ROT_SPEED, self.MAX_ROT_SPEED)
+            rot -= err_diff * self.SIDE_WALL_STABILIZE_COEFF
+            rot = np.clip(rot, -1, 1) * self.MAX_ROT_SPEED
 
             # Linear speed regulator
             wall_error = np.clip((sens.cur_front_wall_dist - self.FRONT_WALL_DIST) / self.FRONT_WALL_DIST, -1, 1)

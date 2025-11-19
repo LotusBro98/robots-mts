@@ -19,6 +19,7 @@ def main():
     driver.MAX_ROT_SPEED = 0.3
     driver.MAX_SPEED_ON_TURN = 0.2
     driver.WALL_ANGLE_COEFF = 1
+    driver.SIDE_WALL_STABILIZE_COEFF = 0
     robot.navigator.goal = (2.45, 2.45)
 
     
