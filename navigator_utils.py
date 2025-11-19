@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.spatial import cKDTree
+from sklearn.cluster import DBSCAN
 
 
 def _estimate_normals_pca(pts, k=8, center=None):
@@ -29,6 +30,14 @@ def _huber_weights(r, delta=0.1):
     if np.any(m):
         w[m] = delta / (a[m] + 1e-12)
     return w
+
+def largest_value_cluster(arr, eps):
+    arr = np.array(arr).reshape(-1, 1)
+    labels = DBSCAN(eps=eps, min_samples=1).fit(arr).labels_
+    unique, counts = np.unique(labels, return_counts=True)
+    best_label = unique[np.argmax(counts)]
+    cluster_mean = np.array(arr)[labels == best_label].mean()
+    return cluster_mean
 
 def estimate_update_point_to_line_robust(
     pts_from, pts_to, center=None, k_normals=6,
@@ -87,7 +96,8 @@ def estimate_update_point_to_line_robust(
     # Используем знание о том что стены под 90 градусов
     angles = np.arctan2(n[:, 1], n[:, 0])
     angles = round_angle(angles * 4) / 4
-    ang_offs = np.median(angles)
+    # ang_offs = np.median(angles)
+    ang_offs = largest_value_cluster(angles, eps=0.05)
     dth = ang_offs
 
     return np.array([tx, ty]), float(dth), 0, None
