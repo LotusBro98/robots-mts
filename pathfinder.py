@@ -6,9 +6,18 @@ import numpy as np
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.finder.a_star import AStarFinder
 from scipy.spatial import cKDTree
+from scipy.interpolate import splprep, splev
 # import cv2 as cv
 
 from pathfinding.core.grid import Grid
+
+def smooth_spline(pts: np.ndarray, smooth=0.1, step=0.02):
+    total_len = np.sqrt(((pts[1:] - pts[:-1])**2).sum(axis=1)).sum()
+    n_samples = max(2, int(total_len / step) + 1)
+    tck, u = splprep([pts[:,0], pts[:,1]], s=smooth)
+    unew = np.linspace(0, 1, n_samples)
+    out = splev(unew, tck)
+    return np.stack(out, axis=1)
 
 def points_to_grid(pts, robot_size=0.1, grid_size=0.02, additional_pts=(np.zeros((0, 2)))):
     pts = np.asarray(pts, float)
@@ -62,6 +71,7 @@ def find_shortest_path(points, pos, goal):
 
     path = np.asarray([(n.x, n.y) for n in path], dtype=np.float32)
     path = path * grid_size + (xmin, ymin)
+    path = smooth_spline(path)
     return path
 
 

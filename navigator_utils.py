@@ -401,7 +401,7 @@ def heading_and_crosstrack_error(
         path_pts,
         robot_pos,
         robot_heading,
-        max_points_ahead=5,
+        max_points_ahead=10,
         decay=0.7
     ):
     """
