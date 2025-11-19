@@ -3,14 +3,7 @@ import socket
 import struct
 import time
 
-# ==== ТВОЯ ФУНКЦИЯ УПРАВЛЕНИЯ РОБОТОМ ====
-def send_drive(linear_speed: float, angular_speed: float):
-    """
-    Здесь твой код управления роботом.
-    Например:
-        robot.set_velocity(linear_speed, angular_speed)
-    """
-    print(f"[DRV] lin={linear_speed:.2f}, ang={angular_speed:.2f}")
+from chassis import RobotChassis
 
 
 # ==== НАСТРОЙКИ СЕРВЕРА ====
@@ -29,6 +22,9 @@ def main():
     packet_format = "ff"
     packet_size = struct.calcsize(packet_format)
 
+    robot = RobotChassis()
+    robot.connect()
+
     try:
         while True:
             try:
@@ -39,20 +35,20 @@ def main():
 
                 linear, angular = struct.unpack(packet_format, data[:packet_size])
                 # Вызываем управление
-                send_drive(linear, angular)
+                robot.send_drive(linear, angular)
                 last_cmd_time = time.time()
 
             except socket.timeout:
                 # Если давно не было команд — стопим робота
                 if time.time() - last_cmd_time > IDLE_TIMEOUT:
-                    send_drive(0.0, 0.0)
+                    robot.send_drive(0.0, 0.0)
                     last_cmd_time = time.time()
             except Exception as e:
                 print(f"[SRV] Error: {e}")
 
     except KeyboardInterrupt:
         print("\n[SRV] KeyboardInterrupt, stopping robot.")
-        send_drive(0.0, 0.0)
+        robot.send_drive(0.0, 0.0)
 
     finally:
         sock.close()
