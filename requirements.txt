@@ -17,3 +17,5 @@ matplotlib
 # spidev
 opencv-python
 pathfinding
+scikit-learn
+pygame

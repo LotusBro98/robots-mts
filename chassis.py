@@ -26,7 +26,8 @@ class RobotChassis(Robot):
 
     WHEEL_DISTANCE = 15.15  # In cm
     # LIDAR_BLIND_ZONES = [(180, 15)]
-    LIDAR_BLIND_ZONES = []
+    # LIDAR_BLIND_ZONES = []
+    LIDAR_BLIND_ZONES = [(90, 15), (-90, 15), (180, 15)]
 
     def __init__(self, port: str = "/dev/ttyACM1", **kwargs):
         super().__init__(**kwargs)
