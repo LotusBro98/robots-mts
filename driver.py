@@ -515,7 +515,7 @@ class Driver:
         print("[maze_turnaround] stop")
         self.robot.send_drive(0, 0)
 
-    def drive_trajectory(self, goal_dist=0.05):
+    def drive_trajectory(self, goal_dist=0.1):
         prev_ang_err = 0
 
         while True:

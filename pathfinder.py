@@ -72,7 +72,7 @@ def find_shortest_path(points, pos, goal):
 
     path = np.asarray([(n.x, n.y) for n in path], dtype=np.float32)
     path = path * grid_size + (xmin, ymin)
-    path = smooth_spline(path)
+    # path = smooth_spline(path)
     return path
 
 

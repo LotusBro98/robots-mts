@@ -412,7 +412,7 @@ def heading_and_crosstrack_error(
         robot_pos,
         robot_heading,
         max_points_ahead=10,
-        decay=0.7
+        decay=0.8
     ):
     """
     То же самое, что раньше, но направление траектории берём как
