@@ -98,7 +98,6 @@ class Robot:
         self._latest_lidar = Latest("lidar")
         self._latest_gyro = Latest("gyro")
         self._latest_nav = Latest("nav")
-        self.initialized = False
 
     def _update_odometry(self, odom_pos, odom_th, odom_vel, odom_th_vel):
         self._latest_odometry.set((odom_pos, odom_th, odom_vel, odom_th_vel))
@@ -111,7 +110,6 @@ class Robot:
     def _update_lidar(self, lidar_ranges):
         self._latest_lidar.set(lidar_ranges)
         self._latest_nav.set(self.navigator.update_from_lidar(lidar_ranges))
-        self.initialized = len(self.navigator.path) > 0
 
     def recv_sensors(self) -> SensorData:
         self.wait_until_initialized()
@@ -129,6 +127,13 @@ class Robot:
             lidar_ranges=lidar_ranges
         )
         return data
+    
+    @property
+    def initialized(self):
+        if self.navigator.goal is not None:
+            return len(self.navigator.path) > 0 or np.linalg.norm(self.navigator.pos - self.navigator.goal) < 0.1
+        else:
+            return len(self.navigator.points) > 0
 
     def wait_until_initialized(self):
         while not self.initialized:

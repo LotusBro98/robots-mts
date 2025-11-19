@@ -52,7 +52,7 @@ class Navigator:
         self.bg = None
         self.arrow = None
         self.path = np.zeros((0, 2))
-        self.goal = np.array([2, 2])
+        self.goal = None
 
         # Поток рендера
         self._render_stop = threading.Event()

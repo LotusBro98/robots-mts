@@ -1,6 +1,7 @@
 import multiprocessing as mp
 import signal
 import threading
+import time
 from typing import Callable, Tuple
 import numpy as np
 from pathfinding.core.diagonal_movement import DiagonalMovement
@@ -84,6 +85,10 @@ def _pathfinder_process(req_q: mp.Queue, res_q: mp.Queue):
         points, pos, goal, stop = req_q.get()
         if stop:
             break
+        if goal is None:
+            res_q.put(np.zeros((0, 2)))
+            time.sleep(0.1)
+            continue
         path = find_shortest_path(points, pos, goal)
         res_q.put(path)
 
