@@ -12,7 +12,7 @@ from scipy.interpolate import splprep, splev
 
 from pathfinding.core.grid import Grid
 
-def smooth_spline(pts: np.ndarray, smooth=0.1, step=0.02):
+def smooth_spline(pts: np.ndarray, smooth=0.05, step=0.02):
     total_len = np.sqrt(((pts[1:] - pts[:-1])**2).sum(axis=1)).sum()
     n_samples = max(2, int(total_len / step) + 1)
     tck, u = splprep([pts[:,0], pts[:,1]], s=smooth)
@@ -42,10 +42,9 @@ def points_to_grid(pts, robot_size=0.1, grid_size=0.02, additional_pts=(np.zeros
     dists, idx = tree.query(pts_grid, k=1) 
     
     wall_p = np.clip((dists - robot_size) / robot_size, -1, 1)
-    weights = 1 / np.sign(wall_p) * np.clip(np.abs(wall_p), 1e-3, None)
+    weights = 1 / (np.sign(wall_p) * np.clip(np.abs(wall_p), 1e-3, None))
 
-    # cv.imshow("grid", weights)
-    # cv.waitKey(1)
+    # cv.imwrite("grid.png", weights * 255)
 
     grid = Grid(matrix=weights)
 
