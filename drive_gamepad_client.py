@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+import math
 import socket
 import struct
 import time
+import numpy as np
 import pygame
 
 # ==== НАСТРОЙКИ СЕТИ ====
@@ -16,12 +18,15 @@ MAX_ANGULAR_SPEED = 1.0  # рад/с
 AXIS_LINEAR = 1   # обычно левый стик: вертикальная ось
 AXIS_ANGULAR = 0  # обычно левый стик: горизонтальная ось
 
-DEADZONE = 0.1    # мёртвая зона стика
+DEADZONE = 0.000000    # мёртвая зона стика
 
 def apply_deadzone(value, deadzone=0.1):
     if abs(value) < deadzone:
         return 0.0
     return value
+
+def signed_pow(x, p):
+    return np.sign(x) * np.pow(abs(x), p)
 
 def main():
     # --- сеть ---
@@ -61,8 +66,8 @@ def main():
             axis_ang = apply_deadzone(axis_ang_raw, DEADZONE)
 
             # Обычно ось линейного инвертирована: -1 = вперед
-            linear_speed = -axis_lin**3 * MAX_LINEAR_SPEED
-            angular_speed = -axis_ang**3 * MAX_ANGULAR_SPEED
+            linear_speed = -signed_pow(axis_lin, 2) * MAX_LINEAR_SPEED
+            angular_speed = -signed_pow(axis_ang, 1) * MAX_ANGULAR_SPEED
 
             # Пакуем и отправляем
             data = struct.pack(packet_format, linear_speed, angular_speed)
